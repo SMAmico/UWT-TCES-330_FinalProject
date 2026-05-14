@@ -1,0 +1,164 @@
+# Reading C:/intelFPGA/18.1/modelsim_ase/tcl/vsim/pref.tcl
+# OpenFile {C:/Users/Teal/Desktop/I'm an Adult/Education/UW Tacoma/Course Work/Junior/Spring 2026/TCES 330/Project Phase2/RF/regfile8x16a.sv}
+vlog -reportprogress 300 -work work {C:/Users/Teal/Desktop/I'm an Adult/Education/UW Tacoma/Course Work/Junior/Spring 2026/TCES 330/Project Phase2/RF/RegFile.sv}
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 11:44:42 on May 13,2026
+# vlog -reportprogress 300 -work work C:/Users/Teal/Desktop/I'm an Adult/Education/UW Tacoma/Course Work/Junior/Spring 2026/TCES 330/Project Phase2/RF/RegFile.sv 
+# -- Compiling module RegFile
+# -- Compiling module RegFile_tb
+# 
+# Top level modules:
+# 	RegFile_tb
+# End time: 11:44:42 on May 13,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 11:44:47 on May 13,2026
+# vlog -reportprogress 300 -sv RegFile.sv 
+# -- Compiling module RegFile
+# -- Compiling module RegFile_tb
+# 
+# Top level modules:
+# 	RegFile_tb
+# End time: 11:44:47 on May 13,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -t 1ps work.RegFile_tb 
+# Start time: 11:44:48 on May 13,2026
+# Loading sv_std.std
+# Loading work.RegFile_tb
+# Loading work.RegFile
+# Test 1: write and read all 8 registers.
+# Test 2: read two different registers at the same time.
+# Test 3: verify write enable blocks writes when write = 0.
+# Test 4: overwrite existing register values.
+# Test 5: verify reads remain valid while write is high.
+# RegFile testbench complete.
+# Passes: 32
+# Failures: 0
+# RESULT: PASS
+# ** Note: $stop    : RegFile.sv(369)
+#    Time: 401 ps  Iteration: 0  Instance: /RegFile_tb
+# Break in Module RegFile_tb at RegFile.sv line 369
+quit -sim
+# End time: 11:50:41 on May 13,2026, Elapsed time: 0:05:53
+# Errors: 0, Warnings: 0
+vlog -reportprogress 300 -work work {C:/Users/Teal/Desktop/I'm an Adult/Education/UW Tacoma/Course Work/Junior/Spring 2026/TCES 330/Project Phase2/RF/RegFile.sv}
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 11:58:44 on May 13,2026
+# vlog -reportprogress 300 -work work C:/Users/Teal/Desktop/I'm an Adult/Education/UW Tacoma/Course Work/Junior/Spring 2026/TCES 330/Project Phase2/RF/RegFile.sv 
+# -- Compiling module RegFile
+# -- Compiling module RegFile_tb
+# 
+# Top level modules:
+# 	RegFile_tb
+# End time: 11:58:45 on May 13,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+vlog -reportprogress 300 -work work {C:/Users/Teal/Desktop/I'm an Adult/Education/UW Tacoma/Course Work/Junior/Spring 2026/TCES 330/Project Phase2/RF/RegFile.sv}
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 11:58:55 on May 13,2026
+# vlog -reportprogress 300 -work work C:/Users/Teal/Desktop/I'm an Adult/Education/UW Tacoma/Course Work/Junior/Spring 2026/TCES 330/Project Phase2/RF/RegFile.sv 
+# -- Compiling module RegFile
+# -- Compiling module RegFile_tb
+# 
+# Top level modules:
+# 	RegFile_tb
+# End time: 11:58:55 on May 13,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 11:58:59 on May 13,2026
+# vlog -reportprogress 300 -sv RegFile.sv 
+# -- Compiling module RegFile
+# -- Compiling module RegFile_tb
+# 
+# Top level modules:
+# 	RegFile_tb
+# End time: 11:58:59 on May 13,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -t 1ps work.RegFile_tb 
+# Start time: 11:58:59 on May 13,2026
+# Loading sv_std.std
+# Loading work.RegFile_tb
+# Loading work.RegFile
+# Test 1: write and read all 8 registers.
+# Test 2: read two different registers at the same time.
+# Test 3: verify write enable blocks writes when write = 0.
+# Test 4: overwrite existing register values.
+# Test 5: verify reads remain valid while write is high.
+# Test 6: verify every A/B read-address combination.
+# FAIL B at time 431: rdAddrB = 4, expected = 1004, actual = 4444
+# FAIL B at time 511: rdAddrB = 4, expected = 1004, actual = 4444
+# FAIL B at time 591: rdAddrB = 4, expected = 1004, actual = 4444
+# FAIL B at time 671: rdAddrB = 4, expected = 1004, actual = 4444
+# FAIL A at time 711: rdAddrA = 4, expected = 1004, actual = 4444
+# FAIL A at time 721: rdAddrA = 4, expected = 1004, actual = 4444
+# FAIL A at time 731: rdAddrA = 4, expected = 1004, actual = 4444
+# FAIL A at time 741: rdAddrA = 4, expected = 1004, actual = 4444
+# FAIL A at time 751: rdAddrA = 4, expected = 1004, actual = 4444
+# FAIL B at time 751: rdAddrB = 4, expected = 1004, actual = 4444
+# FAIL A at time 761: rdAddrA = 4, expected = 1004, actual = 4444
+# FAIL A at time 771: rdAddrA = 4, expected = 1004, actual = 4444
+# FAIL A at time 781: rdAddrA = 4, expected = 1004, actual = 4444
+# FAIL B at time 831: rdAddrB = 4, expected = 1004, actual = 4444
+# FAIL B at time 911: rdAddrB = 4, expected = 1004, actual = 4444
+# FAIL B at time 991: rdAddrB = 4, expected = 1004, actual = 4444
+# Test 7: verify read/write behavior on the same register.
+# Test 8: verify back-to-back writes.
+# RegFile testbench complete.
+# Passes: 152
+# Failures: 16
+# RESULT: FAIL
+# ** Note: $stop    : RegFile.sv(437)
+#    Time: 1191 ps  Iteration: 0  Instance: /RegFile_tb
+# Break in Module RegFile_tb at RegFile.sv line 437
+quit -sim
+# End time: 12:06:47 on May 13,2026, Elapsed time: 0:07:48
+# Errors: 0, Warnings: 0
+vlog -reportprogress 300 -work work {C:/Users/Teal/Desktop/I'm an Adult/Education/UW Tacoma/Course Work/Junior/Spring 2026/TCES 330/Project Phase2/RF/RegFile.sv}
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 12:13:16 on May 13,2026
+# vlog -reportprogress 300 -work work C:/Users/Teal/Desktop/I'm an Adult/Education/UW Tacoma/Course Work/Junior/Spring 2026/TCES 330/Project Phase2/RF/RegFile.sv 
+# -- Compiling module RegFile
+# -- Compiling module RegFile_tb
+# 
+# Top level modules:
+# 	RegFile_tb
+# End time: 12:13:16 on May 13,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 12:13:21 on May 13,2026
+# vlog -reportprogress 300 -sv RegFile.sv 
+# -- Compiling module RegFile
+# -- Compiling module RegFile_tb
+# 
+# Top level modules:
+# 	RegFile_tb
+# End time: 12:13:21 on May 13,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -t 1ps work.RegFile_tb 
+# Start time: 12:13:21 on May 13,2026
+# Loading sv_std.std
+# Loading work.RegFile_tb
+# Loading work.RegFile
+# Test 1: write and read all 8 registers.
+# Test 2: read two different registers at the same time.
+# Test 3: verify write enable blocks writes when write = 0.
+# Test 4: overwrite existing register values.
+# Test 5: verify reads remain valid while write is high.
+# Test 6: verify every A/B read-address combination.
+# Test 7: verify read/write behavior on the same register.
+# Test 8: verify back-to-back writes.
+# RegFile testbench complete.
+# Passes: 170
+# Failures: 0
+# RESULT: PASS
+# ** Note: $stop    : RegFile.sv(423)
+#    Time: 1211 ps  Iteration: 0  Instance: /RegFile_tb
+# Break in Module RegFile_tb at RegFile.sv line 423
+quit -sim
+# End time: 12:14:30 on May 13,2026, Elapsed time: 0:01:09
+# Errors: 0, Warnings: 0

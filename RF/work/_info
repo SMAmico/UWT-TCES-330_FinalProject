@@ -1,0 +1,109 @@
+m255
+K4
+z2
+!s11f MIXED_VERSIONS
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dD:/OneDrive/School/UW/TCES330/FinalProject/RF
+vRegFile
+Z1 DXx6 sv_std 3 std 0 22 AD7iAPLo6nTIKk<N0eo=D3
+Z2 !s110 1778699601
+!i10b 1
+!s100 f?o]PjP:]W5SLT0P7hBXe2
+IEH]]DRXMll20d94Jz@CG00
+Z3 VDg1SIo80bB@j0V0VzS_@n1
+Z4 !s105 RegFile_sv_unit
+S1
+Z5 dC:/Users/Teal/Desktop/I'm an Adult/Education/UW Tacoma/Course Work/Junior/Spring 2026/TCES 330/Project Phase2/RF
+Z6 w1778699577
+Z7 8RegFile.sv
+Z8 FRegFile.sv
+L0 16
+Z9 OV;L;10.5b;63
+r1
+!s85 0
+31
+Z10 !s108 1778699601.000000
+Z11 !s107 RegFile.sv|
+Z12 !s90 -reportprogress|300|-sv|RegFile.sv|
+!i113 1
+o-sv
+Z13 tCvgOpt 0
+n@reg@file
+vregfile8x16a
+Z14 DXx6 sv_std 3 std 0 22 VYECXdT12H8WgbUP_5Y6:3
+Z15 !s110 1778178077
+!i10b 1
+!s100 jioTBAJjkdiC3Y`naVeC`2
+Z16 !s11b Dg1SIo80bB@j0V0VzS_@n1
+IkALK^DbF_hbLl8n_Ha1IY1
+R3
+S1
+R0
+Z17 w1778121347
+Z18 8./regfile8x16a.sv
+Z19 F./regfile8x16a.sv
+!i122 56
+L0 36 31
+Z20 OV;L;2020.1;71
+r1
+!s85 0
+31
+Z21 !s108 1778178077.000000
+Z22 !s107 ./regfile8x16a.sv|
+Z23 !s90 -reportprogress|300|./regfile8x16a.sv|
+!i113 1
+R13
+vregfile8x16a_tb
+R14
+R15
+!i10b 1
+!s100 5jCLKOcH1CanKYX?i5FJO1
+R16
+IhVlgVblQAVBZS[ioL9;B@0
+R3
+S1
+R0
+R17
+R18
+R19
+!i122 56
+L0 70 365
+R20
+r1
+!s85 0
+31
+R21
+R22
+R23
+!i113 1
+R13
+vRegFile_tb
+R1
+R2
+!i10b 1
+!s100 A8cj2hFZ9Kf;^Ka_c7hHz3
+IdCQ][d?0HU6omEg4IOE3E1
+R3
+R4
+S1
+R5
+R6
+R7
+R8
+L0 58
+R9
+r1
+!s85 0
+31
+R10
+R11
+R12
+!i113 1
+o-sv
+R13
+n@reg@file_tb

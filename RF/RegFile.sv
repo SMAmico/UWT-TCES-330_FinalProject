@@ -1,0 +1,426 @@
+/*
+Seth Amico, John Teal
+UW TCES 330
+Project Phase II
+15 May 2026
+
+Description:
+This module implements an 8 x 16 register file. The register file contains eight 16-bit 
+registers addressed by 3-bit register addresses. The register file has two read ports and one 
+write port. The two read ports allow two registers to be read at the same time, which provides 
+the A and B input values for the ALU. The write port allows one register to be updated on the 
+rising edge of the clock when write is asserted. Reads are combinational, meaning rdDataA and 
+rdDataB always reflect the currently selected rdAddrA and rdAddrB registers. Writes are 
+synchronous, meaning regfile[wrAddr] is updated only on the positive edge of clk.
+*/
+module RegFile (
+	input clk,			// system clock
+	input write,			// write enable
+
+	input [2:0] wrAddr,		// write address
+	input [15:0] wrData,		// write data
+
+	input [2:0] rdAddrA,		// A-side read address
+	output [15:0] rdDataA,		// A-side read data
+
+	input [2:0] rdAddrB,		// B-side read address
+	output [15:0] rdDataB		// B-side read data
+	);
+
+	logic [15:0] regfile [0:7];	// eight 16-bit registers
+/* 
+Continuous read logic: The selected register values appear on rdDataA and rdDataB without 
+waiting for a clock edge. This allows the ALU to immediately use the selected register values 
+as its A and B inputs.
+*/
+	assign rdDataA = regfile[rdAddrA];
+	assign rdDataB = regfile[rdAddrB];
+/*
+Synchronous write logic: When write is asserted, wrData is stored into the selected register on 
+the rising edge of clk.
+*/
+	always @(posedge clk) begin
+		if (write)
+			regfile[wrAddr] <= wrData;
+	end
+
+endmodule
+
+/*
+The testbench checks:
+1. Each register can be written and read back.
+2. The write enable prevents writes when write = 0.
+3. Read ports A and B can read two different registers at the same time.
+4. Register values can be overwritten.
+5. Read outputs remain valid while write is high, as expected for a register file with 
+combinational read ports and synchronous write behavior.
+*/
+module RegFile_tb();
+
+/* 
+Testbench signal declarations: These signals act like the outside hardware or controller that 
+would normally drive the register file. The testbench changes these values to simulate reads, 
+writes, and blocked writes.
+*/
+	reg clk;
+	reg write;
+
+	reg [2:0] wrAddr;
+	reg [15:0] wrData;
+
+	reg [2:0] rdAddrA;
+	wire [15:0] rdDataA;
+
+	reg [2:0] rdAddrB;
+	wire [15:0] rdDataB;
+/* 
+expected is a local copy of what the register file should contain. The DUT's internal regfile 
+array should not be directly checked from the testbench. Instead, the testbench keeps its own 
+expected register values. Whenever the testbench performs a valid write, expected[] is updated.
+Whenever the testbench performs a read, the DUT output is compared against expected[].
+*/
+	reg [15:0] expected [0:7];
+/* 
+pass_count and fail_count track individual read checks. Each call to check_read checks both read
+ports: - rdDataA - rdDataB  So one call to check_read can add two passes, two failures, or one 
+of each.
+*/
+	integer pass_count;
+	integer fail_count;
+	integer i;
+	integer j;
+/* 
+Device Under Test: This connects the testbench signals to the RegFile module. The named port 
+mapping style is used because it is safer and easier to read than positional mapping. If the 
+port order changes in the module, named mapping still connects the correct signals by name.
+*/
+	RegFile DUT (.clk(clk), .write(write), .wrAddr(wrAddr), .wrData(wrData),
+		.rdAddrA(rdAddrA), .rdDataA(rdDataA), .rdAddrB(rdAddrB), .rdDataB(rdDataB));
+
+/* 
+Clock initialization: The clock starts at 0. The always block below will toggle it every 5 time
+units, creating a full clock period of 10 time units.
+*/
+	initial begin
+		clk = 1'b0;
+	end
+/* 
+Clock generator: Every 5 time units, the clock changes state. The register file writes on the 
+positive edge of clk, so the testbench sets input values before a positive edge and then checks
+results after that positive edge has occurred.
+*/
+	always begin
+		#5 clk = ~clk;
+	end
+/* 
+write_reg task: This task performs one valid register-file write.
+Step-by-step:
+1. Wait for the negative edge of the clock.
+2. Set write = 1, the write address, and the write data.
+3. Wait for the next positive clock edge.
+4. The DUT writes wrData into regfile[wrAddr] on that positive edge.
+5. After a small delay, update the expected[] copy.
+6. Turn write back off on the next negative edge.
+The inputs are set on the negative edge so they are stable before the positive edge. This 
+models good synchronous design practice.
+*/
+	task automatic write_reg;
+		input [2:0] addr;
+		input [15:0] data;
+
+		begin
+			@(negedge clk);
+			write = 1'b1;
+			wrAddr = addr;
+			wrData = data;
+
+			@(posedge clk);
+			#1;
+			expected[addr] = data;
+
+			@(negedge clk);
+			write = 1'b0;
+		end
+	endtask
+/* 
+disabled_write task: This task attempts to write while write = 0. The purpose is to verify that 
+the write enable actually controls whether the register file updates. Since write is low, the 
+DUT should ignore wrData and leave the selected register unchanged. expected[] is not updated 
+here because no real write should occur.
+*/
+	task automatic disabled_write;
+		input [2:0] addr;
+		input [15:0] data;
+
+		begin
+			@(negedge clk);
+			write = 1'b0;
+			wrAddr = addr;
+			wrData = data;
+
+			@(posedge clk);
+			#1;
+		end
+	endtask
+/* 
+check_read task: This task checks both read ports of the register file.
+Step-by-step:
+1. Wait for the negative edge of the clock.
+2. Select which registers should appear on read port A and read port B.
+3. Wait a small delay so the combinational read outputs can settle.
+4. Compare rdDataA against expected[addrA].
+5. Compare rdDataB against expected[addrB].
+The corrected register file uses combinational reads, so the read outputs should update after 
+rdAddrA or rdAddrB changes. The testbench does not need to wait for a positive clock edge to 
+read the selected registers.
+*/
+	task automatic check_read;
+		input [2:0] addrA;
+		input [2:0] addrB;
+
+		begin
+		@(negedge clk);
+		rdAddrA = addrA;
+		rdAddrB = addrB;
+		#1;
+
+		// Check read port A.
+		if (rdDataA === expected[addrA]) begin
+			pass_count = pass_count + 1;
+		end 
+		else begin
+			fail_count = fail_count + 1;
+			$display("FAIL A at time %0t: rdAddrA = %0d, expected = %h, actual = %h",
+				$time, addrA, expected[addrA], rdDataA);
+		end
+
+		// Check read port B.
+		if (rdDataB === expected[addrB]) begin
+			pass_count = pass_count + 1;
+		end 
+		else begin
+			fail_count = fail_count + 1;
+			$display("FAIL B at time %0t: rdAddrB = %0d, expected = %h, actual = %h",
+				$time, addrB, expected[addrB], rdDataB);
+		end
+		end
+	endtask
+
+	//Initialize the pass/fail counters before any tests run.
+	initial begin 
+		pass_count = 0;
+		fail_count = 0;
+/* 
+Initialize all control and address signals to known values. This avoids starting the simulation 
+with unknown X values on the input signals. Unknown inputs can make waveforms harder to read 
+and can hide whether a failure came from the design or from the testbench setup.
+*/
+		write = 1'b0;
+		wrAddr = 3'b000;
+		wrData = 16'h0000;
+		rdAddrA = 3'b000;
+		rdAddrB = 3'b000;
+/* 
+Initialize the expected register-file model. This does not initialize the DUT's internal 
+registers. It only prepares the testbench's expected-value array. The DUT registers are still 
+tested by writing known values into them before checking their outputs.
+*/
+		for (i = 0; i < 8; i = i + 1) begin
+			expected[i] = 16'h0000;
+		end
+/* 
+Wait briefly before starting the first test. This gives the clock generator time to begin 
+cleanly and makes the waveform easier to read at the start of the simulation.
+*/
+		#10;
+/* 
+Test 1: Write a different known value into every register, then read that same register back 
+on both read ports.
+This confirms:
+- register 0 can be written and read
+- register 1 can be written and read
+- ...
+- register 7 can be written and read
+The loop uses i < 8 so all eight registers are tested. Using i < 3'b111 would stop at decimal 6 
+and accidentally skip register 7.
+*/
+		$display("Test 1: write and read all 8 registers.");
+		for (i = 0; i < 8; i = i + 1) begin
+			write_reg(i[2:0], 16'h1000 + i);
+			check_read(i[2:0], i[2:0]);
+		end
+/* 
+Test 2: Check that read port A and read port B can read different registers during the same test
+step. This matters because the ALU will need two operands at the same time: one from rdDataA 
+and one from rdDataB.
+*/
+		$display("Test 2: read two different registers at the same time.");
+		check_read(3'd0, 3'd7);
+		check_read(3'd1, 3'd6);
+		check_read(3'd2, 3'd5);
+		check_read(3'd3, 3'd4);
+/* 
+Test 3: First, write 3333 into register 3. Then, attempt to write FFFF into register 3 with 
+write disabled. Finally, read register 3 back. The correct result is still 3333. If the output 
+becomes FFFF, then the register file is ignoring the write enable control.
+*/
+		$display("Test 3: verify write enable blocks writes when write = 0.");
+		write_reg(3'd3, 16'h3333);
+		disabled_write(3'd3, 16'hFFFF);
+		check_read(3'd3, 3'd3);
+/* 
+Test 4: Write new values into registers that already contain old values. This confirms that a 
+valid write fully replaces the old 16-bit value stored in the selected register.
+*/
+		$display("Test 4: overwrite existing register values.");
+		write_reg(3'd0, 16'hAAAA);
+		write_reg(3'd7, 16'h5555);
+		check_read(3'd0, 3'd7);
+/*
+Test 5: This test checks an important datapath behavior. The corrected register file has: 
+- synchronous writes - combinational reads
+That means the read outputs should still show the selected registers even when write is high. 
+The read ports should not be forced to 0 just because the write enable is active. Here, read 
+port A watches register 0, and read port B watches register 7. At the same time, the testbench 
+prepares to write 4444 into register 4. Before the positive edge occurs, rdDataA and rdDataB 
+should still show the expected contents of registers 0 and 7.
+*/
+		$display("Test 5: verify reads remain valid while write is high.");
+		@(negedge clk);
+		rdAddrA = 3'd0;
+		rdAddrB = 3'd7;
+		write = 1'b1;
+		wrAddr = 3'd4;
+		wrData = 16'h4444;
+		#1;
+
+		// Check read port A while write is high.
+		if (rdDataA === expected[3'd0]) begin
+			pass_count = pass_count + 1;
+		end else begin
+			fail_count = fail_count + 1;
+			$display("FAIL A while write high at time %0t: expected = %h, actual = %h",
+				$time, expected[3'd0], rdDataA);
+		end
+
+		// Check read port B while write is high.
+		if (rdDataB === expected[3'd7]) begin
+			pass_count = pass_count + 1;
+		end else begin
+			fail_count = fail_count + 1;
+			$display("FAIL B while write high at time %0t: expected = %h, actual = %h",
+				$time, expected[3'd7], rdDataB);
+		end
+/*
+Now allow the positive clock edge to occur. Up to this point, Test 5 only checked that the read 
+ports stayed valid while write was high. However, wrAddr = 4 and wrData = 4444 are still waiting
+to be written. The actual write into register 4 happens here, on the positive edge of clk. After
+that edge, the testbench expected model must also be updated to show that register 4 should now 
+contain 4444.
+*/
+		@(posedge clk);
+		#1;
+		expected[3'd4] = 16'h4444;
+/*
+Turn write back off and read register 4. This confirms that the write prepared during Test 5 
+actually happened. Without this expected[4] update, Test 6 will think register 4 should still 
+contain 1004, even though the DUT correctly changed it to 4444.
+*/
+		@(negedge clk);
+		write = 1'b0;
+		check_read(3'd4, 3'd4);
+/*
+Test 6: This test checks all possible combinations of read addresses. There are 8 possible 
+A-side read addresses and 8 possible B-side read addresses, so this loop checks 8 * 8 = 64 
+read-address combinations. This matters because the ALU will eventually use rdDataA and rdDataB
+as two separate operands. The two read ports must be able to select registers independently.
+*/
+		$display("Test 6: verify every A/B read-address combination.");
+		for (i = 0; i < 8; i = i + 1) begin
+			for (j = 0; j < 8; j = j + 1) begin
+				check_read(i[2:0], j[2:0]);
+			end
+		end
+/*
+Test 7: This test reads and writes the same register during the same write cycle. Expected 
+behavior:
+- Before the positive clock edge, register 2 should still show the old value.
+- On the positive clock edge, register 2 should update to the new value.
+- After the clock edge, reading register 2 should show the new value.
+This is important for the later RegFile + ALU datapath because ALU results will be written back
+into the register file.
+*/
+		$display("Test 7: verify read/write behavior on the same register.");
+		write_reg(3'd2, 16'h2222);
+
+		@(negedge clk);
+		rdAddrA = 3'd2;
+		rdAddrB = 3'd2;
+		write = 1'b1;
+		wrAddr = 3'd2;
+		wrData = 16'h9999;
+		#1;
+
+		// Before the rising edge, the old value should still be visible.
+		if (rdDataA === 16'h2222 && rdDataB === 16'h2222) begin
+			pass_count = pass_count + 2;
+		end 
+		else begin
+		fail_count = fail_count + 1;
+		$display("FAIL same-register read before write edge at time %0t: A = %h, B = %h",
+			$time, rdDataA, rdDataB);
+		end
+
+		@(posedge clk);
+		#1;
+		expected[3'd2] = 16'h9999;
+
+		// After the rising edge, the new value should be visible.
+		check_read(3'd2, 3'd2);
+
+		@(negedge clk);
+		write = 1'b0;
+/*
+Test 8: This test writes to multiple registers on consecutive clock cycles. The purpose is to 
+confirm that the register file does not need an empty cycle between valid writes.
+*/
+		$display("Test 8: verify back-to-back writes.");
+		write_reg(3'd0, 16'h0000);
+		write_reg(3'd1, 16'hFFFF);
+		write_reg(3'd2, 16'h8000);
+		write_reg(3'd3, 16'h7FFF);
+
+		check_read(3'd0, 3'd1);
+		check_read(3'd2, 3'd3);
+/* 
+Now allow the positive clock edge to occur. This is where the DUT should actually write 4444 
+into register 4. After the edge, the testbench updates expected[4] to match the write that 
+should have occurred in the DUT.
+*/
+		@(posedge clk);
+		#1;
+		expected[3'd4] = 16'h4444;
+/* 
+Turn write back off and read register 4. This confirms that the write prepared above really 
+happened on the positive clock edge.
+*/
+		@(negedge clk);
+		write = 1'b0;
+		check_read(3'd4, 3'd4);
+/* 
+Final summary: Only failure lines are printed during the tests. If everything works, the 
+important output is the final RESULT: PASS message.
+*/
+		$display("RegFile testbench complete.");
+		$display("Passes: %0d", pass_count);
+		$display("Failures: %0d", fail_count);
+
+		if (fail_count == 0)
+			$display("RESULT: PASS");
+		else
+			$display("RESULT: FAIL");
+
+		$finish;
+	end
+
+endmodule

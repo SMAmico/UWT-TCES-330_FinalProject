@@ -1,0 +1,51 @@
+Update on the RegFile testbench:
+
+The RegFile standalone simulation is now passing cleanly with 0 errors, 0 warnings, 170 passes, and 0 failures.
+
+Major changes:
+
+The biggest change is that the new version assumes reads are combinational and writes are synchronous. So rdDataA and rdDataB should always show the selected register values, even when write is high. The old testbench treated write = 1 like a “read lock” and expected the outputs to go to zero, but that does not fit the datapath we need for RegFile feeding the ALU.
+
+The DUT is now instantiated as RegFile instead of regfile8x16a, since the module must be named RegFile per the project specification.
+
+The clock is now a normal free-running clock instead of manually forcing clock cycles inside a task. Inputs are set on the negative edge, then writes happen on the positive edge, which is closer to normal synchronous design testing.
+
+The testbench is split into simpler tasks:
+write_reg handles valid writes.
+disabled_write checks that write = 0 blocks writes.
+check_read checks both read ports against the expected values.
+
+The loop now tests all 8 registers using i < 8. The old version used i < 3'b111, which only tested registers 0 through 6 and skipped register 7.
+
+I removed the large random test for now and replaced it with targeted tests that are easier to explain and debug.
+
+Current test coverage:
+
+Test 1: writes and reads all 8 registers.
+
+Test 2: verifies read port A and read port B can read two different registers at the same time.
+
+Test 3: verifies write enable blocks writes when write = 0.
+
+Test 4: verifies existing register values can be overwritten.
+
+Test 5: verifies reads remain valid while write is high.
+
+Test 6: verifies every possible A/B read-address combination. This checks all 8 A-side addresses times all 8 B-side addresses, for 64 address combinations.
+
+Test 7: verifies same-register read/write timing. The expected behavior is that the old value appears before the positive clock edge, then the new value appears after the clock edge.
+
+Test 8: verifies back-to-back writes. This checks that the register file can handle writes on consecutive clock cycles without needing an idle cycle between them.
+
+Debugging note:
+
+There was one testbench issue during Test 6 where register 4 was expected to still contain 1004, but the DUT incorrectly contained 4444 from Test 5. That was fixed by updating expected[4] after the positive clock edge in Test 5. After that correction, all tests passed.
+
+Final result:
+Errors: 0
+Warnings: 0
+Passes: 170
+Failures: 0
+RESULT: PASS
+
+The standalone RegFile is now verified and ready to move into RegFile + ALU integration.
