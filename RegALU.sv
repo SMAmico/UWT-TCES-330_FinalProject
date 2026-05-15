@@ -198,7 +198,7 @@ combinational, Q should update shortly after the selected register addresses or 
 		begin
 			#1;
 
-			if (Q === expected_Q) begin
+			$assert (Q === expected_Q) begin
 				pass_count = pass_count + 1;
 			end else begin
 				fail_count = fail_count + 1;

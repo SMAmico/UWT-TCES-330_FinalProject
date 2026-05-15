@@ -143,14 +143,13 @@ module ALU_tb();
             != only compares normal 0/1 logic.
             !== also catches X or Z values, which is helpful during simulation.
             */
-            if (ALUout !== expected) begin
+            $assert (ALUout !== expected) begin
+                $display("PASS:  op=%h, ALUA=%h, ALUB=%h, ALUout=%h",
+                         test_op, test_A, test_B, ALUout);
+            end else begin
                 error_count = error_count + 1;
                 $display("ERROR: op=%h, ALUA=%h, ALUB=%h, expected=%h, ALUout=%h",
                          test_op, test_A, test_B, expected, ALUout);
-            end
-            else begin
-                $display("PASS:  op=%h, ALUA=%h, ALUB=%h, ALUout=%h",
-                         test_op, test_A, test_B, ALUout);
             end
 
             /*
