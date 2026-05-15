@@ -118,6 +118,11 @@ output is Q.
 	ALU ALU0(.A(Ra_data), .B(Rb_data), .S(Alu_s0), .Q(Q));
 endmodule
 
+/*
+RefALU Testbench purpose:  This testbench verifies that the RegFile and ALU are correctly connected
+inside the RegALU module.  It checks that register outputs feed the ALU inputs, that Alu_s0 selects
+the correct ALU operations, and that the ALU output Q can be written back into the register file.
+*/
 module RegALU_tb();
 	...
 endmodule
