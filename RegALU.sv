@@ -124,5 +124,48 @@ inside the RegALU module.  It checks that register outputs feed the ALU inputs, 
 the correct ALU operations, and that the ALU output Q can be written back into the register file.
 */
 module RegALU_tb();
-	...
+/*
+Testbench signals: These signals act like the controller inputs shown in the datapath diagram. The
+testbench drives these values to select the register addresses, chose an ALU operation, and control
+when the ALU result is written back into the register file.
+*/
+	logic clk;
+	logic RF_W_en;
+
+	logic [3:0] RF_Ra_addr;
+	logic [3:0] RF_Rb_addr;
+	logic [3:0] RF_W_addr;
+
+	logic [2:0] Alu_s0;
+
+	logic [15:0] Q;
+/*
+Testbench counters: pass_count increments when an expected result matches the actual output.
+fail_count increments when the DUT output does not match the expected value.
+*/
+	integer pass_count;
+	integer fail_count;
+	integer i;
+/*
+Device Under Test: This instantiates the RegALU module. The testbench connects directly to the 
+top-level RegALU control signals, not to the RegFile or ALU submodules directly during normal
+testing.
+*/
+	RegALU DUT(.clk(clk), .RF_W_en(RF_W_en), .RF_Ra_addr(RF_Ra_addr), .RF_Rb_addr(RF_Rb_addr), 
+			   .RF_W_addr(RF_W_addr), .Alu_s0(Alu_s0), .Q(Q));
+/*
+Clock initialization: The register file writes on the rising edge of clk. The ALU itself is 
+combinational, so it does not use the clock.	
+*/
+	initial begin
+		clk = 1'b0;
+	end
+/*
+Clcok generator: The clock toggles every 5 time units, giving a full clock period of 10 times units.
+Testbench write inputs should be set before a rising edge, because that is when the register file
+stores data.
+*/
+	always begin
+		#5 clk = ~clk;
+	end
 endmodule
