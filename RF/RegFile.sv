@@ -185,7 +185,7 @@ read the selected registers.
 		#1;
 
 		// Check read port A.
-		if (rdDataA === expected[addrA]) begin
+		assert (rdDataA === expected[addrA]) begin
 			pass_count = pass_count + 1;
 		end 
 		else begin
@@ -195,7 +195,7 @@ read the selected registers.
 		end
 
 		// Check read port B.
-		if (rdDataB === expected[addrB]) begin
+		assert (rdDataB === expected[addrB]) begin
 			pass_count = pass_count + 1;
 		end 
 		else begin

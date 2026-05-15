@@ -90,6 +90,15 @@ module RegALU (
 	output [15:0] Q			// ALU result output
 );
 /*
+This internal wire connects the ALU output back to the register file write data input.
+Hence, a compartmentalized approach can be taken where the module output, Q, is not directly
+in the internal signal path.
+*/
+
+	wire [15:0] Q_Data;
+	assign Q = Q_Data;
+
+/*
 Internal datapath wires: Ra_data carries the register selected by RF_Ra_addr. Rb_data carries the 
 register selected by RF_Rb_addr. These two values become the A and the B inputs of the ALU.
 */
@@ -108,14 +117,14 @@ diagram. These are mapped into the RegFile module's simpler port names.
 The important connection is Q feeding back into wrData. That means the ALU result can be written back
 into the register file on the rising clock edge when RF_W_en is high.
 */
-	RegFile RF(.clk(clk), .write(RF_W_en), .wrAddr(RF_W_addr), .wrData(Q), .rdAddrA(RF_Ra_addr),
+	RegFile RF(.clk(clk), .write(RF_W_en), .wrAddr(RF_W_addr), .wrData(Q_Data), .rdAddrA(RF_Ra_addr),
 			   .rdDataA(Ra_data), .rdAddrB(RF_Rb_addr), .rdDataB(Rb_data));
 /*
 ALU instance: The register file provides the two ALU operands: Ra_data -> A Rb_data -> B. The
 RegALU control signal Alu_s0 selects the ALU operation by connecting to the ALU's S input. The ALU
 output is Q.
 */
-	ALU ALU0(.A(Ra_data), .B(Rb_data), .S(Alu_s0), .Q(Q));
+	ALU ALU0(.A(Ra_data), .B(Rb_data), .S(Alu_s0), .Q(Q_Data));
 endmodule
 
 /*
@@ -198,7 +207,7 @@ combinational, Q should update shortly after the selected register addresses or 
 		begin
 			#1;
 
-			$assert (Q === expected_Q) begin
+			assert (Q === expected_Q) begin
 				pass_count = pass_count + 1;
 			end else begin
 				fail_count = fail_count + 1;
@@ -325,6 +334,39 @@ into register 7 and read back using A + 0.
 		RF_Rb_addr = 4'd0;
 		Alu_s0 = 3'b000;
 		check_Q(16'h0009, "Q after write-back to register 7");
+
+
+/*
+Test 7: test the ALU passthrough operation.
+Register 4 contains AAAA. ALU operation 011 is Q = A. Expected Q is AAAA.
+*/
+		$display("Test 7: verify ALU passthrough operation.");
+		RF_Ra_addr = 4'd4;
+		RF_Rb_addr = 4'd0;
+		Alu_s0 = 3'b011;
+		check_Q(16'hAAAA, "ALU passthrough A");
+
+/*
+Test 8: test the ALU XOR operation.
+Register 4 contains AAAA. Register 5 contains 5555. ALU operation 100 is Q = A ^ B. Expected Q is FFFF.
+*/
+		$display("Test 8: verify ALU XOR operation.");
+		RF_Ra_addr = 4'd4;
+		RF_Rb_addr = 4'd5;
+		Alu_s0 = 3'b100;
+		check_Q(16'hFFFF, "A XOR B");
+		
+/*
+Test 9: test the ALU AND operation.
+Register 4 contains AAAA. Register 5 contains 5555. ALU operation 110 is Q = A & B. Expected Q is 0000.
+*/
+		$display("Test 9: verify ALU AND operation.");
+		RF_Ra_addr = 4'd4;
+		RF_Rb_addr = 4'd5;
+		Alu_s0 = 3'b110;
+		check_Q(16'h0000, "A AND B");
+
+
 //Final test summary.
 		$display("RegALU testbench complete.");
 		$display("Passes: %0d", pass_count);
