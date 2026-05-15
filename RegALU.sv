@@ -81,9 +81,9 @@ module RegALU (
 	input clk,					// system clock for the register file
 	input RF_W_en,				// register file write enable
 
-	input [3:0] RF_Ra_addr,		// register file read A address
-	input [3:0] RF_Rb_addr,		// register file read B address
-	input [3:0] RF_W_addr,		// register file write address
+	input [2:0] RF_Ra_addr,		// register file read A address
+	input [2:0] RF_Rb_addr,		// register file read B address
+	input [2:0] RF_W_addr,		// register file write address
 
 	input [2:0] Alu_s0,			// ALU operation select
 
@@ -132,9 +132,9 @@ when the ALU result is written back into the register file.
 	logic clk;
 	logic RF_W_en;
 
-	logic [3:0] RF_Ra_addr;
-	logic [3:0] RF_Rb_addr;
-	logic [3:0] RF_W_addr;
+	logic [2:0] RF_Ra_addr;
+	logic [2:0] RF_Rb_addr;
+	logic [2:0] RF_W_addr;
 
 	logic [2:0] Alu_s0;
 
