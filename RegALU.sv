@@ -20,7 +20,7 @@ module RegFile (
 	output [15:0] rdDataA,		// A-side read data
 
 	input [2:0] rdAdderB,		// B-sde read address
-	output [15:0] rdDataB,		// B-side read data
+	output [15:0] rdDataB		// B-side read data
 	);
 
 	logic [15:0] regfile [0:7];	// eight 16-bit registers
@@ -87,7 +87,7 @@ module RegALU (
 
 	input [2:0] Alu_s0,			// ALU operation select
 
-	output [15:0] Q,			// ALU result output
+	output [15:0] Q			// ALU result output
 );
 /*
 Internal datapath wires: Ra_data carries the register selected by RF_Ra_addr. Rb_data carries the 
