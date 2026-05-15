@@ -235,8 +235,12 @@ The write occurs on the positive clock edge	because the register file uses synch
 		fail_count = 0;
 
 		RF_W_en = 1'b0;
-		RF_Ra_addr = 4'd0;
-		RF_Rb_addr = 4'd0;
+/*
+Start the read addresses away from the first test values.  After seed_registers runs, Test 1 will
+change these addresses to 0 and 1, which forces the combinational read outputs to update cleanly.
+*/
+		RF_Ra_addr = 4'd15;
+		RF_Rb_addr = 4'd15;
 		RF_W_addr = 4'd0;
 		Alu_s0 = 3'b000;
 
