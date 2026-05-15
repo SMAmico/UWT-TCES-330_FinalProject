@@ -16,10 +16,10 @@ module RegFile (
 	input [2:0] wrAddr,			// write address
 	input [15:0] wrData,		// write data
 
-	input [2:0] rdAdderA,		// A-sde read address
+	input [2:0] rdAddrA,		// A-side read address
 	output [15:0] rdDataA,		// A-side read data
 
-	input [2:0] rdAdderB,		// B-sde read address
+	input [2:0] rdAddrB,		// B-side read address
 	output [15:0] rdDataB		// B-side read data
 	);
 
