@@ -93,8 +93,8 @@ module RegALU (
 Internal datapath wires: Ra_data carries the register selected by RF_Ra_addr. Rb_data carries the 
 register selected by RF_Rb_addr. These two values become the A and the B inputs of the ALU.
 */
-	logic [15:0] Ra_data;
-	logic [15:0] Rb_data;
+	wire [15:0] Ra_data;
+	wire [15:0] Rb_data;
 /*
 Register file instance: The RegALU control signals use the naming convention from the datapath 
 diagram. These are mapped into the RegFile module's simpler port names.
@@ -161,7 +161,7 @@ combinational, so it does not use the clock.
 		clk = 1'b0;
 	end
 /*
-Clcok generator: The clock toggles every 5 time units, giving a full clock period of 10 times units.
+Clock generator: The clock toggles every 5 time units, giving a full clock period of 10 times units.
 Testbench write inputs should be set before a rising edge, because that is when the register file
 stores data.
 */
