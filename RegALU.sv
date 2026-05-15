@@ -168,4 +168,169 @@ stores data.
 	always begin
 		#5 clk = ~clk;
 	end
+/*
+seed_registers task: The RegALU module writes ALU ouput Q back into the register file, but it does
+not have an external data input for loading starting values. For simulation, this task directly loads
+known values into the internal register file before the connection tests begin. This is testbench 
+setup only. It is not meant to represent hardware behavior.
+*/
+	task automatic seed_registers;
+		begin
+			for(i = 0; i < 16; i = i + 1)begin
+				DUT.RF.regfile[i] = 16'h0000;
+			end
+			DUT.RF.regfile[0] = 16'h0005;
+			DUT.RF.regfile[1] = 16'h0003;
+			DUT.RF.regfile[2] = 16'h00F0;
+			DUT.RF.regfile[3] = 16'h000F;
+			DUT.RF.regfile[4] = 16'hAAAA;
+			DUT.RF.regfile[5] = 16'h5555;
+		end
+	endtask
+/*
+check_Q task: This task checks the RegALU output Q against an expected value. Since the ALU is 
+combinational, Q should update shortly after the selected register addresses or Alu_s0 changes.
+*/
+	task automatic check_Q;
+		input [15:0] expected_Q;
+		input [8*64-1:0] test_name;
+
+		begin
+			#1;
+
+			if (Q === expected_Q) begin
+				pass_count = pass_count + 1;
+			end else begin
+				fail_count = fail_count + 1;
+				$display("FAIL %0s at time %0t: expected Q = %h, actual Q = %h",
+					test_name, $time, expected_Q, Q);
+			end
+		end
+	endtask
+
+/*
+write_Q_to_register task: This task writes the current ALU output Q into the selected register. The 
+task sets RF_W_addr, enables RF_W_en, waits for the positive clock edge, and then disables RF_W_en. 
+The write occurs on the positive clock edge	because the register file uses synchronous writes.
+*/
+	task automatic write_Q_to_register;
+		input [3:0] dest_addr;
+
+		begin
+			@(negedge clk);
+			RF_W_addr = dest_addr;
+			RF_W_en = 1'b1;
+
+			@(posedge clk);
+			#1;
+
+			@(negedge clk);
+			RF_W_en = 1'b0;
+		end
+	endtask
+
+	initial begin
+// Initialize counters and control signals before running the tests.
+		pass_count = 0;
+		fail_count = 0;
+
+		RF_W_en = 1'b0;
+		RF_Ra_addr = 4'd0;
+		RF_Rb_addr = 4'd0;
+		RF_W_addr = 4'd0;
+		Alu_s0 = 3'b000;
+
+		#10;
+// Load known starting values into the register file so the integration tests have known operands.
+		seed_registers();
+
+/*
+Test 1: Verify that RF_Ra_addr selects the value feeding ALU input A.
+Register 0 contains 0005. ALU operation 000 is Q = A + 0. Expected Q is 0005.
+*/
+		$display("Test 1: verify RF_Ra_addr feeds ALU input A.");
+		RF_Ra_addr = 4'd0;
+		RF_Rb_addr = 4'd1;
+		Alu_s0 = 3'b000;
+		check_Q(16'h0005, "A input / A + 0");
+
+/*
+Test 2:	Verify that RF_Rb_addr selects the value feeding ALU input B.
+Register 0 contains 0005. Register 1 contains 0003. ALU operation 001 is Q = A + B.
+Expected Q is 0008.
+*/
+		$display("Test 2: verify RF_Rb_addr feeds ALU input B.");
+		RF_Ra_addr = 4'd0;
+		RF_Rb_addr = 4'd1;
+		Alu_s0 = 3'b001;
+		check_Q(16'h0008, "A + B");
+
+/*
+Test 3: Verify subtraction through the integrated RegALU datapath.
+Register 0 contains 0005. Register 1 contains 0003. ALU operation 010 is Q = A - B.
+Expected Q is 0002.
+*/
+		$display("Test 3: verify subtraction through RegALU.");
+		Alu_s0 = 3'b010;
+		check_Q(16'h0002, "A - B");
+
+/*
+Test 4: Verify a bitwise operation through the integrated datapath.
+Register 2 contains 00F0. Register 3 contains 000F. ALU operation 101 is Q = A | B.
+Expected Q is 00FF.
+*/
+		$display("Test 4: verify OR operation through RegALU.");
+		RF_Ra_addr = 4'd2;
+		RF_Rb_addr = 4'd3;
+		Alu_s0 = 3'b101;
+		check_Q(16'h00FF, "A OR B");
+
+/*
+Test 5: Verify that ALU output Q writes back into the register file.
+Register 0 contains 0005. Register 1 contains 0003. Q should become 0008 from A + B.
+Then Q is written into register 6. Afterward, selecting register 6 as A with operation A + 0 should 
+make Q show 0008.
+*/
+		$display("Test 5: verify ALU result writes back into the register file.");
+		RF_Ra_addr = 4'd0;
+		RF_Rb_addr = 4'd1;
+		Alu_s0 = 3'b001;
+		check_Q(16'h0008, "Q before write-back");
+
+		write_Q_to_register(4'd6);
+
+		RF_Ra_addr = 4'd6;
+		RF_Rb_addr = 4'd0;
+		Alu_s0 = 3'b000;
+		check_Q(16'h0008, "Q after write-back to register 6");
+
+/*
+Test 6: Verify a second write-back using the increment operation.
+Register 6 now contains 0008. ALU operation 111 is Q = A + 1. Expected Q is 0009. Then Q is written 
+into register 7 and read back using A + 0.
+*/
+		$display("Test 6: verify second write-back using A + 1.");
+		RF_Ra_addr = 4'd6;
+		RF_Rb_addr = 4'd0;
+		Alu_s0 = 3'b111;
+		check_Q(16'h0009, "A + 1 before write-back");
+
+		write_Q_to_register(4'd7);
+
+		RF_Ra_addr = 4'd7;
+		RF_Rb_addr = 4'd0;
+		Alu_s0 = 3'b000;
+		check_Q(16'h0009, "Q after write-back to register 7");
+//Final test summary.
+		$display("RegALU testbench complete.");
+		$display("Passes: %0d", pass_count);
+		$display("Failures: %0d", fail_count);
+
+		if (fail_count == 0)
+			$display("RESULT: PASS");
+		else
+			$display("RESULT: FAIL");
+
+		$finish;
+	end
 endmodule
