@@ -44,8 +44,37 @@ register selected by wrAddr on the rising edge of clk. When write is low, no reg
 	end
 endmodule
 
-module ALU (...);
-	...
+module ALU (
+	input [15:0] A,				// first 16-bit ALU input
+	input [15:0] B,				// second 16-bit ALU input
+	input [2:0] S,				// 3-bit ALU operation select
+	output logic [15:0] Q		// 16-bit ALU result
+);
+/*
+ALU operation logic: The ALU is combinational, meaning it does not use a clock.  Whenever A, B, or S
+changes, Q is recalculated. The select input S chooses which operation appears on Q.
+	S = 000: Q = A + 0
+	S = 001: Q = A + B
+	S = 010: Q = A - B
+	S = 011: Q = A
+	S = 100: Q = A ^ B
+	S = 101: Q = A | B
+	S = 110: Q = A & B
+	S = 111: Q = A + 1
+*/
+	always_comb begin
+		case (S)
+			3'b000: Q = A + 16'd0;
+			3'b001: Q = A + B;
+			3'b010: Q = A - B;
+			3'b011: Q = A;
+			3'b100: Q = A ^ B;
+			3'b101: Q = A | B;
+			3'b110: Q = A & B;
+			3'b111: Q = A + 16'd1;
+			default: Q = 16'h0000;
+		endcase
+	end
 endmodule
 
 module RegALU (...);
