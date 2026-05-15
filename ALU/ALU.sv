@@ -116,7 +116,7 @@ module ALU_tb();
         input [15:0] test_A, test_B;
         input [3:0] test_op;
 
-        reg [15:0] expected;
+        logic [15:0] expected;
 
         begin
             // Apply inputs before the clock edge.
