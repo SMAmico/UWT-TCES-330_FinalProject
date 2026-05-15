@@ -77,8 +77,45 @@ changes, Q is recalculated. The select input S chooses which operation appears o
 	end
 endmodule
 
-module RegALU (...);
-	...
+module RegALU (
+	input clk,					// system clock for the register file
+	input RF_W_en,				// register file write enable
+
+	input [3:0] RF_Ra_addr,		// register file read A address
+	input [3:0] RF_Rb_addr,		// register file read B address
+	input [3:0] RF_W_addr,		// register file write address
+
+	input [2:0] Alu_s0,			// ALU operation select
+
+	output [15:0] Q,			// ALU result output
+);
+/*
+Internal datapath wires: Ra_data carries the register selected by RF_Ra_addr. Rb_data carries the 
+register selected by RF_Rb_addr. These two values become the A and the B inputs of the ALU.
+*/
+	logic [15:0] Ra_data;
+	logic [15:0] Rb_data;
+/*
+Register file instance: The RegALU control signals use the naming convention from the datapath 
+diagram. These are mapped into the RegFile module's simpler port names.
+	RF_W_en    -> write
+	RF_W_addr  -> wrAddr
+	Q          -> wrData
+	RF_Ra_addr -> rdAddrA
+	Ra_data    -> rdDataA
+	RF_Rb_addr -> rdAddrB
+	Rb_data    -> rdDataB
+The important connection is Q feeding back into wrData. That means the ALU result can be written back
+into the register file on the rising clock edge when RF_W_en is high.
+*/
+	RegFile RF(.clk(clk), .write(RF_W_en), .wrAddr(RF_W_addr), .wrData(Q), .rdAddrA(RF_Ra_addr),
+			   .rdDataA(Ra_data), .rdAddrB(RF_Rb_addr), .rdDataB(Rb_data));
+/*
+ALU instance: The register file provides the two ALU operands: Ra_data -> A Rb_data -> B. The
+RegALU control signal Alu_s0 selects the ALU operation by connecting to the ALU's S input. The ALU
+output is Q.
+*/
+	ALU ALU0(.A(Ra_data), .B(Rb_data), .S(Alu_s0), .Q(Q));
 endmodule
 
 module RegALU_tb();
