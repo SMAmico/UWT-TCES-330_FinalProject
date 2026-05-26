@@ -13,17 +13,17 @@ module RegFile (
 	input clk,					// system clock
 	input write,				// write enable
 	
-	input [2:0] wrAddr,			// write address
+	input [3:0] wrAddr,			// write address
 	input [15:0] wrData,		// write data
 
-	input [2:0] rdAddrA,		// A-side read address
+	input [3:0] rdAddrA,		// A-side read address
 	output [15:0] rdDataA,		// A-side read data
 
 	input [2:0] rdAddrB,		// B-side read address
 	output [15:0] rdDataB		// B-side read data
 	);
 
-	logic [15:0] regfile [0:7];	// eight 16-bit registers
+	logic [15:0] regfile [0:15];	// sixteen 16-bit registers
 /*
 Read Logic: The register file has two read ports.
 rdAddrA selects which register appears on rdDataA.
@@ -81,9 +81,9 @@ module RegALU (
 	input clk,					// system clock for the register file
 	input RF_W_en,				// register file write enable
 
-	input [2:0] RF_Ra_addr,		// register file read A address
-	input [2:0] RF_Rb_addr,		// register file read B address
-	input [2:0] RF_W_addr,		// register file write address
+	input [3:0] RF_Ra_addr,		// register file read A address
+	input [3:0] RF_Rb_addr,		// register file read B address
+	input [3:0] RF_W_addr,		// register file write address
 
 	input [2:0] Alu_s0,			// ALU operation select
 
@@ -141,11 +141,11 @@ when the ALU result is written back into the register file.
 	logic clk;
 	logic RF_W_en;
 
-	logic [2:0] RF_Ra_addr;
-	logic [2:0] RF_Rb_addr;
-	logic [2:0] RF_W_addr;
+	logic [3:0] RF_Ra_addr;
+	logic [3:0] RF_Rb_addr;
+	logic [3:0] RF_W_addr;
 
-	logic [2:0] Alu_s0;
+	logic [3:0] Alu_s0;
 
 	logic [15:0] Q;
 /*
