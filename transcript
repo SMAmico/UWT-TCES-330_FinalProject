@@ -96,3 +96,5 @@ do run_regalu.do
 #    Time: 54 ps  Iteration: 0  Instance: /RegALU_tb
 # 1
 # Break in Module RegALU_tb at RegALU.sv line 380
+# End time: 22:34:44 on May 14,2026, Elapsed time: 0:06:22
+# Errors: 0, Warnings: 0
