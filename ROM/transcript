@@ -1,0 +1,22 @@
+# Reading pref.tcl
+dir
+#  Volume in drive C has no label.
+#  Volume Serial Number is 1EF2-5918
+# 
+#  Directory of C:\QuartusProjects\FinalProject\ROM
+# 
+# 05/26/2026  11:33 AM    <DIR>          .
+# 05/26/2026  11:33 AM    <DIR>          ..
+# 05/26/2026  11:08 AM    <DIR>          db
+# 05/26/2026  11:08 AM    <DIR>          greybox_tmp
+# 04/24/2026  03:36 PM                54 Launch_ModelSim.bat
+# 05/26/2026  11:15 AM             1,095 mifROM.mif
+# 05/26/2026  11:15 AM               435 myROM.qip
+# 05/26/2026  11:08 AM             1,346 myROM.qpf
+# 05/26/2026  11:15 AM             2,295 myROM.qsf
+# 05/26/2026  11:15 AM             6,542 myROM.v
+# 05/26/2026  11:15 AM             5,134 myROM_bb.v
+# 05/26/2026  11:15 AM                92 myROM_inst.v
+# 05/26/2026  11:33 AM                20 transcript
+#                9 File(s)         17,013 bytes
+#                4 Dir(s)  244,980,408,320 bytes free
