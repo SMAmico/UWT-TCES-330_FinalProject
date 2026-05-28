@@ -117,13 +117,13 @@ module FSM(
 	  end
 	  
 	  S_DEC: begin
-		if(IR[15:12] == 4'b0101) begin
+		  if(IR_data[15:12] == 4'b0101) begin
 			NextState = S_HLT;
 		end else NextState = S_EXE;
 	  end
 	  
 	  S_EXE: begin
-			case(IR[15:12])begin
+		  case(IR_data[15:12])begin
 				INS_NOP : NextState = S_NOP;
 				INS_STR : NextState = S_STR;
 				INS_LDR : NextState = S_LDR;
