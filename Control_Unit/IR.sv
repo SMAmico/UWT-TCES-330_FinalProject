@@ -1,15 +1,21 @@
+// TCES 330 Spring 2026
+// Project File: IR.sv
+// Instruction Register
 
 module IR(
-		input clk, 
-		input [7:0]PC_addr,	 //pc address to use for
-		output logic [15:0]Ir_data,//returned data from ROM
-		input Ir_ld			 //trigger line to fetch an instruction from the current PC value
+    input logic clk,
+    input  logic Ir_ld,
+    input  logic [15:0] Instruction_In,
+    output logic [15:0] Ir_data
+);
 		
-		);
-		
-	always @(posedge Ir_ld) begin
-		
-	end
-		
+/*
+The IR is a clocked register. Ir_ld = 1 means load the current instruction from ROM. Ir_ld = 0 means 
+hold the previous instruction.
+*/
+    always_ff @(posedge clk) begin
+        if (Ir_ld)
+            Ir_data <= Instruction_In;
+    end
 endmodule
 
