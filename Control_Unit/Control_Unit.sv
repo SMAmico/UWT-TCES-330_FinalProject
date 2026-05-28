@@ -18,6 +18,7 @@ module Control_Unit(
 	wire [7:0]PC;
 	
 	wire IR_ld;
+	wire[15:0]IR_in;
 	wire[15:0]IR_data;
 		
 	/*Control_Unit_FSM(
@@ -111,10 +112,22 @@ module Control_Unit(
 	IR IR(
 			.clk(clk),
 			.IR_ld(IR_ld),
-			.Instruction_In(),
+			.Instruction_In(IR_in),
 			.IR_data(IR_data)
 		 );
 		 
+		/*
+		myROM (
+			address,
+			clock,
+			q
+		);
+		*/
+	myROM ROM(
+			.address(PC),
+			.clock(clk),
+			.q(IR_in)
+		);
 	
 	
 endmodule
