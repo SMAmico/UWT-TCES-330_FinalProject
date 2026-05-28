@@ -13,14 +13,13 @@ module FSM(
 			input Rst,			 //state machine reset line
 			
 			//PC control lines
-			input [7:0]PC,
 			output logic PC_clr,		 //PC clear command line
 			output logic PC_up,		 //PC upcounter control line
 			// output logic PC_w_en,
 			// output logic [7:0]PC_set, //this is a overwrite line for the PC, will be implemented for JMP
 			
 			//IR input lines
-			input [15:0]IR_data, //the raw instruction data from ROM
+			input [15:0] IR_data, //the raw instruction data from ROM
 			output logic IR_ld,		 //instruction data load command
 			
 			//RAM control lines
@@ -31,7 +30,7 @@ module FSM(
 			output logic RF_s,		 //RF source control line
 
 			// Register File control lines
-			output logic [3:0]RF_W_addr,	//RF write address 
+			output logic [3:0] RF_W_addr,	//RF write address 
 			output logic [3:0]RF_Ra_addr, //RF read address A
 			output logic [3:0]RF_Rb_addr, //RF read address B
 			output logic RF_W_en,			//RF write address enable
@@ -106,15 +105,16 @@ module FSM(
 	PC_up      = 1'b0;
 	PC_w_en    = 1'b0;
 	PC_set     = 8'b0;
-	IR_ld      = 1'b0
+	IR_ld      = 1'b0;
 	D_Addr     = 8'b0;
 	D_wr       = 1'b0;
 	RF_s       = 1'b0;
 	RF_W_addr  = 4'b0;
-	RF_Ra_addr = 4'b0
+	RF_Ra_addr = 4'b0;
 	RF_Rb_addr = 4'b0;
 	RF_W_en    = 1'b0;
 	Alu_s0     = ALU_ADDZERO;
+	  
 	NextState = State;
 	
     case (State)
