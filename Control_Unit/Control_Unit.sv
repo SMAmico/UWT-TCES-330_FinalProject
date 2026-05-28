@@ -16,6 +16,7 @@ module Control_Unit_FSM(
 			input Rst,			 //state machine reset line
 			
 			//PC control lines
+			input [7:0]PC,
 			output PC_clr,		 //PC clear command line
 			output PC_up,		 //PC upcounter control line
 			output PC_w_en,
