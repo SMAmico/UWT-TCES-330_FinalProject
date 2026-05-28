@@ -106,13 +106,13 @@ module FSM(
 	
     case (State)
       S_INIT: begin
-        PC_clr = 1;
+        PC_clr = 1'b1;
         NextState = S_FETCH; //always move to fetch state
       end  
       
       S_FETCH: begin
-		IR_ld = 1;			//increment instruction register
-		PC_up = 1;			//along with the PC
+		IR_ld = 1'b1;			//increment instruction register
+		PC_up = 1'b1;			//along with the PC
 		NextState = S_DEC;//always move to decode state
 	  end
 	  
@@ -127,7 +127,7 @@ module FSM(
 	  end
 	  S_STR: begin
 			RF_Ra_addr = IR[11:8]; //read from the Ra register
-			D_wr = 1;			   //enable writing to RAM
+			D_wr = 1'b1;			   //enable writing to RAM
 			D_addr = IR[7:0];	   //write to the RAM at IR's address
 			ALU_s0 = ALU_PASS;	   //set the alu to passthrough
 			NextState = S_FETCH;
@@ -136,8 +136,8 @@ module FSM(
 	  S_LDR: begin
 		    D_addr = IR[11:4]    //load from RAM address
 			RF_w_addr = IR[7:0]; //write to RF address # IR
-			RF_s = 1;			 //set mux to source from RAM
-			RF_w_es = 1;		 //enable RF writing
+			RF_s = 1'b1;			 //set mux to source from RAM
+			RF_w_es = 1'b1;		 //enable RF writing
 			NextState = S_FETCH;
 	  end
 	  
@@ -146,8 +146,8 @@ module FSM(
 			RF_Rb_addr = IR[7:4]; //for A and B ALU inputs
 			RF_w_addr = IR[3:0];  //set writeback register address
 			ALU_s0 = ALU_ADD;     //set ALU to add
-			RF_s = 0;			  //set register to source from ALU output
-			RF_w_en = 1;		  //set RF write enable high
+			RF_s = 1'b0;			  //set register to source from ALU output
+			RF_w_en = 1'b1;		  //set RF write enable high
 			NextState = S_FETCH;
 	  end
 	  
@@ -156,8 +156,8 @@ module FSM(
 			RF_Rb_addr = IR[7:4]; //for A and B ALU inputs
 			RF_w_addr = IR[3:0];  //set writeback register address
 			ALU_s0 = ALU_SUB;     //set ALU to subtract
-			RF_s = 0;			  //set register to source from ALU output
-			RF_w_en = 1;		  //set RF write enable high
+			RF_s = 1'b0;			  //set register to source from ALU output
+			RF_w_en = 1'b1;		  //set RF write enable high
 			NextState = S_FETCH;
 	  end
 	  S_HLT: begin
