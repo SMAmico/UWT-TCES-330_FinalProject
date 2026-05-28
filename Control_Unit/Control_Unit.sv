@@ -16,14 +16,14 @@ module Control_Unit_FSM(
 			input Rst,			 //state machine reset line
 			
 			//PC control lines
-			input [7:0]PC,
+			logic [7:0]PC,
 			output PC_clr,		 //PC clear command line
-			output PC_up,		 //PC upcounter control line
+			wire PC_up,		 //PC upcounter control line
 			//output PC_w_en,
 			//output [7:0]PC_set, //this is a overwrite line for the PC, will be implemented for JMP
 			
 			//IR input lines
-			input [15:0]IR_data, //the raw instruction data from ROM
+			input logic [15:0]IR_data, //the raw instruction data from ROM
 			output IR_ld,		 //instruction data load command
 			
 			//RAM control lines
@@ -48,9 +48,6 @@ module Control_Unit_FSM(
 			//current state output lines
 			output [3:0]StateOut
 			);
-			
-			logic [7:0]PC;
-			logic [15:]
 			
 
   localparam S_INIT,
@@ -91,15 +88,15 @@ module Control_Unit_FSM(
       end  
       
       S_FETCH: begin
-		IR_ld = 1;
+		IR_ld = 1;			//increment instruction register
 		PC_up = 1;
-		//IR = I[PC];  pseudocode to fetch the code at I[PC] address
+		
 		if (1) begin		//always move to decode state
 		  NextState = S_DEC;
 		end
 	  end
 	  
-	  S_DEC:
+	  S_DEC: begin
 	  S_EXE:
 	  S_NOP:
 	  S_STR:
@@ -112,7 +109,7 @@ module Control_Unit_FSM(
  
         NextState = S_INIT;          // safe state
       end
-    endcase //end case - state trnasition description
+    endcase //end case - state transition description
   end // end the always Comb Logic
     
   always_ff @(posedge Clk) begin
