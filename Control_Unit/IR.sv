@@ -3,9 +3,9 @@
 // Instruction Register
 
 module IR(
-    input logic clk,
-    input  logic Ir_ld,
-    input  logic [15:0] Instruction_In,
+    input clk,
+    input Ir_ld,
+    input [15:0] Instruction_In,
     output logic [15:0] Ir_data
 );
 		
