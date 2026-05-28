@@ -13,7 +13,6 @@ module FSM(
 			input Rst,			 //state machine reset line
 			
 			//PC control lines
-			input [7:0]PC,
 			output logic PC_clr,		 //PC clear command line
 			output logic PC_up,		 //PC upcounter control line
 			// output logic PC_w_en,
@@ -115,6 +114,7 @@ module FSM(
 	RF_Rb_addr = 4'b0;
 	RF_W_en    = 1'b0;
 	Alu_s0     = ALU_ADDZERO;
+	  
 	NextState = State;
 	
     case (State)
