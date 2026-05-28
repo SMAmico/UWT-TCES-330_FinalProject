@@ -5,7 +5,7 @@
 //it controls the datapath inputs for the ALU, register file, and RAM.
 
 
-module Control_Unit_FSM(
+module FSM(
 			// system clock
 			input Clk, 			//system clock
 			
