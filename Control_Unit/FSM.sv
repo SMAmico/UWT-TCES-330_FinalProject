@@ -122,18 +122,6 @@ module FSM(
 		end else NextState = S_EXE;
 	  end
 	  
-	  S_EXE: begin
-		  case(IR_data[15:12])begin
-				INS_NOP : NextState = S_NOP;
-				INS_STR : NextState = S_STR;
-				INS_LDR : NextState = S_LDR;
-				INS_ADD : NextState = S_ADD;
-				INS_SUB : NextState = S_SUB;
-				INS_HLT : NextState = S_HLT;
-				default : NextState = S_HLT;
-			endcase
-	  end
-	  
 	  S_NOP: begin
 			NextState = S_FETCH; //NOP instruction simply moves to the next state
 	  end
