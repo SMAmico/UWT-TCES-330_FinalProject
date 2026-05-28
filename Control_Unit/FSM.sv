@@ -1,11 +1,7 @@
 // TCES 330 Spring 2026
-// SystemVerilog template to describe
-// Moore State Machine 
-// if we want to monitor the states of 
-// an FSM, we can add to the portlist
-// an output named StateOut
-// thus the code should contain a line 
-// "assign StateOut = State"
+// Finite State Machine for Project
+//this file contains an FSM module for the control unit.
+//it controls the datapath inputs for the ALU, register file, and RAM.
 
 
 module Control_Unit_FSM(
@@ -110,18 +106,13 @@ module Control_Unit_FSM(
     case (State)
       S_INIT: begin
         PC_clr = 1;
-        if (1)  begin		//always move to fetch state
-          NextState = S_FETCH; 
-        end
+        NextState = S_FETCH; //always move to fetch state
       end  
       
       S_FETCH: begin
 		IR_ld = 1;			//increment instruction register
-		PC_up = 1;
-		
-		if (1) begin		//always move to decode state
-		  NextState = S_DEC;
-		end
+		PC_up = 1;			//along with the PC
+		NextState = S_DEC;//always move to decode state
 	  end
 	  
 	  S_DEC: begin
