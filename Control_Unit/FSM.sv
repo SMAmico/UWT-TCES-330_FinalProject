@@ -128,12 +128,18 @@ module FSM(
 		PC_up = 1'b1;			//along with the PC
 		NextState = S_DEC;//always move to decode state
 	  end
-	  
-	  S_DEC: begin
-		  if(IR_data[15:12] == 4'b0101) begin
-			NextState = S_HLT;
-		end else NextState = S_EXE;
-	  end
+		            
+		S_DEC: begin
+			case (IR_data[15:12])
+                    INS_NOP: NextState = S_NOP;
+                    INS_STR: NextState = S_STR;
+                    INS_LDR: NextState = S_LDR;
+                    INS_ADD: NextState = S_ADD;
+                    INS_SUB: NextState = S_SUB;
+                    INS_HLT: NextState = S_HLT;
+                    default: NextState = S_HLT;
+                endcase
+            end
 	  
 	  S_NOP: begin
 			NextState = S_FETCH; //NOP instruction simply moves to the next state
