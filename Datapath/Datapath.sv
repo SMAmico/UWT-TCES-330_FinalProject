@@ -6,7 +6,7 @@ Project Phase III
 
 Description:
 This file contains the register file, ALU, RAM instantiation, data source mux, and combined Datapath module for
-Project phase III
+Project phase III. this file REQUIRES the verilog file myRAM.v to be included
 */
 
 module RegFile (
