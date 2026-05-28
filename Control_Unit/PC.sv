@@ -9,7 +9,16 @@ module PC(
 		//input [7:0]PC_set
 		//input PC_w_en;
 );
+	
+	always_ff @(posedge clk) begin
+        if (PC_clr)
+            PC_Out <= 8'b0;
+        else if (PC_up)
+            PC_Out <= PC_Out + 8'b1;
+    end
 
+endmodule
+/*
 always @(posedge PC_up, posedge PC_clr) begin
 	if(PC_clr == 1) begin
 		PC = 8'b0;
@@ -18,3 +27,4 @@ always @(posedge PC_up, posedge PC_clr) begin
 	end else PC = PC;
 end
 endmodule
+*/
