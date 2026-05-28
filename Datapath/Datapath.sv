@@ -1,12 +1,12 @@
 /*
 Seth Amico, John Teal
 UW TCES 330
-Project Phase II
+Project Phase III
 15 May 2026
 
 Description:
-This file contains the register file, ALU, RegALU integration module, and RegALU testbench for Project 
-Phase II.
+This file contains the register file, ALU, RAM instantiation, data source mux, and combined Datapath module for
+Project phase III
 */
 
 module RegFile (
@@ -175,6 +175,7 @@ into the register file on the rising clock edge when RF_W_en is high.
 			.rdAddrB(RF_Rb_addr),
 			.rdDataB(Rb_data)
 			);
+			
 /*
 ALU instance: The register file provides the two ALU operands: Ra_data -> A Rb_data -> B. The
 RegALU control signal Alu_s0 selects the ALU operation by connecting to the ALU's S input. The ALU
