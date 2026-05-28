@@ -48,8 +48,32 @@ module Control_Unit_FSM(
 			//current state output lines
 			output [3:0]StateOut
 			);
-			
-
+	
+	//opcode localparams
+  localparam INS_NOP = 4'h0,
+			 INS_STR = 4'h1,
+			 INS_LDR = 4'h2,
+			 INS_ADD = 4'h3,
+			 INS_SUB = 4'h4,
+			 INS_HLT = 4'h5,
+			 
+			 INS_XOR = 4'h6,
+			 INS_OR = 4'h7,
+			 INS_AND = 4'h8,
+			 
+			 INS_JMP = 4'h9,
+			 INS_JNZ = 4'ha,
+			 INS_JLT = 4'hb;
+	
+	//ALU state localparams
+  localparam ALU_ADDZERO = 3'b000,
+			ALU_ADD = 3'b001,
+			ALU_SUB = 3'b010,
+			ALU_PASS = 3'011,
+			ALU_XOR = 3'b100,
+			ALU_OR = 3'b101,
+			ALU_AND = 3'b110,
+			ALU_INC =  3'b111;
  			
 	// added defined states to each localparam
   localparam S_INIT = 4'd0,
@@ -69,6 +93,7 @@ module Control_Unit_FSM(
 			 S_JMP, //Extra credit. these need to be included in the ALU
 			 S_JNZ,
 			 S_JLT;
+			 
   
   logic [3:0] State, NextState;  // state variables
   
@@ -105,19 +130,28 @@ module Control_Unit_FSM(
 	  
 	  S_EXE: begin
 			case(IR[15:12])begin
-				4'b0000 : NextState = S_NOP;
-				4'b0001 : NextState = S_STR;
-				4'b0010 : NextState = S_LDR;
-				4'b0011 : NextState = S_ADD;
-				4'b0100 : NextState = S_SUB;
-				4'b0101 : NextState = S_HLT;
+				INS_NOP : NextState = S_NOP;
+				INS_STR : NextState = S_STR;
+				INS_LDR : NextState = S_LDR;
+				INS_ADD : NextState = S_ADD;
+				INS_SUB : NextState = S_SUB;
+				INS_HLT : NextState = S_HLT;
 				default : NextState = S_HLT;
 			endcase
 	  end
 	  
-	  S_NOP:
-	  S_STR:
-	  S_LDR:
+	  S_NOP: begin
+			NextState = S_FETCH; //NOP instruction simply moves to the next state
+	  end
+	  S_STR: begin
+			RF_Ra_addr = IR[11:8]; //read from the Ra register
+			D_wr = 1;			   //enable writing to RAM
+			D_addr = IR[7:0];	   //write to the RAM at IR's address
+			ALU_s0 = ALU_PASS;	   //set the alu to passthrough
+	  end
+	  
+	  S_LDR: begin
+			RF_w_addr = IR[7:0]; 
 	  S_ADD:
 	  S_SUB:
 	  S_HLT:
