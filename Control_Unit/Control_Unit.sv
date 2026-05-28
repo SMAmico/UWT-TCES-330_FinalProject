@@ -62,14 +62,15 @@ module Control_Unit_FSM(
 			 S_LDR,
 			 S_ADD,
 			 S_SUB,
-			 S_HLT = 4'b1001;
-			 //S_XOR = 4'b1010; //extra states from ALU should we choose to implement them
-			 //S_OR  = 4'b1011;
-			 //S_AND = 4'b1100;
+			 S_HLT,
 			 
-			 //S_JMP = 4'b1101; //Extra credit. these need to be included in the ALU
-			 //S_JNZ = 4'b1110;
-			 //S_JLT = 4'b1111;
+			 S_XOR, //extra states from ALU should we choose to implement them
+			 S_OR,
+			 S_AND,
+			 
+			 S_JMP, //Extra credit. these need to be included in the ALU
+			 S_JNZ,
+			 S_JLT;
   
   logic [3:0] State, NextState;  // state variables
   
@@ -79,7 +80,7 @@ module Control_Unit_FSM(
   //describe state transition
   //of a Moore machine
   always_comb begin
-	
+	State = 4'h0;
 	
     case (State)
       S_INIT: begin
@@ -92,11 +93,12 @@ module Control_Unit_FSM(
       S_FETCH: begin
 		IR_ld = 1;
 		PC_up = 1;
-		//IR = I[PC];  fetch the code at I[PC] address
+		//IR = I[PC];  pseudocode to fetch the code at I[PC] address
 		if (1) begin		//always move to decode state
 		  NextState = S_DEC;
 		end
 	  end
+	  
 	  S_DEC:
 	  S_EXE:
 	  S_NOP:
