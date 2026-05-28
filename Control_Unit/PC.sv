@@ -16,7 +16,6 @@ always @* begin
 		PC = 8'b0;
 	end else if(PC_up == 1) begin
 		PC == 8'b0;
-	end
+	end else PC = PC;
 end
-
 endmodule
