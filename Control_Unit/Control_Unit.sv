@@ -3,13 +3,18 @@
 module Control_Unit(
 		input clk,
 		input rst,
+		
 		output [7:0]D_Addr,
 		output D_wr,
+		
 		output RF_s,
+		
 		output [3:0]RF_W_addr,
 		output RF_W_en,
+		
 		output [3:0]RF_Ra_addr,
 		output [3:0]RF_Rb_addr,
+		
 		output [2:0]Alu_s0
 		);
 		
@@ -29,7 +34,6 @@ module Control_Unit(
 			input Rst,			 //state machine reset line
 			
 			//PC control lines
-			input logic [7:0]PC,
 			output PC_clr,		 //PC clear command line
 			output PC_up,		 //PC upcounter control line
 			output PC_w_en,
@@ -64,13 +68,12 @@ module Control_Unit(
 	FSM FSM(.Clk(clk),
 			.Rst(rst),
 			
-			.PC(PC),
 			.PC_clr(PC_clr),
 			.PC_up(PC_up),
 			//.PC_w_en(),  //PC overwriting isn't implemented yet
 			//.PC_set(),   
 			
-			.IR_data(),
+			.IR_data(IR_data),
 			.IR_ld(IR_ld),
 			
 			.D_addr(D_Addr),
