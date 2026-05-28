@@ -5,7 +5,7 @@ module PC(
 		input clk,
 		input PC_clr,
 		input PC_up,
-	output logic [7:0] PC_out;
+		output logic [7:0] PC_out;
 		//input [7:0]PC_set
 		//input PC_w_en;
 );
