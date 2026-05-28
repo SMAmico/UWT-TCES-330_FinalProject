@@ -7,34 +7,36 @@
 // thus the code should contain a line 
 // "assign StateOut = State"
 
+
 module Control_Unit_FSM(
 			// system clock
-			input Clk, 
+			input Clk, 			//system clock
 			
 			//Reset line
-			input Rst,
+			input Rst,			 //state machine reset line
 			
 			//PC control lines
-			output PC_clr,
-			output PC_up,
-			//output [7:0]PC_set, //this is a overwrite line for the PC, will be implemented for JMP
+			output PC_clr,		 //PC clear command line
+			output PC_up,		 //PC upcounter control line
+			output PC_w_en,
+			output [7:0]PC_set, //this is a overwrite line for the PC, will be implemented for JMP
 			
 			//IR input lines
-			input [15:0]IR_data,
-			output Id,
+			input [15:0]IR_data, //the raw instruction data from ROM
+			output IR_ld,		 //instruction data load command
 			
 			//RAM control lines
-			output [7:0] D_Addr,
-			output D_wr,
+			output [7:0] D_Addr, //output address to RAM
+			output D_wr,		 //write enable line to data
 
 			//Register File source control mux select line
-			output RF_s,
+			output RF_s,		 //RF source control line
 
 			// Register File control lines
-			output [3:0]RF_W_addr,
-			output [3:0]RF_Ra_addr,
-			output [3:0]RF_Rb_addr,
-			output RF_W_en,
+			output [3:0]RF_W_addr,	//RF write address 
+			output [3:0]RF_Ra_addr, //RF read address A
+			output [3:0]RF_Rb_addr, //RF read address B
+			output RF_W_en,			//RF write address enable
 			
 			//ALU control lines
 			output [2:0]Alu_s0,
@@ -82,7 +84,23 @@ module Control_Unit_FSM(
         end
       end  
       
-      
+      S_FETCH: begin
+		IR_ld = 1;
+		PC_up = 1;
+		IR = I[PC];
+		if (1) begin		//always move to decode state
+		  NextState = S_DEC;
+		end
+	  end
+	  S_DEC:
+	  S_EXE:
+	  S_NOP:
+	  S_STR:
+	  S_LDR:
+	  S_ADD:
+	  S_SUB:
+	  S_HLT:
+	  
       default: begin
  
         NextState = S_INIT;          // safe state
@@ -99,7 +117,6 @@ module Control_Unit_FSM(
 
   
 endmodule
-
 
 
 //********************************************//
