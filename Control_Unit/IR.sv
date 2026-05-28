@@ -4,9 +4,9 @@
 
 module IR(
     input clk,
-    input Ir_ld,
+    input IR_ld,
     input [15:0] Instruction_In,
-    output logic [15:0] Ir_data
+	output logic [15:0] IR_data
 );
 		
 /*
@@ -14,8 +14,8 @@ The IR is a clocked register. Ir_ld = 1 means load the current instruction from 
 hold the previous instruction.
 */
     always_ff @(posedge clk) begin
-        if (Ir_ld)
-            Ir_data <= Instruction_In;
+		if (IR_ld)
+            IR_data <= Instruction_In;
     end
 endmodule
 
