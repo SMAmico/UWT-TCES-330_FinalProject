@@ -19,7 +19,7 @@ module FSM(
 			// output logic [7:0]PC_set, //this is a overwrite line for the PC, will be implemented for JMP
 			
 			//IR input lines
-			input [15:0]IR_data, //the raw instruction data from ROM
+			input [15:0] IR_data, //the raw instruction data from ROM
 			output logic IR_ld,		 //instruction data load command
 			
 			//RAM control lines
@@ -30,7 +30,7 @@ module FSM(
 			output logic RF_s,		 //RF source control line
 
 			// Register File control lines
-			output logic [3:0]RF_W_addr,	//RF write address 
+			output logic [3:0] RF_W_addr,	//RF write address 
 			output logic [3:0]RF_Ra_addr, //RF read address A
 			output logic [3:0]RF_Rb_addr, //RF read address B
 			output logic RF_W_en,			//RF write address enable
