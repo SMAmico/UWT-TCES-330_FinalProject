@@ -19,11 +19,26 @@ module RegFile (
 	input [3:0] rdAddrA,		// A-side read address
 	output [15:0] rdDataA,		// A-side read data
 
-	input [2:0] rdAddrB,		// B-side read address
+	input [3:0] rdAddrB,		// B-side read address
 	output [15:0] rdDataB		// B-side read data
 	);
 
-	logic [15:0] regfile [0:15];	// sixteen 16-bit registers
+logic [15:0] regfile [0:15];	// sixteen 16-bit registers
+integer i;
+
+/*
+Initialization for Phase II RegALU testing:
+The RegALU testbench only assigns Alu_s0. Since the testbench does not load the register file
+directly, the register file needs known starting values for simulation. Register 0 becomes ALU input A,
+and register 1 becomes ALU input B inside RegALU.
+*/
+initial begin
+	for (i = 0; i < 16; i = i + 1)
+		regfile[i] = 16'h0000;
+
+	regfile[0] = 16'h1234;	// A input value
+	regfile[1] = 16'h00FF;	// B input value
+end
 /*
 Read Logic: The register file has two read ports.
 rdAddrA selects which register appears on rdDataA.
