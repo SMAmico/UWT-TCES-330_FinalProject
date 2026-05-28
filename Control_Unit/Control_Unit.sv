@@ -12,6 +12,14 @@ module Control_Unit(
 		output [3:0]RF_Rb_addr,
 		output [2:0]Alu_s0
 		);
+		
+	wire PC_clr;
+	wire PC_up;
+	wire [7:0]PC;
+	
+	wire IR_ld;
+	wire[15:0]IR_data;
+		
 	/*Control_Unit_FSM(
 			// system clock
 			input Clk, 			//system clock
@@ -55,14 +63,14 @@ module Control_Unit(
 	FSM FSM(.Clk(clk),
 			.Rst(rst),
 			
-			.PC(),
-			.PC_clr(),
-			.PC_up(),
-			.PC_w_en(),
-			.PC_set(),
+			.PC(PC),
+			.PC_clr(PC_clr),
+			.PC_up(PC_up),
+			//.PC_w_en(),  //PC overwriting isn't implemented yet
+			//.PC_set(),   
 			
 			.IR_data(),
-			.IR_ld(),
+			.IR_ld(IR_ld),
 			
 			.D_addr(D_Addr),
 			.D_wr(D_wr),
@@ -76,6 +84,37 @@ module Control_Unit(
 			.Alu_s0(Alu_s0),
 			.StateOut(StateOut)
 			);
+			
+		/*
+		PC(
+			input clk,
+			input PC_clr,
+			input PC_up,
+			output logic [7:0] PC_out
+			);
+		*/
+	PC PC(
+			.clk(clk),
+			.PC_clr(PC_clr),
+			.PC_up(PC_up),
+			.PC_out(PC)
+			);
+	
+		/*
+		IR(
+			input clk,
+			input IR_ld,
+			input [15:0] Instruction_In,
+			output logic [15:0] IR_data
+		);
+		*/
+	IR IR(
+			.clk(clk),
+			.IR_ld(IR_ld),
+			.Instruction_In(),
+			.IR_data(IR_data)
+		 );
+		 
 	
 	
 endmodule
