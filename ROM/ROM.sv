@@ -5,14 +5,15 @@
 
 module ROM(
   input  [6:0] address,      // address from PC
-  output [15:0] instruction  // instruction sent to IR
+  output logic [15:0] q  // instruction sent to IR
 );
 
     // Create memory array
-    memory[0:127] each 16 bits wide;
+    logic [15:0] memory [0:127];
 
     // Fill memory with instructions
     initial begin
+      
         memory[0] = first instruction;
         memory[1] = second instruction;
         memory[2] = third instruction;
