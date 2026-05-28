@@ -106,6 +106,8 @@ module RAM(
 	input [15:0]W_data,
 	output [15:0]R_data
 	);
+	//myRAM (address, clock, data, wren, q);
+	myRAM RAM(.address(D_Addr), .clock(clk), .data(W_data), .wren(D_wr), .q(R_data));
 	
 endmodule
 
