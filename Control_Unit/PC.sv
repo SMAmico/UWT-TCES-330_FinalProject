@@ -11,7 +11,7 @@ module PC(
 	logic [7:0] PC;		 
 	//myROM (address, clock, q);  
 
-always @* begin
+always @(posedge PC_up, posedge PC_clr) begin
 	if(PC_clr == 1) begin
 		PC = 8'b0;
 	end else if(PC_up == 1) begin
