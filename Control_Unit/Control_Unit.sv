@@ -97,8 +97,24 @@ module Control_Unit_FSM(
 		end
 	  end
 	  
-	  S_DEC: 
-	  S_EXE:
+	  S_DEC: begin
+		if(IR[15:12] == 4'b0101) begin
+			NextState = S_HLT;
+		end else NextState = S_EXE;
+	  end
+	  
+	  S_EXE: begin
+			case(IR[15:12])begin
+				4'b0000 : NextState = S_NOP;
+				4'b0001 : NextState = S_STR;
+				4'b0010 : NextState = S_LDR;
+				4'b0011 : NextState = S_ADD;
+				4'b0100 : NextState = S_SUB;
+				4'b0101 : NextState = S_HLT;
+				default : NextState = S_HLT;
+			endcase
+	  end
+	  
 	  S_NOP:
 	  S_STR:
 	  S_LDR:
