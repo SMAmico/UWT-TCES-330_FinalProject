@@ -19,8 +19,8 @@ module Control_Unit_FSM(
 			input [7:0]PC,
 			output PC_clr,		 //PC clear command line
 			output PC_up,		 //PC upcounter control line
-			output PC_w_en,
-			output [7:0]PC_set, //this is a overwrite line for the PC, will be implemented for JMP
+			//output PC_w_en,
+			//output [7:0]PC_set, //this is a overwrite line for the PC, will be implemented for JMP
 			
 			//IR input lines
 			input [15:0]IR_data, //the raw instruction data from ROM
@@ -48,16 +48,20 @@ module Control_Unit_FSM(
 			//current state output lines
 			output [3:0]StateOut
 			);
+			
+			logic [7:0]PC;
+			logic [15:]
+			
 
-  localparam S_INIT = 4'b0000;
-			 S_FETCH = 4'b0001;
-			 S_DEC = 4'b0010;
-			 S_EXE = 4'b0011;
-			 S_NOP = 4'b0100;
-			 S_STR = 4'b0101;
-			 S_LDR = 4'b0110;
-			 S_ADD = 4'b0111;
-			 S_SUB = 4'b1000;
+  localparam S_INIT,
+			 S_FETCH,
+			 S_DEC,
+			 S_EXE,
+			 S_NOP,
+			 S_STR,
+			 S_LDR,
+			 S_ADD,
+			 S_SUB,
 			 S_HLT = 4'b1001;
 			 //S_XOR = 4'b1010; //extra states from ALU should we choose to implement them
 			 //S_OR  = 4'b1011;
@@ -88,7 +92,7 @@ module Control_Unit_FSM(
       S_FETCH: begin
 		IR_ld = 1;
 		PC_up = 1;
-		IR = I[PC];
+		//IR = I[PC];  fetch the code at I[PC] address
 		if (1) begin		//always move to decode state
 		  NextState = S_DEC;
 		end
