@@ -16,8 +16,8 @@ module FSM(
 			input [7:0]PC,
 			output logic PC_clr,		 //PC clear command line
 			output logic PC_up,		 //PC upcounter control line
-			output logic PC_w_en,
-			output logic [7:0]PC_set, //this is a overwrite line for the PC, will be implemented for JMP
+			// output logic PC_w_en,
+			// output logic [7:0]PC_set, //this is a overwrite line for the PC, will be implemented for JMP
 			
 			//IR input lines
 			input [15:0]IR_data, //the raw instruction data from ROM
