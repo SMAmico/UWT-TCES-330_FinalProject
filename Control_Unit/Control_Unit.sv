@@ -50,16 +50,17 @@ module Control_Unit_FSM(
 			);
 			
 
-  localparam S_INIT,
-			 S_FETCH,
-			 S_DEC,
-			 S_EXE,
-			 S_NOP,
-			 S_STR,
-			 S_LDR,
-			 S_ADD,
-			 S_SUB,
-			 S_HLT,
+ 			
+	// added defined states to each localparam
+  localparam S_INIT = 4'd0,
+			 S_FETCH = 4'd1,
+			 S_DEC = 4'd2,
+			 S_NOP = 4'd3,
+			 S_STR = 4'd4,
+			 S_LDR = 4'd5,
+			 S_ADD = 4'd6,
+			 S_SUB = 4'd7,
+			 S_HLT = 4'd8,
 			 
 			 S_XOR, //extra states from ALU should we choose to implement them
 			 S_OR,
