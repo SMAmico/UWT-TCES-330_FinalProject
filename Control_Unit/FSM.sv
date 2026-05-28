@@ -106,12 +106,12 @@ module FSM(
 	PC_up      = 1'b0;
 	PC_w_en    = 1'b0;
 	PC_set     = 8'b0;
-	IR_ld      = 1'b0
+	IR_ld      = 1'b0;
 	D_Addr     = 8'b0;
 	D_wr       = 1'b0;
 	RF_s       = 1'b0;
 	RF_W_addr  = 4'b0;
-	RF_Ra_addr = 4'b0
+	RF_Ra_addr = 4'b0;
 	RF_Rb_addr = 4'b0;
 	RF_W_en    = 1'b0;
 	Alu_s0     = ALU_ADDZERO;
