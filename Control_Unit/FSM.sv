@@ -102,7 +102,7 @@ module FSM(
   always_comb begin
 	//setting the state to 0 beforehand ensures quartus can always resolve
     //the state's value even outside the case statement, making a state machine more visible
-	State = 4'h0;
+	NextState = State;
 	
     case (State)
       S_INIT: begin
