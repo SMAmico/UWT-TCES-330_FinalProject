@@ -66,7 +66,7 @@ module FSM(
   localparam ALU_ADDZERO = 3'b000,
 			ALU_ADD = 3'b001,
 			ALU_SUB = 3'b010,
-			ALU_PASS = 3'011,
+			ALU_PASS = 3'b011,
 			ALU_XOR = 3'b100,
 			ALU_OR = 3'b101,
 			ALU_AND = 3'b110,
