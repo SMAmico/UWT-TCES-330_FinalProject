@@ -16,9 +16,9 @@ module Control_Unit_FSM(
 			input Rst,			 //state machine reset line
 			
 			//PC control lines
-			logic [7:0]PC,
+			input logic [7:0]PC,
 			output PC_clr,		 //PC clear command line
-			wire PC_up,		 //PC upcounter control line
+			output PC_up,		 //PC upcounter control line
 			output PC_w_en,
 			output [7:0]PC_set, //this is a overwrite line for the PC, will be implemented for JMP
 			
@@ -96,7 +96,7 @@ module Control_Unit_FSM(
 		end
 	  end
 	  
-	  S_DEC: begin
+	  S_DEC: 
 	  S_EXE:
 	  S_NOP:
 	  S_STR:
