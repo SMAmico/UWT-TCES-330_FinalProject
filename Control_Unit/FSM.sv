@@ -8,11 +8,15 @@ Project File: FSM.sv
 
 
 module FSM(
-	input Clk,                         // system clock
+    input Clk,                         // system clock
     input Rst,                         // synchronous reset for the FSM state register
+
+    input [7:0] PC,                    // current PC value, used for PC-relative JLT
 
     output logic PC_clr,               // clears the program counter during INIT
     output logic PC_up,                // increments the program counter during FETCH
+    output logic PC_w_en,              // enables loading PC_set into the PC for jump instructions
+    output logic [7:0] PC_set,         // value loaded into the PC during jump instructions
 
     input [15:0] IR_data,              // current instruction stored in the instruction register
     output logic IR_ld,                // loads the instruction register during FETCH
@@ -28,6 +32,10 @@ module FSM(
     output logic RF_W_en,              // register file write enable
 
     output logic [2:0] Alu_s0,         // ALU function select
+
+    input Alu_Z,                       // ALU zero flag, used by JNZ
+    input Alu_N,                       // ALU negative flag, used by JLT
+    input Alu_V,                       // ALU overflow flag, used by JLT
 
     output logic [3:0] StateOut,       // current FSM state for debug/display
     output logic [3:0] NextStateOut    // next FSM state for debug/display
