@@ -65,29 +65,30 @@ module FSM(
                      ALU_SUB     = 3'b010,
                      ALU_PASS    = 3'b011;
  			
-	// added defined states to each localparam
-  localparam S_INIT = 4'd0,
-			 S_FETCH = 4'd1,
-			 S_DEC = 4'd2,
-			 S_NOP = 4'd3,
-			 S_STR = 4'd4,
-			 S_LDR = 4'd5,
-			 S_ADD = 4'd6,
-			 S_SUB = 4'd7,
-			 S_HLT = 4'd8,
-			 
-			 S_XOR, //extra states from ALU should we choose to implement them
-			 S_OR,
-			 S_AND,
-			 
-			 S_JMP, //Extra credit. these need to be included in the ALU
-			 S_JNZ,
-			 S_JLT;
-			 
-  
-  logic [3:0] State, NextState;  // state variables
-  
-  assign StateOut = State; 
+    /*
+    FSM state values. LOAD is split into two states because RAM read and RF write need at least two 
+	clock cycles. JNZ is split into two states: S_JNZ_TEST selects the register and lets the ALU/flags
+	evaluate it. S_JNZ_JUMP checks Alu_Z and updates the PC if the register is not zero. JLT is split 
+	into two states: S_JLT_TEST selects both registers and performs A - B. S_JLT_JUMP checks N ^ V and
+	updates the PC if A < B.
+    */
+    localparam [3:0] S_INIT     = 4'd0,
+                     S_FETCH    = 4'd1,
+                     S_DEC      = 4'd2,
+                     S_NOP      = 4'd3,
+                     S_STR      = 4'd4,
+                     S_LDA      = 4'd5,
+                     S_LDB      = 4'd6,
+                     S_ADD      = 4'd7,
+                     S_SUB      = 4'd8,
+                     S_HLT      = 4'd9,
+                     S_JMP      = 4'd10,
+                     S_JNZ_TEST = 4'd11,
+                     S_JNZ_JUMP = 4'd12,
+                     S_JLT_TEST = 4'd13,
+                     S_JLT_JUMP = 4'd14;
+
+    logic [3:0] State, NextState;
 
   //CombLogic (use blocking assigns)
   //describe state transition
