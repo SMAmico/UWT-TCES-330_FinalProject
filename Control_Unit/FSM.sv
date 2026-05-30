@@ -1,8 +1,10 @@
-// TCES 330 Spring 2026
-// Project file: FSM.sv
-// Finite State Machine for Project
-// this file contains an FSM module for the control unit.
-//it controls the datapath inputs for the ALU, register file, and RAM.
+/*
+Seth Amico, John Teal
+UW TCES 330
+Programmable Processor
+Project File: FSM.sv
+10 June 2026
+*/
 
 
 module FSM(
