@@ -41,7 +41,7 @@ module FSM(
     output logic [3:0] NextStateOut    // next FSM state for debug/display
 );
 	
-    /*
+	/*
     Instruction opcode values. Base project: 0000 = NOOP 0001 = STORE 0010 = LOAD 0011 = ADD
     0100 = SUB 0101 = HALT Extra credit: 1001 = JMP 1010 = JNZ 1011 = JLT 
     */
@@ -55,15 +55,15 @@ module FSM(
                      INS_JNZ = 4'hA,
                      INS_JLT = 4'hB;
 	
-	//ALU state localparams
-	localparam ALU_ADDZERO = 3'b000,
-			ALU_ADD = 3'b001,
-			ALU_SUB = 3'b010,
-			ALU_PASS = 3'b011,
-			ALU_XOR = 3'b100,
-			ALU_OR = 3'b101,
-			ALU_AND = 3'b110,
-			ALU_INC =  3'b111;
+    /*
+    ALU select values. These must match the ALU module. For JNZ, ALU_PASS is used to pass the selected
+	register value through the ALU so the zero flag can be checked. For JLT, ALU_SUB is used so the 
+	controller can check N ^ V.
+    */
+    localparam [2:0] ALU_ADDZERO = 3'b000,
+                     ALU_ADD     = 3'b001,
+                     ALU_SUB     = 3'b010,
+                     ALU_PASS    = 3'b011;
  			
 	// added defined states to each localparam
   localparam S_INIT = 4'd0,
