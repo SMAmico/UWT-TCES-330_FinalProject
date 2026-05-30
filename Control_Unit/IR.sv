@@ -1,21 +1,26 @@
-// TCES 330 Spring 2026
-// Project File: IR.sv
-// Instruction Register
+/*
+Seth Amico, John Teal
+UW TCES 330
+Programmable Processor
+Project File: IR.sv
+10 June 2026
+*/
 
 module IR(
     input clk,
     input IR_ld,
     input [15:0] Instruction_In,
-	output logic [15:0] IR_data
+    output logic [15:0] IR_data
 );
-		
-/*
-The IR is a clocked register. Ir_ld = 1 means load the current instruction from ROM. Ir_ld = 0 means 
-hold the previous instruction.
-*/
+
+    /*
+    The Instruction Register stores the current 16-bit instruction. IR_ld is a load-enable signal from
+	the FSM. IR_ld is not a clock. When IR_ld = 1, the IR loads the current instruction from ROM on the 
+	rising edge of clk. When IR_ld = 0, the IR holds its previous instruction.
+    */
+
     always_ff @(posedge clk) begin
-		if (IR_ld)
+        if (IR_ld)
             IR_data <= Instruction_In;
     end
 endmodule
-
