@@ -41,24 +41,22 @@ module FSM(
     output logic [3:0] NextStateOut    // next FSM state for debug/display
 );
 	
-	//opcode localparams
-  localparam INS_NOP = 4'h0,
-			 INS_STR = 4'h1,
-			 INS_LDR = 4'h2,
-			 INS_ADD = 4'h3,
-			 INS_SUB = 4'h4,
-			 INS_HLT = 4'h5,
-			 
-			 INS_XOR = 4'h6,
-			 INS_OR = 4'h7,
-			 INS_AND = 4'h8,
-			 
-			 INS_JMP = 4'h9,
-			 INS_JNZ = 4'ha,
-			 INS_JLT = 4'hb;
+    /*
+    Instruction opcode values. Base project: 0000 = NOOP 0001 = STORE 0010 = LOAD 0011 = ADD
+    0100 = SUB 0101 = HALT Extra credit: 1001 = JMP 1010 = JNZ 1011 = JLT 
+    */
+    localparam [3:0] INS_NOP = 4'h0,
+                     INS_STR = 4'h1,
+                     INS_LDR = 4'h2,
+                     INS_ADD = 4'h3,
+                     INS_SUB = 4'h4,
+                     INS_HLT = 4'h5,
+                     INS_JMP = 4'h9,
+                     INS_JNZ = 4'hA,
+                     INS_JLT = 4'hB;
 	
 	//ALU state localparams
-  localparam ALU_ADDZERO = 3'b000,
+	localparam ALU_ADDZERO = 3'b000,
 			ALU_ADD = 3'b001,
 			ALU_SUB = 3'b010,
 			ALU_PASS = 3'b011,
