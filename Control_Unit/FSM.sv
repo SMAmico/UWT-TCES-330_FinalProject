@@ -89,30 +89,47 @@ module FSM(
                      S_JLT_JUMP = 4'd14;
 
     logic [3:0] State, NextState;
+    
+	/*
+    Sign-extended 4-bit offset for JLT. JLT uses PC-relative addressing according to the extra-credit 
+	slide: JLT instruction format: ???? raaa rbbb bbbb The bbbb field is treated as a signed offset.
+    */
+    logic [7:0] JLT_offset;
 
-  //CombLogic (use blocking assigns)
-  //describe state transition
-  //of a Moore machine
-  always_comb begin
-	//setting the state to 0 beforehand ensures quartus can always resolve
-    //the state's value even outside the case statement, making a state machine more visible
-	PC_clr     = 1'b0;
-	PC_up      = 1'b0;
-	PC_w_en    = 1'b0;
-	PC_set     = 8'b0;
-	IR_ld      = 1'b0;
-	D_Addr     = 8'b0;
-	D_wr       = 1'b0;
-	RF_s       = 1'b0;
-	RF_W_addr  = 4'b0;
-	RF_Ra_addr = 4'b0;
-	RF_Rb_addr = 4'b0;
-	RF_W_en    = 1'b0;
-	Alu_s0     = ALU_ADDZERO;
-	  
-	NextState = State;
+    assign JLT_offset = {{4{IR_data[3]}}, IR_data[3:0]};
+
+    assign StateOut = State;
+    assign NextStateOut = NextState;
 	
-    case (State)
+    /*
+    Combinational logic for Moore FSM outputs and next-state selection. Every output is given a 
+	default value first. This prevents latch inference and allows each state to list only the signals 
+	that need to be non-default.
+    */
+    always_comb begin
+        PC_clr     = 1'b0;
+        PC_up      = 1'b0;
+        PC_w_en    = 1'b0;
+        PC_set     = 8'b0;
+
+        IR_ld      = 1'b0;
+
+        D_Addr     = 8'b0;
+        D_wr       = 1'b0;
+
+        RF_s       = 1'b0;
+
+        RF_W_addr  = 4'b0;
+        RF_Ra_addr = 4'b0;
+        RF_Rb_addr = 4'b0;
+        RF_W_en    = 1'b0;
+
+        Alu_s0     = ALU_ADDZERO;
+
+        NextState  = State;
+
+        case (State)
+	
       S_INIT: begin
         PC_clr = 1'b1;
         NextState = S_FETCH; //always move to fetch state
