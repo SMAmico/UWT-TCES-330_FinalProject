@@ -8,44 +8,30 @@ Project File: FSM.sv
 
 
 module FSM(
-			// system clock
-			input Clk, 			//system clock
-			
-			//Reset line
-			input Rst,			 //state machine reset line
-			
-			//PC control lines
-			output logic PC_clr,		 //PC clear command line
-			output logic PC_up,		 //PC upcounter control line
-			// output logic PC_w_en,
-			// output logic [7:0]PC_set, //this is a overwrite line for the PC, will be implemented for JMP
-			
-			//IR input lines
-			input [15:0] IR_data, //the raw instruction data from ROM
-			output logic IR_ld,		 //instruction data load command
-			
-			//RAM control lines
-			output logic [7:0] D_Addr, //output address to RAM
-			output logic D_wr,		 //write enable line to data
+	input Clk,                         // system clock
+    input Rst,                         // synchronous reset for the FSM state register
 
-			//Register File source control mux select line
-			output logic RF_s,		 //RF source control line
+    output logic PC_clr,               // clears the program counter during INIT
+    output logic PC_up,                // increments the program counter during FETCH
 
-			// Register File control lines
-			output logic [3:0] RF_W_addr,	//RF write address 
-			output logic [3:0]RF_Ra_addr, //RF read address A
-			output logic [3:0]RF_Rb_addr, //RF read address B
-			output logic RF_W_en,			//RF write address enable
-			
-			//ALU control lines
-			output logic [2:0]Alu_s0,
-			//input Alu_Z //this is an inbuilt ALU flag line that will need to be implemented
-			//input Alu_V //this is an inbuilt ALU overflow flag line
-			//input Alu_N //this is an inbuilt ALU negative flag line
-			
-			//current state output lines
-			output logic [3:0]StateOut
-			);
+    input [15:0] IR_data,              // current instruction stored in the instruction register
+    output logic IR_ld,                // loads the instruction register during FETCH
+
+    output logic [7:0] D_Addr,         // data memory address
+    output logic D_wr,                 // data memory write enable
+
+    output logic RF_s,                 // register file write-data mux select
+
+    output logic [3:0] RF_W_addr,      // register file write address
+    output logic [3:0] RF_Ra_addr,     // register file A-side read address
+    output logic [3:0] RF_Rb_addr,     // register file B-side read address
+    output logic RF_W_en,              // register file write enable
+
+    output logic [2:0] Alu_s0,         // ALU function select
+
+    output logic [3:0] StateOut,       // current FSM state for debug/display
+    output logic [3:0] NextStateOut    // next FSM state for debug/display
+);
 	
 	//opcode localparams
   localparam INS_NOP = 4'h0,
