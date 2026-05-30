@@ -129,87 +129,183 @@ module FSM(
         NextState  = State;
 
         case (State)
-	
-      S_INIT: begin
-        PC_clr = 1'b1;
-        NextState = S_FETCH; //always move to fetch state
-      end  
-      
-      S_FETCH: begin
-		IR_ld = 1'b1;			//increment instruction register
-		PC_up = 1'b1;			//along with the PC
-		NextState = S_DEC;//always move to decode state
-	  end
-		            
-		S_DEC: begin
-			case (IR_data[15:12])
+            // INIT clears the program counter so instruction execution starts at ROM address 0.
+            S_INIT: begin
+                PC_clr    = 1'b1;
+                NextState = S_FETCH;
+            end
+
+            /*
+            FETCH loads the current ROM instruction into the IR and increments the PC so it points to 
+			the next instruction.
+            */
+            S_FETCH: begin
+                IR_ld     = 1'b1;
+                PC_up     = 1'b1;
+                NextState = S_DEC;
+            end
+			
+            // DECODE checks the opcode field of the current instruction.
+            S_DEC: begin
+                case (IR_data[15:12])
                     INS_NOP: NextState = S_NOP;
                     INS_STR: NextState = S_STR;
-                    INS_LDR: NextState = S_LDR;
+                    INS_LDR: NextState = S_LDA;
                     INS_ADD: NextState = S_ADD;
                     INS_SUB: NextState = S_SUB;
                     INS_HLT: NextState = S_HLT;
+                    INS_JMP: NextState = S_JMP;
+                    INS_JNZ: NextState = S_JNZ_TEST;
+                    INS_JLT: NextState = S_JLT_TEST;
                     default: NextState = S_HLT;
                 endcase
             end
-	  
-	  S_NOP: begin
-			NextState = S_FETCH; //NOP instruction simply moves to the next state
-	  end
-	  S_STR: begin
-			RF_Ra_addr = IR[11:8]; //read from the Ra register
-			D_wr = 1'b1;			   //enable writing to RAM
-			D_addr = IR[7:0];	   //write to the RAM at IR's address
-			ALU_s0 = ALU_PASS;	   //set the alu to passthrough
-			NextState = S_FETCH;
-	  end
-	  
-	  S_LDR: begin
-		    D_addr = IR[11:4]    //load from RAM address
-			RF_w_addr = IR[7:0]; //write to RF address # IR
-			RF_s = 1'b1;			 //set mux to source from RAM
-			RF_w_es = 1'b1;		 //enable RF writing
-			NextState = S_FETCH;
-	  end
-	  
-	  S_ADD: begin
-			RF_Ra_addr = IR[11:8];//set register addresses
-			RF_Rb_addr = IR[7:4]; //for A and B ALU inputs
-			RF_w_addr = IR[3:0];  //set writeback register address
-			ALU_s0 = ALU_ADD;     //set ALU to add
-			RF_s = 1'b0;			  //set register to source from ALU output
-			RF_w_en = 1'b1;		  //set RF write enable high
-			NextState = S_FETCH;
-	  end
-	  
-	  S_SUB: begin 
-			RF_Ra_addr = IR[11:8];//set register addresses
-			RF_Rb_addr = IR[7:4]; //for A and B ALU inputs
-			RF_w_addr = IR[3:0];  //set writeback register address
-			ALU_s0 = ALU_SUB;     //set ALU to subtract
-			RF_s = 1'b0;			  //set register to source from ALU output
-			RF_w_en = 1'b1;		  //set RF write enable high
-			NextState = S_FETCH;
-	  end
-	  S_HLT: begin
-			NextState = S_HLT;    //loop back to halt state (lock)
-	  end
-	  
-      default: begin
- 
-        NextState = S_HLT;          // safe state
-      end
-    endcase //end case - state transition description
-  end // end the always Comb Logic
-    
-  always_ff @(posedge Clk) begin
-    if (Rst)
-      State <= S_INIT;
-    else
-      State <= NextState;   // go to the state we described above
-  end // end the always ff logic
+			
+            // NOOP performs no datapath operation.
+            S_NOP: begin
+                NextState = S_FETCH;
+            end
 
-  
+            // STORE instruction: 0001 rrrr dddddddd RF[rrrr] -> D[dddddddd]
+            S_STR: begin
+                RF_Ra_addr = IR_data[11:8];
+                D_Addr     = IR_data[7:0];
+                D_wr       = 1'b1;
+
+                NextState  = S_FETCH;
+            end
+
+            /*
+            LOAD_A instruction state: 0010 dddddddd rrrr This first LOAD state places the RAM address 
+			on D_Addr and sets the register file write address.
+            */
+            S_LDA: begin
+                D_Addr    = IR_data[11:4];
+                RF_s      = 1'b1;
+                RF_W_addr = IR_data[3:0];
+
+                NextState = S_LDB;
+            end
+
+            /*
+            LOAD_B instruction state: This second LOAD state enables the register file write after the
+			RAM output has had time to become valid.
+            */
+            S_LDB: begin
+                D_Addr    = IR_data[11:4];
+                RF_s      = 1'b1;
+                RF_W_addr = IR_data[3:0];
+                RF_W_en   = 1'b1;
+
+                NextState = S_FETCH;
+            end
+
+            // ADD instruction: 0011 raaa rbbb rccc RF[rccc] = RF[raaa] + RF[rbbb]
+            S_ADD: begin
+                RF_Ra_addr = IR_data[11:8];
+                RF_Rb_addr = IR_data[7:4];
+                RF_W_addr  = IR_data[3:0];
+                RF_W_en    = 1'b1;
+                Alu_s0     = ALU_ADD;
+                RF_s       = 1'b0;
+
+                NextState  = S_FETCH;
+            end
+
+            // SUB instruction: 0100 raaa rbbb rccc RF[rccc] = RF[raaa] - RF[rbbb]
+            S_SUB: begin
+                RF_Ra_addr = IR_data[11:8];
+                RF_Rb_addr = IR_data[7:4];
+                RF_W_addr  = IR_data[3:0];
+                RF_W_en    = 1'b1;
+                Alu_s0     = ALU_SUB;
+                RF_s       = 1'b0;
+
+                NextState  = S_FETCH;
+            end
+
+            // JMP instruction: 1001 0000 bbbbbbbb Absolute jump. The PC is loaded with IR_data[7:0].
+            S_JMP: begin
+                PC_set     = IR_data[7:0];
+                PC_w_en    = 1'b1;
+
+                NextState  = S_FETCH;
+            end
+
+            /*
+            JNZ_TEST instruction state: 1010 bbbbbbbb rrrr Select RF[rrrr] and pass it through the 
+			ALUso the zero flag can indicate whether the register is zero.
+            */
+            S_JNZ_TEST: begin
+                RF_Ra_addr = IR_data[3:0];
+                Alu_s0     = ALU_PASS;
+
+                NextState  = S_JNZ_JUMP;
+            end
+
+            /*
+            JNZ_JUMP instruction state: If the selected register was not zero, load the PC with the
+			absolute address stored in IR_data[11:4].
+            */
+            S_JNZ_JUMP: begin
+                if (!Alu_Z) begin
+                    PC_set  = IR_data[11:4];
+                    PC_w_en = 1'b1;
+                end
+
+                NextState = S_FETCH;
+            end
+
+            /*
+            JLT_TEST instruction state: 1011 raaa rbbb bbbb Select RF[raaa] and RF[rbbb], then 
+			subtract A - B. The ALU flags are used in the next state to determine whether A < B.
+            */
+            S_JLT_TEST: begin
+                RF_Ra_addr = IR_data[11:8];
+                RF_Rb_addr = IR_data[7:4];
+                Alu_s0     = ALU_SUB;
+
+                NextState  = S_JLT_JUMP;
+            end
+
+            /*
+            JLT_JUMP instruction state: Signed less-than is checked with N ^ V. If A < B, load the PC 
+			with PC + signed offset. The current PC should already point to the next instruction 
+			because FETCH incremented it before decode.
+            */
+            S_JLT_JUMP: begin
+                if (Alu_N ^ Alu_V) begin
+                    PC_set  = PC + JLT_offset;
+                    PC_w_en = 1'b1;
+                end
+
+                NextState = S_FETCH;
+            end
+
+            // HALT locks the processor in the halt state.
+            S_HLT: begin
+                NextState = S_HLT;
+            end
+
+            // Any unexpected state moves to HALT as a safe failure state.
+            default: begin
+                NextState = S_HLT;
+            end
+
+        endcase
+	end
+    
+    /*
+    Sequential state register. The FSM state only changes on the rising edge of Clk. Rst returns the 
+	FSM to INIT.
+    */
+    always_ff @(posedge Clk) begin
+        if (Rst)
+            State <= S_INIT;
+        else
+            State <= NextState;
+    end
+
 endmodule
 
 
