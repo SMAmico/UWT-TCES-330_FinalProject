@@ -16,13 +16,21 @@
 -- Quartus Prime generated Memory Initialization File (.mif)
 
 WIDTH=16;
-DEPTH=256;
+DEPTH=128;
 
 ADDRESS_RADIX=HEX;
-DATA_RADIX=UNS;
+DATA_RADIX=HEX;
 
 CONTENT BEGIN
-	000  :   2000;
-	001  :   2011;
-	[002..0FF]  :   0;
+    00 : 21BA;  -- LOAD  D[1B] -> RF[A]
+    01 : 22AB;  -- LOAD  D[2A] -> RF[B]
+    02 : 4ABA;  -- SUB   RF[A] - RF[B] -> RF[A]
+    03 : 23CB;  -- LOAD  D[3C] -> RF[B]
+    04 : 3ABA;  -- ADD   RF[A] + RF[B] -> RF[A]
+    05 : 27EB;  -- LOAD  D[7E] -> RF[B]
+    06 : 4ABA;  -- SUB   RF[A] - RF[B] -> RF[A]
+    07 : 1A6A;  -- STORE RF[A] -> D[6A]
+    08 : 5000;  -- HALT
+
+    [09..7F] : 0000;
 END;
