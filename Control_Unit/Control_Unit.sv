@@ -127,7 +127,7 @@ module Control_Unit(
 	counter are used as the ROM address.
     */
     myROM rom0(
-        .address(PC[6:0]),
+        .address(PC),
 		.clock(Clk),
         .q(IR_in)
     );
