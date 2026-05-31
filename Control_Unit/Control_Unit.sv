@@ -111,33 +111,25 @@ module Control_Unit(
         .PC_out(PC)
     );
 	
-		/*
-		IR(
-			input clk,
-			input IR_ld,
-			input [15:0] Instruction_In,
-			output logic [15:0] IR_data
-		);
-		*/
-	IR IR(
-			.clk(clk),
-			.IR_ld(IR_ld),
-			.Instruction_In(IR_in),
-			.IR_data(IR_data)
-		 );
+    /*
+    The IR stores the current instruction. The ROM output IR_in is loaded into IR_data when IR_ld is 
+	asserted during the FETCH state.
+    */
+    IR ir0(
+        .clk(clk),
+        .IR_ld(IR_ld),
+        .Instruction_In(IR_in),
+        .IR_data(IR_data)
+    );
 		 
-		/*
-		myROM (
-			address,
-			clock,
-			q
-		);
-		*/
-	myROM ROM(
-			.address(PC),
-			.clock(clk),
-			.q(IR_in)
-		);
-	
-	
+    /*
+    Instruction ROM. The instruction memory is 128 x 16, so only the lower 7 bits of the program 
+	counter are used as the ROM address.
+    */
+    myROM rom0(
+        .address(PC[6:0]),
+        .clock(clk),
+        .q(IR_in)
+    );
+
 endmodule
