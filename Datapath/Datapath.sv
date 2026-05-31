@@ -11,10 +11,10 @@ module for Project phase III. this file REQUIRES the verilog file myRAM.v to be 
 */
 
 module RegFile (
-	input clk,					// system clock
-	input write,				// write enable
+	input Clk,			// system clock
+	input write,			// write enable
 	
-	input [3:0] wrAddr,			// write address
+	input [3:0] wrAddr,		// write address
 	input [15:0] wrData,		// write data
 
 	input [3:0] rdAddrA,		// A-side read address
@@ -38,16 +38,16 @@ the register array.
 Write Logic: the register file has one write port.  When write is high, wrData is copied into the 
 register selected by wrAddr on the rising edge of clk. When write is low, no register changes.
 */
-	always_ff @(posedge clk) begin
+	always_ff @(posedge Clk) begin
 		if (write)
 			regfile[wrAddr] <= wrData;
 	end
 endmodule
 
 module ALU (
-	input [15:0] A,				// first 16-bit ALU input
-	input [15:0] B,				// second 16-bit ALU input
-	input [2:0] S,				// 3-bit ALU operation select
+	input [15:0] A,			// first 16-bit ALU input
+	input [15:0] B,			// second 16-bit ALU input
+	input [2:0] S,			// 3-bit ALU operation select
 	output logic [15:0] Q		// 16-bit ALU result
 );
 /*
@@ -102,33 +102,33 @@ RAM module: this module is blank, but will act as a wrapper module for a prebuil
 module RAM(
 	input [7:0]D_Addr,
 	input D_wr,
-	input clk,
+	input Clk,
 	input [15:0]W_data,
 	output [15:0]R_data
 	);
 	//myRAM (address, clock, data, wren, q);
-	myRAM ram_lpm(.address(D_Addr), .clock(clk), .data(W_data), .wren(D_wr), .q(R_data));
+	myRAM ram_lpm(.address(D_Addr), .clock(Clk), .data(W_data), .wren(D_wr), .q(R_data));
 	
 endmodule
 
 module Datapath(
-    input clk,                         // system clock for the register file and RAM
+    input Clk,                         	// system clock for the register file and RAM
 
-    input [7:0] D_Addr,                // RAM data address
-    input D_wr,                        // RAM data write enable
-    input RF_s,                        // register file mux source select
+    input [7:0] D_Addr,                	// RAM data address
+    input D_wr,                        	// RAM data write enable
+    input RF_s,                        	// register file mux source select
 
-    input RF_W_en,                     // register file write enable
+    input RF_W_en,                     	// register file write enable
 
-    input [3:0] RF_Ra_addr,            // register file read A address
-    input [3:0] RF_Rb_addr,            // register file read B address
-    input [3:0] RF_W_addr,             // register file write address
+    input [3:0] RF_Ra_addr,            	// register file read A address
+    input [3:0] RF_Rb_addr,            	// register file read B address
+    input [3:0] RF_W_addr,             	// register file write address
 
-    input [2:0] Alu_s0,                // ALU operation select
+    input [2:0] Alu_s0,                	// ALU operation select
 									   
-	output [15:0] ALU_A,			   // ALU_A output
-	output [15:0] ALU_B,			   // ALU_B output
-	output [15:0] ALU_Out			   // ALU_Out output
+	output [15:0] ALU_A,	     	// ALU_A output
+	output [15:0] ALU_B,		// ALU_B output
+	output [15:0] ALU_Out		// ALU_Out output
 );
 
     /*
@@ -152,7 +152,7 @@ module Datapath(
 	RAM/ALU mux. This allows LOAD to write RAM data and ADD/SUB to write ALU data.
     */
     RegFile rf0(
-        .clk(clk),
+        .Clk(Clk),
         .write(RF_W_en),
         .wrAddr(RF_W_addr),
         .wrData(W_data),
@@ -185,15 +185,9 @@ module Datapath(
     RAM ram0(
         .D_Addr(D_Addr),
         .D_wr(D_wr),
-        .clk(clk),
+        .Clk(Clk),
         .W_data(Ra_data),
         .R_data(R_data)
     );
 
 endmodule
-
-
-
-//TODO: replace the regALU Testbench with a datapath testbench.
-
-
