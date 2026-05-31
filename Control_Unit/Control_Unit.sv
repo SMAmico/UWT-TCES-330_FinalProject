@@ -60,84 +60,56 @@ module Control_Unit(
 
     assign PC_Out = PC;
     assign IR_Out = IR_data;
+    
+	/*
+    The FSM generates all control signals for the PC, IR, and datapath. The FSM reads the latched 
+	instruction from IR_data, not the raw ROM output.
+    */
+    FSM fsm0(
+        .Clk(Clk),
+        .Rst(rst),
 
-	/*FSM(
-			// system clock
-			input Clk, 			//system clock
-			
-			//Reset line
-			input Rst,			 //state machine reset line
-			
-			//PC control lines
-			output logic PC_clr,		 //PC clear command line
-			output logic PC_up,		 //PC upcounter control line
-			// output logic PC_w_en,
-			// output logic [7:0]PC_set, //this is a overwrite line for the PC, will be implemented for JMP
-			
-			//IR input lines
-			input [15:0] IR_data, //the raw instruction data from ROM
-			output logic IR_ld,		 //instruction data load command
-			
-			//RAM control lines
-			output logic [7:0] D_Addr, //output address to RAM
-			output logic D_wr,		 //write enable line to data
+        .PC(PC),
+        .PC_clr(PC_clr),
+        .PC_up(PC_up),
+        .PC_w_en(PC_w_en),
+        .PC_set(PC_set),
 
-			//Register File source control mux select line
-			output logic RF_s,		 //RF source control line
+        .IR_data(IR_data),
+        .IR_ld(IR_ld),
 
-			// Register File control lines
-			output logic [3:0] RF_W_addr,	//RF write address 
-			output logic [3:0]RF_Ra_addr, //RF read address A
-			output logic [3:0]RF_Rb_addr, //RF read address B
-			output logic RF_W_en,			//RF write address enable
-			
-			//ALU control lines
-			output logic [2:0]Alu_s0,
-			//input Alu_Z //this is an inbuilt ALU flag line that will need to be implemented
-			//input Alu_V //this is an inbuilt ALU overflow flag line
-			//input Alu_N //this is an inbuilt ALU negative flag line
-			
-			//current state output lines
-			output logic [3:0]StateOut
-			);*/
-	FSM FSM(.Clk(clk),
-			.Rst(rst),
-			
-			.PC_clr(PC_clr),
-			.PC_up(PC_up),
-			//.PC_w_en(),  //PC overwriting isn't implemented yet
-			//.PC_set(),   
-			
-			.IR_data(IR_data),
-			.IR_ld(IR_ld),
-			
-			.D_addr(D_Addr),
-			.D_wr(D_wr),
-			
-			.RF_s(RF_s),
-			.RF_W_addr(RF_W_addr),
-			.RF_Ra_addr(RF_Ra_addr),
-			.RF_Rb_addr(RF_Rb_addr),
-			.RF_W_en(RF_W_en),
-			
-			.Alu_s0(Alu_s0),
-			.StateOut(StateOut)
-			);
-			
-		/*
-		PC(
-			input clk,
-			input PC_clr,
-			input PC_up,
-			output logic [7:0] PC_out
-			);
-		*/
-	PC PC(
-			.clk(clk),
-			.PC_clr(PC_clr),
-			.PC_up(PC_up),
-			.PC_out(PC)
-			);
+        .D_Addr(D_Addr),
+        .D_wr(D_wr),
+
+        .RF_s(RF_s),
+
+        .RF_W_addr(RF_W_addr),
+        .RF_Ra_addr(RF_Ra_addr),
+        .RF_Rb_addr(RF_Rb_addr),
+        .RF_W_en(RF_W_en),
+
+        .Alu_s0(Alu_s0),
+
+        .Alu_Z(Alu_Z),
+        .Alu_N(Alu_N),
+        .Alu_V(Alu_V),
+
+        .StateOut(StateOut),
+        .NextStateOut(NextStateOut)
+    );
+	
+    /*
+    The PC stores the current instruction address. PC_clr and PC_up come from the FSM. PC_w_en and 
+	PC_set are only needed for jump instructions.
+    */
+    PC pc0(
+        .clk(clk),
+        .PC_clr(PC_clr),
+        .PC_up(PC_up),
+        .PC_w_en(PC_w_en),
+        .PC_set(PC_set),
+        .PC_out(PC)
+    );
 	
 		/*
 		IR(
