@@ -95,7 +95,8 @@ module mux16w_2to1(
 endmodule
 
 /*
-RAM module: this module is blank, but will act as a wrapper module for a prebuilt verilog file from Quartus.
+RAM wrapper for the Quartus-generated myRAM LPM module. The myRAM.v file must be included in the 
+Quartus project and ModelSim compile list.
 */
 module RAM(
 	input [7:0]D_Addr,
