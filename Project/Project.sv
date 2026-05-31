@@ -49,10 +49,10 @@ module Project(
     wire [15:0] ALU_Out;
 
     /*
-    Display value for HEX7..HEX4.
+    Display value for HEX5..HEX4.
 
     HEX3..HEX0 always display IR_Out.
-    HEX7..HEX4 display a debug value selected by SW[17:15].
+    HEX5..HEX4 display the lower 8 bits of the debug value selected by SW[9:7].
     */
     logic [15:0] Display_Out;
 
@@ -72,8 +72,9 @@ module Project(
 
     /*
     Display select mux.
-
-    SW[17:15] selects what is shown on HEX7..HEX4.
+    
+    SW[9:7] selects what is shown on HEX5..HEX4.
+    Only the lower 8 bits of Display_Out are visible because the DE10 board has six HEX displays.
     */
     always_comb begin
         case (SW[9:7])
