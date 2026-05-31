@@ -8,10 +8,10 @@ Project File: Processor.sv
 
 module Processor(
     input Clk,
-    input Reset,
+    input ResetN,
 
     output [15:0] IR_Out,
-    output [7:0] PC_Out,
+    output [6:0] PC_Out,
     output [3:0] State,
     output [3:0] NextState,
 
