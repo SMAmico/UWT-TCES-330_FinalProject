@@ -14,8 +14,8 @@ module IR(
 );
 
     /*
-    The Instruction Register stores the current 16-bit instruction. IR_ld is a load-enable signal from
-	the FSM. IR_ld is not a clock. When IR_ld = 1, the IR loads the current instruction from ROM on the 
+    The Instruction Register stores the current 16-bit instruction. IR_ld is a load-enable signal from 
+	the FSM. It is not a clock. When IR_ld = 1, the IR loads the current instruction from ROM on the 
 	rising edge of clk. When IR_ld = 0, the IR holds its previous instruction.
     */
 
@@ -23,4 +23,5 @@ module IR(
         if (IR_ld)
             IR_data <= Instruction_In;
     end
+
 endmodule
