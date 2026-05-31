@@ -9,20 +9,38 @@ Project File: Control_Unit.sv
 module Control_Unit(
 		input clk,
 		input rst,
-		
-		output [7:0]D_Addr,
-		output D_wr,
-		
-		output RF_s,
-		
-		output [3:0]RF_W_addr,
-		output RF_W_en,
-		
-		output [3:0]RF_Ra_addr,
-		output [3:0]RF_Rb_addr,
-		
-		output [2:0]Alu_s0
-		);
+		    
+	/*
+    ALU flag inputs come from the datapath. These are only needed for the extra-credit conditional 
+	jump states. Alu_Z is used by JNZ. Alu_N and Alu_V are used by JLT.
+    */
+    input Alu_Z,
+    input Alu_N,
+    input Alu_V,
+	
+    // Control signals sent to the datapath.
+    output [7:0] D_Addr,
+    output D_wr,
+
+    output RF_s,
+
+    output [3:0] RF_W_addr,
+    output RF_W_en,
+
+    output [3:0] RF_Ra_addr,
+    output [3:0] RF_Rb_addr,
+
+    output [2:0] Alu_s0,
+    
+	/*
+    Debug outputs passed up to Processor.sv. The provided processor testbench expects the processor to
+	expose the instruction register, program counter, current state, and next state.
+    */
+    output [15:0] IR_Out,
+    output [7:0] PC_Out,
+    output [3:0] StateOut,
+    output [3:0] NextStateOut
+);
 		
 	wire PC_clr;
 	wire PC_up;
