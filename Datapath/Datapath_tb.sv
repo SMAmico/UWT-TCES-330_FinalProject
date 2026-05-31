@@ -26,11 +26,11 @@ module Datapath_tb();
     logic [15:0] ALU_A;
     logic [15:0] ALU_B;
     logic [15:0] ALU_Out;
-
+/* commented out until extra credit is created
     logic Alu_Z;
     logic Alu_N;
     logic Alu_V;
-
+*/
     integer pass_count;
     integer fail_count;
 
