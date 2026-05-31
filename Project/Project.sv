@@ -76,7 +76,7 @@ module Project(
     SW[17:15] selects what is shown on HEX7..HEX4.
     */
     always_comb begin
-        case (SW[17:15])
+        case (SW[9:7])
             3'b000: Display_Out = {9'b0, PC_Out};
             3'b001: Display_Out = {12'b0, State};
             3'b010: Display_Out = ALU_A;
