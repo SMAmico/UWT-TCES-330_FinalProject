@@ -21,26 +21,49 @@ module Processor(
 );
 
     /*
+    The provided testProcessor.sv uses active-low reset.
+
+    ResetN = 0 means reset is active.
+    ResetN = 1 means normal processor operation.
+
+    The internal Control Unit/FSM uses active-high reset, so ResetN is inverted here.
+    */
+    wire Reset;
+
+    assign Reset = ~ResetN;
+
+    /*
+    The PC module and Control Unit use an 8-bit PC internally. The provided testProcessor.sv expects
+    PC_Out to be 7 bits because the ROM is 128 words and uses address[6:0].
+    */
+    wire [7:0] PC_Out_full;
+
+    assign PC_Out = PC_Out_full[6:0];
+
+    /*
     Control signals from the Control Unit to the Datapath.
+
+    These internal wire names intentionally use the capitalization expected by testProcessor.sv.
+    The testbench monitors DUT.RF_Ra_Addr directly.
     */
     wire [7:0] D_Addr;
     wire D_wr;
 
     wire RF_s;
 
-    wire [3:0] RF_W_addr;
+    wire [3:0] RF_W_Addr;
     wire RF_W_en;
 
-    wire [3:0] RF_Ra_addr;
-    wire [3:0] RF_Rb_addr;
+    wire [3:0] RF_Ra_Addr;
+    wire [3:0] RF_Rb_Addr;
 
     wire [2:0] Alu_s0;
 
     /*
     Temporary ALU flag wires.
 
-    These are tied low for the base processor test because the current Datapath module does not expose
-    Alu_Z, Alu_N, or Alu_V yet. They are only needed for the extra-credit conditional jump states.
+    These are tied low for the base processor because the current Datapath does not expose Alu_Z,
+    Alu_N, or Alu_V yet. They are only needed for extra-credit conditional jump support.
     */
     wire Alu_Z;
     wire Alu_N;
@@ -52,9 +75,6 @@ module Processor(
 
     /*
     Control Unit instance.
-
-    The Control Unit fetches instructions, decodes opcodes, controls the PC and IR, and sends control
-    signals to the Datapath.
     */
     Control_Unit control0(
         .Clk(Clk),
@@ -69,24 +89,22 @@ module Processor(
 
         .RF_s(RF_s),
 
-        .RF_W_addr(RF_W_addr),
+        .RF_W_addr(RF_W_Addr),
         .RF_W_en(RF_W_en),
 
-        .RF_Ra_addr(RF_Ra_addr),
-        .RF_Rb_addr(RF_Rb_addr),
+        .RF_Ra_addr(RF_Ra_Addr),
+        .RF_Rb_addr(RF_Rb_Addr),
 
         .Alu_s0(Alu_s0),
 
         .IR_Out(IR_Out),
-        .PC_Out(PC_Out),
+        .PC_Out(PC_Out_full),
         .StateOut(State),
         .NextStateOut(NextState)
     );
 
     /*
     Datapath instance.
-
-    The Datapath contains the register file, ALU, RAM, and register-file write-back mux.
     */
     Datapath datapath0(
         .Clk(Clk),
@@ -97,9 +115,9 @@ module Processor(
         .RF_s(RF_s),
         .RF_W_en(RF_W_en),
 
-        .RF_Ra_addr(RF_Ra_addr),
-        .RF_Rb_addr(RF_Rb_addr),
-        .RF_W_addr(RF_W_addr),
+        .RF_Ra_addr(RF_Ra_Addr),
+        .RF_Rb_addr(RF_Rb_Addr),
+        .RF_W_addr(RF_W_Addr),
 
         .Alu_s0(Alu_s0),
 
