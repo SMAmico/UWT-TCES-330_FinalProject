@@ -307,27 +307,3 @@ module FSM(
     end
 
 endmodule
-
-
-//********************************************//
-//                 Testbench	                //
-//********************************************//
-/*
-module 
-  
-  	
-	always begin  // 50 MHz Clock
-	  Clock = 1'b0; #10;
-	  Clock = 1'b1; #10;
-	end
-  
-  initial begin
-    // generate your input sequence
-    $stop;
-  end
-  
-  initial
-    $monitor( .... );
-  
-endmodule
-*/
