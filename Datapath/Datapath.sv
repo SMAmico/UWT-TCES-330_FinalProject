@@ -94,10 +94,6 @@ module mux16w_2to1(
 	
 endmodule
 
-
-
-//TODO: create a module for the RAM by instantiating an IP .v file from the Quartus IP library
-
 /*
 RAM module: this module is blank, but will act as a wrapper module for a prebuilt verilog file from Quartus.
 */
