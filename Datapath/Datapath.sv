@@ -1,7 +1,8 @@
 /*
 Seth Amico, John Teal
 UW TCES 330
-Project Phase III (updated for final project)
+Programmable Processor
+Project File: Datapath.sv
 10 June 2026
 
 Description:
@@ -19,7 +20,7 @@ module RegFile (
 	input [3:0] rdAddrA,		// A-side read address
 	output [15:0] rdDataA,		// A-side read data
 
-	input [2:0] rdAddrB,		// B-side read address
+	input [3:0] rdAddrB,		// B-side read address
 	output [15:0] rdDataB		// B-side read data
 	);
 
@@ -37,7 +38,7 @@ the register array.
 Write Logic: the register file has one write port.  When write is high, wrData is copied into the 
 register selected by wrAddr on the rising edge of clk. When write is low, no register changes.
 */
-	always @(posedge clk) begin
+	always_ff @(posedge clk) begin
 		if (write)
 			regfile[wrAddr] <= wrData;
 	end
@@ -106,7 +107,7 @@ module RAM(
 	output [15:0]R_data
 	);
 	//myRAM (address, clock, data, wren, q);
-	myRAM RAM(.address(D_Addr), .clock(clk), .data(W_data), .wren(D_wr), .q(R_data));
+	myRAM ram_1pm(.address(D_Addr), .clock(clk), .data(W_data), .wren(D_wr), .q(R_data));
 	
 endmodule
 
