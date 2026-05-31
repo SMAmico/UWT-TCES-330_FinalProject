@@ -1,12 +1,12 @@
 /*
 Seth Amico, John Teal
 UW TCES 330
-Project Phase III
-15 May 2026
+Project Phase III (updated for final project)
+10 June 2026
 
 Description:
-This file contains the register file, ALU, RAM instantiation, data source mux, and combined Datapath module for
-Project phase III. this file REQUIRES the verilog file myRAM.v to be included
+This file contains the register file, ALU, RAM instantiation, data source mux, and combined Datapath 
+module for Project phase III. this file REQUIRES the verilog file myRAM.v to be included. 
 */
 
 module RegFile (
@@ -25,12 +25,11 @@ module RegFile (
 
 	logic [15:0] regfile [0:15];	// sixteen 16-bit registers
 /*
-Read Logic: The register file has two read ports.
-rdAddrA selects which register appears on rdDataA.
-rdAddrB selects which register appears on rdDataB.
-These are combinational reads, so the selected register values appear on the outputs without waiting
-for a clock edge.  This follows the register-file style shown in the lecture references, where the
-read outputs are assigned directly from the register array.
+Read Logic: The register file has two read ports. rdAddrA selects which register appears on rdDataA.
+rdAddrB selects which register appears on rdDataB. These are combinational reads, so the selected 
+register values appear on the outputs without waiting for a clock edge.  This follows the 
+register-file style shown in the lecture references, where the read outputs are assigned directly from
+the register array.
 */
 	assign rdDataA = regfile[rdAddrA];
 	assign rdDataB = regfile[rdAddrB];
@@ -115,98 +114,80 @@ endmodule
 
 
 module Datapath(
-	input clk,					// system clock for the register file
-	
-	input [7:0] D_Addr;			// RAM data address 
-	input D_wr;					// RAM data write enable
-	input RF_s;					// register file mux source select
-	
-	input RF_W_en,				// register file write enable
+    input clk,                         // system clock for the register file and RAM
 
-	input [3:0] RF_Ra_addr,		// register file read A address
-	input [3:0] RF_Rb_addr,		// register file read B address
-	input [3:0] RF_W_addr,		// register file write address
+    input [7:0] D_Addr,                // RAM data address
+    input D_wr,                        // RAM data write enable
+    input RF_s,                        // register file mux source select
 
-	input [2:0] Alu_s0,			// ALU operation select
+    input RF_W_en,                     // register file write enable
 
-	output [15:0] Q			// Datapath result output
+    input [3:0] RF_Ra_addr,            // register file read A address
+    input [3:0] RF_Rb_addr,            // register file read B address
+    input [3:0] RF_W_addr,             // register file write address
+
+    input [2:0] Alu_s0,                // ALU operation select
+
+    output [15:0] Q                    // ALU result output for debug/display
 );
-/*
-This internal wire connects the ALU output back to the register file write data input.
-Hence, a compartmentalized approach can be taken where the module output, Q, is not directly
-in the internal signal path.
-*/
 
-	wire [15:0] Q_Data;
-	assign Q = Q_Data;
+    /*
+    Internal datapath wires. Ra_data and Rb_data are the register file read outputs. Q_Data is the 
+	ALU output. R_data is the RAM read output. W_data is the mux output that feeds the register file 
+	write data input.
+    */
 
-/*
-Internal datapath wires: Ra_data carries the register selected by RF_Ra_addr. Rb_data carries the 
-register selected by RF_Rb_addr. These two values become the A and the B inputs of the ALU.
-*/
-	wire [15:0] Ra_data;
-	wire [15:0] Rb_data;
-	wire [15:0] W_data;
-	wire [15:0] R_Data;
-	
-	
-	
-	
-/*
-Register file instance: The RegALU control signals use the naming convention from the datapath 
-diagram. These are mapped into the RegFile module's simpler port names.
-	RF_W_en    -> write
-	RF_W_addr  -> wrAddr
-	Q          -> wrData
-	RF_Ra_addr -> rdAddrA
-	Ra_data    -> rdDataA
-	RF_Rb_addr -> rdAddrB
-	Rb_data    -> rdDataB
-The important connection is Q feeding back into wrData. That means the ALU result can be written back
-into the register file on the rising clock edge when RF_W_en is high.
-*/
-	RegFile RF(
-			.clk(clk),
-			.write(RF_W_en),
-			.wrAddr(RF_W_addr),
-			.wrData(Q_Data),
-			.rdAddrA(RF_Ra_addr),
-			.rdDataA(Ra_data),
-			.rdAddrB(RF_Rb_addr),
-			.rdDataB(Rb_data)
-			);
-			
-/*
-ALU instance: The register file provides the two ALU operands: Ra_data -> A Rb_data -> B. The
-RegALU control signal Alu_s0 selects the ALU operation by connecting to the ALU's S input. The ALU
-output is Q.
-*/
-	ALU ALU0(
-			.A(Ra_data),
-			.B(Rb_data),
-			.S(Alu_s0),
-			.Q(Q_Data)
-			);
-	
-/*
-Mux instance
-*/
-	mux16w_2to1 RF_SOURCE(
-			.RAM(R_data),
-			.ALU(Q),
-			.RF_s(RF_s),
-			.Q(W_data)
-			);
-	
-/*
-RAM skeleton instance
-*/
-	RAM RAM(
-			.D_Addr(D_Addr),
-			.D_wr(D_wr),
-			.W_data(Ra_data),
-			.R_data(R_data)
-			);
+    wire [15:0] Ra_data;
+    wire [15:0] Rb_data;
+    wire [15:0] Q_Data;
+    wire [15:0] R_data;
+    wire [15:0] W_data;
+
+    assign Q = Q_Data;
+
+    /*
+    Register file instance. The register file write data comes from W_data, which is selected by the 
+	RAM/ALU mux. This allows LOAD to write RAM data and ADD/SUB to write ALU data.
+    */
+    RegFile rf0(
+        .clk(clk),
+        .write(RF_W_en),
+        .wrAddr(RF_W_addr),
+        .wrData(W_data),
+        .rdAddrA(RF_Ra_addr),
+        .rdDataA(Ra_data),
+        .rdAddrB(RF_Rb_addr),
+        .rdDataB(Rb_data)
+    );
+
+    // ALU instance. The ALU uses the two register file read outputs as operands.
+    ALU alu0(
+        .A(Ra_data),
+        .B(Rb_data),
+        .S(Alu_s0),
+        .Q(Q_Data)
+    );
+
+    /*
+    Register file write-data mux. RF_s = 1 selects RAM data for LOAD. RF_s = 0 selects ALU data for 
+	ADD/SUB.
+    */
+    mux16w_2to1 rf_source0(
+        .RAM(R_data),
+        .ALU(Q_Data),
+        .RF_s(RF_s),
+        .Q(W_data)
+    );
+
+    // RAM instance. STORE writes Ra_data into RAM. LOAD reads RAM data out through R_data.
+    RAM ram0(
+        .D_Addr(D_Addr),
+        .D_wr(D_wr),
+        .clk(clk),
+        .W_data(Ra_data),
+        .R_data(R_data)
+    );
+
 endmodule
 
 
