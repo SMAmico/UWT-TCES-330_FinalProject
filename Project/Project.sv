@@ -16,9 +16,7 @@ module Project(
     output [6:0] HEX2,
     output [6:0] HEX3,
     output [6:0] HEX4,
-    output [6:0] HEX5,
-    output [6:0] HEX6,
-    output [6:0] HEX7
+    output [6:0] HEX5
 );
 
     /*
@@ -113,7 +111,7 @@ module Project(
     );
 
     /*
-    HEX7..HEX4 display the selected debug value.
+    HEX5..HEX4 display the selected debug value.
     */
     Decoder dbg_hex4(
         .Hex_In(Display_Out[3:0]),
@@ -124,15 +122,4 @@ module Project(
         .Hex_In(Display_Out[7:4]),
         .Hex_Out(HEX5)
     );
-
-    Decoder dbg_hex6(
-        .Hex_In(Display_Out[11:8]),
-        .Hex_Out(HEX6)
-    );
-
-    Decoder dbg_hex7(
-        .Hex_In(Display_Out[15:12]),
-        .Hex_Out(HEX7)
-    );
-
 endmodule
