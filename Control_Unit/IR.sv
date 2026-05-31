@@ -7,7 +7,7 @@ Project File: IR.sv
 */
 
 module IR(
-    input clk,
+    input Clk,
     input IR_ld,
     input [15:0] Instruction_In,
     output logic [15:0] IR_data
@@ -19,9 +19,8 @@ module IR(
 	rising edge of clk. When IR_ld = 0, the IR holds its previous instruction.
     */
 
-    always_ff @(posedge clk) begin
+	always_ff @(posedge Clk) begin
         if (IR_ld)
             IR_data <= Instruction_In;
     end
-
 endmodule
