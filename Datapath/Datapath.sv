@@ -38,7 +38,7 @@ the register array.
 	assign rdDataB = regfile[rdAddrB];
 /*
 Write Logic: the register file has one write port.  When write is high, wrData is copied into the 
-register selected by wrAddr on the rising edge of clk. When write is low, no register changes.
+register selected by wrAddr on the rising edge of Clk. When write is low, no register changes.
 */
 	always_ff @(posedge Clk) begin
 		if (write)
