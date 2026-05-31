@@ -41,15 +41,26 @@ module Control_Unit(
     output [3:0] StateOut,
     output [3:0] NextStateOut
 );
-		
-	wire PC_clr;
-	wire PC_up;
-	wire [7:0]PC;
-	
-	wire IR_ld;
-	wire[15:0]IR_in;
-	wire[15:0]IR_data;
-		
+    // Internal control wires between the FSM and PC.
+    wire PC_clr;
+    wire PC_up;
+    wire PC_w_en;
+    wire [7:0] PC_set;
+	    
+	/*
+    Internal instruction-register control and data wires. IR_in is the raw instruction coming from 
+	instruction ROM. IR_data is the latched instruction stored in the IR.
+    */
+    wire IR_ld;
+    wire [15:0] IR_in;
+    wire [15:0] IR_data;
+
+    // PC is the current program counter value. It is also exposed as PC_Out for debugging.
+    wire [7:0] PC;
+
+    assign PC_Out = PC;
+    assign IR_Out = IR_data;
+
 	/*FSM(
 			// system clock
 			input Clk, 			//system clock
