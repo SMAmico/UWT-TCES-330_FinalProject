@@ -7,7 +7,7 @@ Project File: Control_Unit.sv
 */
 
 module Control_Unit(
-		input clk,
+		input Clk,
 		input rst,
 		    
 	/*
@@ -103,7 +103,7 @@ module Control_Unit(
 	PC_set are only needed for jump instructions.
     */
     PC pc0(
-        .clk(clk),
+		.Clk(Clk),
         .PC_clr(PC_clr),
         .PC_up(PC_up),
         .PC_w_en(PC_w_en),
@@ -116,7 +116,7 @@ module Control_Unit(
 	asserted during the FETCH state.
     */
     IR ir0(
-        .clk(clk),
+		.Clk(Clk),
         .IR_ld(IR_ld),
         .Instruction_In(IR_in),
         .IR_data(IR_data)
@@ -128,7 +128,7 @@ module Control_Unit(
     */
     myROM rom0(
         .address(PC[6:0]),
-        .clock(clk),
+		.clock(Clk),
         .q(IR_in)
     );
 
