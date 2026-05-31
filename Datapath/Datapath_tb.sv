@@ -88,33 +88,50 @@ Datapath dut(
         end
     endtask
 
-    task automatic load_ram_to_reg;
+        task automatic load_ram_to_reg;
         input [7:0] ram_addr;
         input [3:0] reg_addr;
         input [15:0] expected_value;
 
         begin
+            /*
+            LOAD_A behavior:
+            Put the RAM address on D_Addr and select RAM as the register-file source.
+            Do not write the register file yet.
+            */
             D_Addr     = ram_addr;
             D_wr       = 1'b0;
 
             RF_s       = 1'b1;
             RF_W_addr  = reg_addr;
-            RF_W_en    = 1'b1;
+            RF_W_en    = 1'b0;
 
             RF_Ra_addr = reg_addr;
             RF_Rb_addr = 4'h0;
             Alu_s0     = ALU_ADDZERO;
 
             /*
-            Wait briefly after changing D_Addr so the unregistered RAM output can settle before the
-            register file writes on the next rising clock edge.
+            Wait one clock edge so the RAM output becomes valid for this address.
+            This matches the Control Unit's LOAD_A state.
             */
+            #2;
+            tick();
+
+            /*
+            LOAD_B behavior:
+            Now that RAM data is valid, write it into the register file.
+            */
+            RF_W_en = 1'b1;
+
             #2;
             tick();
 
             RF_W_en = 1'b0;
             #2;
 
+            /*
+            Read back the destination register through ALU_A.
+            */
             RF_Ra_addr = reg_addr;
             #2;
 
