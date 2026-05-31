@@ -125,25 +125,4 @@ module Processor(
         .ALU_B(ALU_B),
         .ALU_Out(ALU_Out)
     );
-
-    Decoder hex0(
-        .Hex_In(IR_Out[3:0]),
-        .Hex_Out(HEX0)
-    );
-
-    Decoder hex1(
-        .Hex_In(IR_Out[7:4]),
-        .Hex_Out(HEX1)
-    );
-
-    Decoder hex2(
-        .Hex_In(IR_Out[11:8]),
-        .Hex_Out(HEX2)
-    );
-
-    Decoder hex3(
-        .Hex_In(IR_Out[15:12]),
-        .Hex_Out(HEX3)
-    );
-
 endmodule
