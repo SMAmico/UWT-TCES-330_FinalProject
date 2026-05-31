@@ -1,4 +1,10 @@
-
+/*
+Seth Amico, John Teal
+UW TCES 330
+Programmable Processor
+Project File: Control_Unit.sv
+10 June 2026
+*/
 
 module Control_Unit(
 		input clk,
