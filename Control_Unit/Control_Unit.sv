@@ -10,7 +10,7 @@ module Control_Unit(
 		input Clk,
 		input rst,
 		    
-	/*
+    /*
     ALU flag inputs come from the datapath. These are only needed for the extra-credit conditional 
 	jump states. Alu_Z is used by JNZ. Alu_N and Alu_V are used by JLT.
     */
@@ -32,7 +32,7 @@ module Control_Unit(
 
     output [2:0] Alu_s0,
     
-	/*
+    /*
     Debug outputs passed up to Processor.sv. The provided processor testbench expects the processor to
 	expose the instruction register, program counter, current state, and next state.
     */
@@ -47,7 +47,7 @@ module Control_Unit(
     wire PC_w_en;
     wire [7:0] PC_set;
 	    
-	/*
+    /*
     Internal instruction-register control and data wires. IR_in is the raw instruction coming from 
 	instruction ROM. IR_data is the latched instruction stored in the IR.
     */
@@ -61,7 +61,7 @@ module Control_Unit(
     assign PC_Out = PC;
     assign IR_Out = IR_data;
     
-	/*
+    /*
     The FSM generates all control signals for the PC, IR, and datapath. The FSM reads the latched 
 	instruction from IR_data, not the raw ROM output.
     */
@@ -127,7 +127,7 @@ module Control_Unit(
 	counter are used as the ROM address.
     */
     myROM rom0(
-        .address(PC),
+        .address(PC[6:0]),
 		.clock(Clk),
         .q(IR_in)
     );
