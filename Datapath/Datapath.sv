@@ -4,7 +4,9 @@ UW TCES 330
 Programmable Processor
 Project File: Datapath.sv
 10 June 2026
+*/
 
+/*
 Description:
 This file contains the register file, ALU, RAM instantiation, data source mux, and combined Datapath 
 module for Project phase III. this file REQUIRES the verilog file myRAM.v to be included. 
@@ -128,8 +130,10 @@ module Datapath(
     input [3:0] RF_W_addr,             // register file write address
 
     input [2:0] Alu_s0,                // ALU operation select
-
-    output [15:0] Q                    // ALU result output for debug/display
+									   
+	output [15:0] ALU_A,			   // ALU_A output
+	output [15:0] ALU_B,			   // ALU_B output
+	output [15:0] ALU_Out			   // ALU_Out output
 );
 
     /*
