@@ -39,29 +39,25 @@ module Datapath_tb();
     localparam [2:0] ALU_SUB     = 3'b010;
     localparam [2:0] ALU_PASS    = 3'b011;
 
-    Datapath dut(
-        .Clk(Clk),
+Datapath dut(
+    .Clk(Clk),
 
-        .D_Addr(D_Addr),
-        .D_wr(D_wr),
+    .D_Addr(D_Addr),
+    .D_wr(D_wr),
 
-        .RF_s(RF_s),
-        .RF_W_en(RF_W_en),
+    .RF_s(RF_s),
+    .RF_W_en(RF_W_en),
 
-        .RF_Ra_addr(RF_Ra_addr),
-        .RF_Rb_addr(RF_Rb_addr),
-        .RF_W_addr(RF_W_addr),
+    .RF_Ra_addr(RF_Ra_addr),
+    .RF_Rb_addr(RF_Rb_addr),
+    .RF_W_addr(RF_W_addr),
 
-        .Alu_s0(Alu_s0),
+    .Alu_s0(Alu_s0),
 
-        .ALU_A(ALU_A),
-        .ALU_B(ALU_B),
-        .ALU_Out(ALU_Out),
-
-        .Alu_Z(Alu_Z),
-        .Alu_N(Alu_N),
-        .Alu_V(Alu_V)
-    );
+    .ALU_A(ALU_A),
+    .ALU_B(ALU_B),
+    .ALU_Out(ALU_Out)
+);
 
     initial Clk = 1'b0;
 
