@@ -32,9 +32,22 @@ module Project(
     */
     wire Clk;
     wire ResetN;
+    wire StepButton;
 
-    assign Clk = CLOCK_50;
-    assign ResetN = KEY[0];
+    /* KEY[2] is active-low on the DE10 board.
+   The KeyFilter expects an active-high input, so KEY[2] is inverted. */
+    assign StepButton = ~KEY[2];
+
+    /* KEY[1] is active-low reset.
+   Pressed  = 0 = reset active.
+   Released = 1 = run. */
+    assign ResetN = KEY[1];
+
+    KeyFilter keyfilter0 (
+        .Clk(CLOCK_50),
+        .In(StepButton),
+        .Out(Clk)
+    );
 
     /*
     Processor debug outputs.
