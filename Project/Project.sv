@@ -69,7 +69,7 @@ module Project(
     */
     logic [15:0] Display_Out;
 
-    Processor processor0(
+    Processor processor0 (
         .Clk(Clk),
         .ResetN(ResetN),
 
