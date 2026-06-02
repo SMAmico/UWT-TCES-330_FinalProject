@@ -8,7 +8,7 @@ Project File: Control_Unit.sv
 
 module Control_Unit(
 		input Clk,
-		input rst,
+		input ResetN,
 		    
     /*
     ALU flag inputs come from the datapath. These are only needed for the extra-credit conditional 
@@ -67,7 +67,7 @@ module Control_Unit(
     */
     FSM fsm0(
         .Clk(Clk),
-        .Rst(rst),
+        .ResetN(ResetN),
 
         .PC(PC),
         .PC_clr(PC_clr),

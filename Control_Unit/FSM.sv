@@ -9,7 +9,7 @@ Project File: FSM.sv
 
 module FSM(
     input Clk,                         // system clock
-    input Rst,                         // synchronous reset for the FSM state register
+    input ResetN,                      // synchronous reset low for the FSM state register
 
     input [7:0] PC,                    // current PC value, used for PC-relative JLT
 
@@ -296,11 +296,11 @@ module FSM(
 	end
     
     /*
-    Sequential state register. The FSM state only changes on the rising edge of Clk. Rst returns the 
+    Sequential state register. The FSM state only changes on the rising edge of Clk. ResetN returns the 
 	FSM to INIT.
     */
     always_ff @(posedge Clk) begin
-        if (Rst)
+        if (~ResetN)
             State <= S_INIT;
         else
             State <= NextState;
