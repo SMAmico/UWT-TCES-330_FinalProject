@@ -9,7 +9,7 @@ Project File: FSM_tb.sv
 module FSM_tb();
 
     logic Clk;
-    logic Rst;
+    logic ResetN;
 
     logic [7:0] PC;
 
@@ -66,7 +66,7 @@ module FSM_tb();
 
     FSM dut(
         .Clk(Clk),
-        .Rst(Rst),
+        .ResetN(ResetN),
 
         .PC(PC),
 
@@ -137,13 +137,13 @@ module FSM_tb();
             Alu_N   = 1'b0;
             Alu_V   = 1'b0;
 
-            Rst = 1'b1;
+            ResetN = 1'b0;
             tick();
 
             check_value("reset StateOut should be S_INIT", StateOut, S_INIT);
             check_value("S_INIT PC_clr", PC_clr, 1);
 
-            Rst = 1'b0;
+            ResetN = 1'b1;
             tick();
 
             check_value("state should be S_FETCH", StateOut, S_FETCH);
@@ -160,7 +160,7 @@ module FSM_tb();
         pass_count = 0;
         fail_count = 0;
 
-        Rst     = 1'b0;
+        ResetN     = 1'b1;
         PC      = 8'h00;
         IR_data = 16'h0000;
         Alu_Z   = 1'b0;

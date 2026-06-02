@@ -34,7 +34,7 @@ module Processor_tb();
 
     Processor dut(
         .Clk(Clk),
-        .Reset(Reset),
+        .ResetN(ResetN),
 
         .IR_Out(IR_Out),
         .PC_Out(PC_Out),
@@ -98,7 +98,7 @@ module Processor_tb();
         saw_store = 1'b0;
         saw_halt  = 1'b0;
 
-        Reset = 1'b1;
+        ResetN = 1'b0;
 
         $display("Starting Processor testbench.");
 
@@ -108,7 +108,7 @@ module Processor_tb();
         tick();
         tick();
 
-        Reset = 1'b0;
+        ResetN = 1'b1;
 
         for (i = 0; i < 50; i = i + 1) begin
             tick();
