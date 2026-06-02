@@ -11,7 +11,7 @@ Project File: Processor_tb.sv
 module Processor_tb();
 
     logic Clk;
-    logic ResetN;
+    logic Reset;
 
     logic [15:0] IR_Out;
     logic [7:0] PC_Out;
