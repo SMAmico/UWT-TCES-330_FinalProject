@@ -21,18 +21,6 @@ module Processor(
 );
 
     /*
-    The provided testProcessor.sv uses active-low reset.
-
-    ResetN = 0 means reset is active.
-    ResetN = 1 means normal processor operation.
-
-    The internal Control Unit/FSM uses active-high reset, so ResetN is inverted here.
-    */
-    wire Reset;
-
-    assign Reset = ~ResetN;
-
-    /*
     The PC module and Control Unit use an 8-bit PC internally. The provided testProcessor.sv expects
     PC_Out to be 7 bits because the ROM is 128 words and uses address[6:0].
     */
@@ -78,7 +66,7 @@ module Processor(
     */
     Control_Unit control0(
         .Clk(Clk),
-        .rst(Reset),
+        .ResetN(ResetN),
 
         .Alu_Z(Alu_Z),
         .Alu_N(Alu_N),
