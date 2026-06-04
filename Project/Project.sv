@@ -93,6 +93,15 @@ module Project(
 
     HEX4 shows the current FSM state.
     HEX5 shows the display select mode.
+
+	SW[9:7] = 000 -> HEX3..HEX0 shows IR_Out
+	SW[9:7] = 001 -> HEX3..HEX0 shows PC_Out
+	SW[9:7] = 010 -> HEX3..HEX0 shows {NextState, State}
+	SW[9:7] = 011 -> HEX3..HEX0 shows ALU_A
+	SW[9:7] = 100 -> HEX3..HEX0 shows ALU_B
+	SW[9:7] = 101 -> HEX3..HEX0 shows ALU_Out
+	SW[9:7] = 110 -> reserved / blank
+	SW[9:7] = 111 -> reserved / blank
     */
     logic [15:0] Main_Display;
 
