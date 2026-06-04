@@ -20,15 +20,18 @@ module Project(
 );
 
     /*
-    KEY buttons on the DE board are active-low.
+    KEY buttons on the DE10 board are active-low.
 
     Processor expects ResetN:
         ResetN = 0 means reset
         ResetN = 1 means run
 
-    KEY[0] is used as ResetN directly:
-        Press KEY[0] to reset.
-        Release KEY[0] to run.
+    KEY[1] is used as ResetN directly:
+        Press KEY[1] to reset.
+        Release KEY[1] to run.
+
+    KEY[2] is used as the manual processor clock step:
+        Press KEY[2] to advance the processor one clock cycle.
     */
     wire Clk;
     wire ResetN;
