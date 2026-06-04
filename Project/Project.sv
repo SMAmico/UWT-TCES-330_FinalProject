@@ -85,57 +85,63 @@ module Project(
     );
 
     /*
-    Display select mux.
-    
-    SW[9:7] selects what is shown on HEX5..HEX4.
-    Only the lower 8 bits of Display_Out are visible because the DE10 board has six HEX displays.
+    Main_Display is the full 16-bit value shown on HEX3..HEX0.
+
+    Because the DE10 board has six HEX displays instead of eight, it cannot show both a full 16-bit
+    IR value and a full 16-bit debug value at the same time. SW[9:7] selects which full 16-bit value
+    is shown on HEX3..HEX0.
+
+    HEX4 shows the current FSM state.
+    HEX5 shows the display select mode.
     */
+    logic [15:0] Main_Display;
+
     always_comb begin
         case (SW[9:7])
-            3'b000: Display_Out = {9'b0, PC_Out};
-            3'b001: Display_Out = {12'b0, State};
-            3'b010: Display_Out = ALU_A;
-            3'b011: Display_Out = ALU_B;
-            3'b100: Display_Out = ALU_Out;
-            3'b101: Display_Out = {12'b0, NextState};
-			3'b110: Display_Out = IR_Out;
-            default: Display_Out = 16'h0000;
+            3'b000: Main_Display = IR_Out;
+            3'b001: Main_Display = {9'b0, PC_Out};
+            3'b010: Main_Display = {8'b0, NextState, State};
+            3'b011: Main_Display = ALU_A;
+            3'b100: Main_Display = ALU_B;
+            3'b101: Main_Display = ALU_Out;
+            default: Main_Display = 16'h0000;
         endcase
     end
 
     /*
-    HEX3..HEX0 display the instruction register.
+    HEX3..HEX0 display the selected full 16-bit value.
     */
-    Decoder ir_hex0(
-        .Hex_In(Display_Out[0:3]),
+    Decoder main_hex0(
+        .Hex_In(Main_Display[3:0]),
         .Hex_Out(HEX0)
     );
 
-    Decoder ir_hex1(
-        .Hex_In(Display_Out[4:7]),
+    Decoder main_hex1(
+        .Hex_In(Main_Display[7:4]),
         .Hex_Out(HEX1)
     );
 
-    Decoder ir_hex2(
-        .Hex_In(Display_Out[8:11]),
+    Decoder main_hex2(
+        .Hex_In(Main_Display[11:8]),
         .Hex_Out(HEX2)
     );
 
-    Decoder ir_hex3(
-        .Hex_In(Display_Out[12:15]),
+    Decoder main_hex3(
+        .Hex_In(Main_Display[15:12]),
         .Hex_Out(HEX3)
     );
 
     /*
-    HEX5..HEX4 display the selected debug value.
+    HEX4 shows the current FSM state.
+    HEX5 shows the current display-select mode from SW[9:7].
     */
-    Decoder dbg_hex4(
-        .Hex_In(Display_Out[3:0]),
+    Decoder state_hex4(
+        .Hex_In(State),
         .Hex_Out(HEX4)
     );
 
-    Decoder dbg_hex5(
-        .Hex_In(Display_Out[7:4]),
+    Decoder mode_hex5(
+        .Hex_In({1'b0, SW[9:7]}),
         .Hex_Out(HEX5)
     );
 endmodule
