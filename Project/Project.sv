@@ -68,6 +68,7 @@ module Project(
     HEX5..HEX4 display the lower 8 bits of the debug value selected by SW[9:7].
     */
     logic [15:0] Display_Out;
+	
 
     Processor processor0 (
         .Clk(Clk),
@@ -97,6 +98,7 @@ module Project(
             3'b011: Display_Out = ALU_B;
             3'b100: Display_Out = ALU_Out;
             3'b101: Display_Out = {12'b0, NextState};
+			3'b110: Display_Out = IR_Out;
             default: Display_Out = 16'h0000;
         endcase
     end
@@ -105,22 +107,22 @@ module Project(
     HEX3..HEX0 display the instruction register.
     */
     Decoder ir_hex0(
-        .Hex_In(IR_Out[3:0]),
+        .Hex_In(Display_Out[0:3]),
         .Hex_Out(HEX0)
     );
 
     Decoder ir_hex1(
-        .Hex_In(IR_Out[7:4]),
+        .Hex_In(Display_Out[4:7]),
         .Hex_Out(HEX1)
     );
 
     Decoder ir_hex2(
-        .Hex_In(IR_Out[11:8]),
+        .Hex_In(Display_Out[8:11]),
         .Hex_Out(HEX2)
     );
 
     Decoder ir_hex3(
-        .Hex_In(IR_Out[15:12]),
+        .Hex_In(Display_Out[12:15]),
         .Hex_Out(HEX3)
     );
 
