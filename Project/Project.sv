@@ -83,7 +83,43 @@ module Project(
         .ALU_B(ALU_B),
         .ALU_Out(ALU_Out)
     );
+    
+    /*
+    Latched debug values.
 
+    The live ALU_A, ALU_B, and ALU_Out signals are only meaningful during certain FSM states.
+    After HALT, the FSM may drive default register addresses, so the live values may return to 0000.
+
+    These registers capture useful values during ADD, SUB, and STORE so the board display can show
+    the final meaningful values even after the processor reaches HALT.
+    */
+    localparam [3:0] S_STR = 4'd4;
+    localparam [3:0] S_ADD = 4'd7;
+    localparam [3:0] S_SUB = 4'd8;
+
+    logic [15:0] ALU_A_Hold;
+    logic [15:0] ALU_B_Hold;
+    logic [15:0] ALU_Out_Hold;
+
+    always_ff @(posedge Clk or negedge ResetN) begin
+        if (!ResetN) begin
+            ALU_A_Hold   <= 16'h0000;
+            ALU_B_Hold   <= 16'h0000;
+            ALU_Out_Hold <= 16'h0000;
+        end else begin
+            /*
+            During ADD and SUB, all three ALU signals are meaningful.
+            During STORE, ALU_A contains the value being written to RAM.
+            */
+            if ((State == S_ADD) || (State == S_SUB)) begin
+                ALU_A_Hold   <= ALU_A;
+                ALU_B_Hold   <= ALU_B;
+                ALU_Out_Hold <= ALU_Out;
+            end else if (State == S_STR) begin
+                ALU_A_Hold <= ALU_A;
+            end
+        end
+    end
     /*
     Main_Display is the full 16-bit value shown on HEX3..HEX0.
 
@@ -110,9 +146,9 @@ module Project(
             3'b000: Main_Display = IR_Out;
             3'b001: Main_Display = {9'b0, PC_Out};
             3'b010: Main_Display = {8'b0, NextState, State};
-            3'b011: Main_Display = ALU_A;
-            3'b100: Main_Display = ALU_B;
-            3'b101: Main_Display = ALU_Out;
+            3'b011: Main_Display = ALU_A_Hold;
+            3'b100: Main_Display = ALU_B_Hold;
+            3'b101: Main_Display = ALU_Out_Hold;
             default: Main_Display = 16'h0000;
         endcase
     end
