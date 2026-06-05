@@ -32,18 +32,24 @@ module Project(
 
     KEY[2] is used as the manual processor clock step:
         Press KEY[2] to advance the processor one clock cycle.
+
+    SW[9:7] selects the display mode.
     */
     wire Clk;
     wire ResetN;
     wire StepButton;
 
-    /* KEY[2] is active-low on the DE10 board.
-   The KeyFilter expects an active-high input, so KEY[2] is inverted. */
+    /*
+    KEY[2] is active-low on the DE10 board.
+    The KeyFilter expects an active-high input, so KEY[2] is inverted.
+    */
     assign StepButton = ~KEY[2];
 
-    /* KEY[1] is active-low reset.
-   Pressed  = 0 = reset active.
-   Released = 1 = run. */
+    /*
+    KEY[1] is active-low reset.
+        Pressed  = 0 = reset active.
+        Released = 1 = run.
+    */
     assign ResetN = KEY[1];
 
     KeyFilter keyfilter0 (
@@ -63,15 +69,6 @@ module Project(
     wire [15:0] ALU_A;
     wire [15:0] ALU_B;
     wire [15:0] ALU_Out;
-
-    /*
-    Display value for HEX5..HEX4.
-
-    HEX3..HEX0 always display IR_Out.
-    HEX5..HEX4 display the lower 8 bits of the debug value selected by SW[9:7].
-    */
-    logic [15:0] Display_Out;
-	
 
     Processor processor0 (
         .Clk(Clk),
@@ -97,14 +94,14 @@ module Project(
     HEX4 shows the current FSM state.
     HEX5 shows the display select mode.
 
-	SW[9:7] = 000 -> HEX3..HEX0 shows IR_Out
-	SW[9:7] = 001 -> HEX3..HEX0 shows PC_Out
-	SW[9:7] = 010 -> HEX3..HEX0 shows {NextState, State}
-	SW[9:7] = 011 -> HEX3..HEX0 shows ALU_A
-	SW[9:7] = 100 -> HEX3..HEX0 shows ALU_B
-	SW[9:7] = 101 -> HEX3..HEX0 shows ALU_Out
-	SW[9:7] = 110 -> reserved / blank
-	SW[9:7] = 111 -> reserved / blank
+    SW[9:7] = 000 -> HEX3..HEX0 shows IR_Out
+    SW[9:7] = 001 -> HEX3..HEX0 shows PC_Out
+    SW[9:7] = 010 -> HEX3..HEX0 shows {NextState, State}
+    SW[9:7] = 011 -> HEX3..HEX0 shows ALU_A
+    SW[9:7] = 100 -> HEX3..HEX0 shows ALU_B
+    SW[9:7] = 101 -> HEX3..HEX0 shows ALU_Out
+    SW[9:7] = 110 -> reserved / blank
+    SW[9:7] = 111 -> reserved / blank
     */
     logic [15:0] Main_Display;
 
@@ -156,4 +153,5 @@ module Project(
         .Hex_In({1'b0, SW[9:7]}),
         .Hex_Out(HEX5)
     );
+
 endmodule
