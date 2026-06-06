@@ -69,7 +69,7 @@ module FSM(
         S = 100: Q = A ^ B
         S = 101: Q = A | B
         S = 110: Q = A & B
-        S = 111: Q = A + 1
+        S = 111: Q = A << B
 
     Alu_Z is high when Q is zero.
     Alu_N is the sign bit of Q.

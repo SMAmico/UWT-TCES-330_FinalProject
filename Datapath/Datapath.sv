@@ -98,7 +98,7 @@ module ALU (
 
             3'b011: begin
                 Q = A * B;
-                Alu_V = 1'b0;
+                Alu_V = (~(A[15] ^ B[15]) & (Q[15] ^ A[15]));
             end
 
             3'b100: begin
