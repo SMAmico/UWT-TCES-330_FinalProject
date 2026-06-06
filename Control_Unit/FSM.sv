@@ -51,10 +51,18 @@ module FSM(
                      INS_ADD = 4'h3,
                      INS_SUB = 4'h4,
                      INS_HLT = 4'h5,
+
+                     INS_XOR = 4'h6,//added instructions
+                     INS_OR =  4'h7,
+                     INS_AND = 4'h8,
+
                      INS_JMP = 4'h9,
                      INS_JNZ = 4'hA,
-                     INS_JLT = 4'hB;
-	
+                     INS_JLT = 4'hB,
+
+                     INS_SHL = 4'hC,//added instructions
+                     INS_MULT= 4'hD;
+                     
     /*
     ALU select values. These must match the ALU module. For JNZ, ALU_PASS is used to pass the selected
 	register value through the ALU so the zero flag can be checked. For JLT, ALU_SUB is used so the 
