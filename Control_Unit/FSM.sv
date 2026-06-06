@@ -60,10 +60,29 @@ module FSM(
 	register value through the ALU so the zero flag can be checked. For JLT, ALU_SUB is used so the 
 	controller can check N ^ V.
     */
+    /*
+    ALU operation select:
+        S = 000: Q = A + 0
+        S = 001: Q = A + B
+        S = 010: Q = A - B
+        S = 011: Q = A * B
+        S = 100: Q = A ^ B
+        S = 101: Q = A | B
+        S = 110: Q = A & B
+        S = 111: Q = A + 1
+
+    Alu_Z is high when Q is zero.
+    Alu_N is the sign bit of Q.
+    Alu_V is signed overflow for ADD, SUB, and INC.
+    */
     localparam [2:0] ALU_ADDZERO = 3'b000,
                      ALU_ADD     = 3'b001,
                      ALU_SUB     = 3'b010,
-                     ALU_PASS    = 3'b011;
+                     ALU_MULT    = 3'b011,
+                     ALU_XOR     = 3'b100,
+                     ALU_OR      = 3'b101,
+                     ALU_AND     = 3'b110,
+                     ALU_SHL     = 3'b111;
  			
     /*
     FSM state values. LOAD is split into two states because RAM read and RF write need at least two 

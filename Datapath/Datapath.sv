@@ -65,11 +65,11 @@ module ALU (
         S = 000: Q = A + 0
         S = 001: Q = A + B
         S = 010: Q = A - B
-        S = 011: Q = A
+        S = 011: Q = A * B
         S = 100: Q = A ^ B
         S = 101: Q = A | B
         S = 110: Q = A & B
-        S = 111: Q = A + 1
+        S = 111: Q = A << B
 
     Alu_Z is high when Q is zero.
     Alu_N is the sign bit of Q.
@@ -97,7 +97,7 @@ module ALU (
             end
 
             3'b011: begin
-                Q = A;
+                Q = A * B;
                 Alu_V = 1'b0;
             end
 
@@ -117,8 +117,8 @@ module ALU (
             end
 
             3'b111: begin
-                Q = A + 16'd1;
-                Alu_V = (~(A[15] ^ 1'b0)) & (Q[15] ^ A[15]);
+                Q = A << B;
+                Alu_V = 1'b0;
             end
 
             default: begin
