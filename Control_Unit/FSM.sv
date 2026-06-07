@@ -73,7 +73,7 @@ module FSM(
         S = 000: Q = A + 0
         S = 001: Q = A + B
         S = 010: Q = A - B
-        S = 011: Q = A * B
+        S = 011: Q = A * B this alu operation will be removed, so a custom state will be added to the control unit.
         S = 100: Q = A ^ B
         S = 101: Q = A | B
         S = 110: Q = A & B
@@ -98,6 +98,10 @@ module FSM(
 	evaluate it. S_JNZ_JUMP checks Alu_Z and updates the PC if the register is not zero. JLT is split 
 	into two states: S_JLT_TEST selects both registers and performs A - B. S_JLT_JUMP checks N ^ V and
 	updates the PC if A < B.
+	
+	S_ALU takes the place of multiple operations, specifically those that follow the flow: FETCH, DEC,
+	(some ALU op), write back.
+	
     */
     localparam [3:0] S_INIT     = 4'd0,
                      S_FETCH    = 4'd1,
@@ -106,14 +110,14 @@ module FSM(
                      S_STR      = 4'd4,
                      S_LDA      = 4'd5,
                      S_LDB      = 4'd6,
-                     S_ADD      = 4'd7,
-                     S_SUB      = 4'd8,
+                     S_ALU      = 4'd7,//S_ALU contains all alu operations
                      S_HLT      = 4'd9,
                      S_JMP      = 4'd10,
                      S_JNZ_TEST = 4'd11,
                      S_JNZ_JUMP = 4'd12,
                      S_JLT_TEST = 4'd13,
-                     S_JLT_JUMP = 4'd14;
+                     S_JLT_JUMP = 4'd14,
+                     S_MULT     = 4'd15;
 
     logic [3:0] State, NextState;
     
@@ -178,12 +182,19 @@ module FSM(
                     INS_NOP: NextState = S_NOP;
                     INS_STR: NextState = S_STR;
                     INS_LDR: NextState = S_LDA;
-                    INS_ADD: NextState = S_ADD;
-                    INS_SUB: NextState = S_SUB;
+
+                    INS_ADD: NextState = S_ALU;//all simple ALU ops route to one ALU operation state
+					INS_SUB: NextState = S_ALU;
+					INS_AND: NextState = S_ALU;
+					INS_OR : NextState = S_ALU;
+					INS_XOR: NextState = S_ALU;
+					INS_SHL: NextState = S_ALU;
+
                     INS_HLT: NextState = S_HLT;
                     INS_JMP: NextState = S_JMP;
                     INS_JNZ: NextState = S_JNZ_TEST;
                     INS_JLT: NextState = S_JLT_TEST;
+					INS_MULT:NextState = S_MULT;//special multiplication state
                     default: NextState = S_HLT;
                 endcase
             end
@@ -227,25 +238,38 @@ module FSM(
                 NextState = S_FETCH;
             end
 
-            // ADD instruction: 0011 raaa rbbb rccc RF[rccc] = RF[raaa] + RF[rbbb]
-            S_ADD: begin
+            // ALU instruction: 0011 raaa rbbb rccc RF[rccc] = RF[raaa] (ALUop) RF[rbbb]
+            S_ALU: begin
                 RF_Ra_addr = IR_data[11:8];
                 RF_Rb_addr = IR_data[7:4];
                 RF_W_addr  = IR_data[3:0];
                 RF_W_en    = 1'b1;
-                Alu_s0     = ALU_ADD;
+
+                //set ALU control lines to the appropriate operation
+                case(IR_data[15:12]) 
+                    INS_ADD: Alu_s0 = ALU_AND;
+                    INS_SUB: Alu_s0 = ALU_SUB;
+                    INS_AND: Alu_s0 = ALU_AND;
+                    INS_OR : Alu_s0 = ALU_OR;
+                    INS_XOR: Alu_s0 = ALU_XOR;
+                    INS_SHL: Alu_s0 = ALU_SHL;
+                endcase
                 RF_s       = 1'b0;
 
                 NextState  = S_FETCH;
             end
 
-            // SUB instruction: 0100 raaa rbbb rccc RF[rccc] = RF[raaa] - RF[rbbb]
-            S_SUB: begin
+            // MULT instruction: perform multiplication and write result back
+            S_MULT: begin
+                // Instruction format assumed: 1101 raaa rbbb rccc
+                // RF[rccc] = RF[raaa] * RF[rbbb]
                 RF_Ra_addr = IR_data[11:8];
                 RF_Rb_addr = IR_data[7:4];
                 RF_W_addr  = IR_data[3:0];
                 RF_W_en    = 1'b1;
-                Alu_s0     = ALU_SUB;
+
+                // Use ALU multiply operation (shift-add style may be implemented in ALU)
+                Alu_s0     = ALU_MULT;
                 RF_s       = 1'b0;
 
                 NextState  = S_FETCH;
@@ -313,6 +337,11 @@ module FSM(
             S_HLT: begin
                 NextState = S_HLT;
             end
+
+            /*
+            MULT performs multiple operations within one cycle, looping back until the operation is complete.
+            */
+
 
             // Any unexpected state moves to HALT as a safe failure state.
             default: begin
