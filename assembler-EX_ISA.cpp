@@ -1,25 +1,4 @@
-/*
-    write an assembler file that converts from a plaintext file containing
-    assembly code to a plaintext file containing machine code. the instruction set is 
-    translated as follows:
-    INS_NOP = 4'h0,
-    INS_STR = 4'h1, 0001 rrrr dddddddd RF[rrrr] -> D[dddddddd]
-    INS_LDR = 4'h2, 0010 dddddddd rrrr
-    INS_ADD = 4'h3, all simple operations follow: 0011 raaa rbbb rccc RF[rccc] = RF[raaa] (ALUop) RF[rbbb]
-    INS_SUB = 4'h4, 
-    INS_HLT = 4'h5,
-    INS_XOR = 4'h6,
-    INS_OR =  4'h7,
-    INS_AND = 4'h8,
-    INS_JMP = 4'h9, 1001 0000 bbbbbbbb
-    INS_JNZ = 4'hA, 1010 bbbbbbbb rrrr, where b is the address
-    INS_JLT = 4'hB, 1011 raaa rbbb bbbb, where bbbb is the offset
-    INS_SHL = 4'hC, //SHL shifts by one bit
-    INS_MULT= 4'hD;
 
-    The device has 16 registers accessible, with . the instructions are formatted:
-
-*/
 
 /*
     Simple two-pass assembler for the project's EX_ISA.
@@ -44,7 +23,7 @@
       JMP addr            -> 1001 0000 bbbbbbbb    (absolute addr)
       JNZ addr, r        -> 1010 bbbbbbbb rrrr    (absolute addr, test reg)
       JLT rA, rB, offset -> 1011 raaa rbbb bbbb    (4-bit signed offset relative to next instr)
-      SHL rA, rB, rC     -> 1100 raaa rbbb rccc
+      SHL rA, rB, rC     -> 1100 raaa rbbb 0000
       MULT rA, rB, rC    -> 1101 raaa rbbb rccc
 
     The assembler supports labels for addresses and computes relative offsets
