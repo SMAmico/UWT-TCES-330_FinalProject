@@ -1,0 +1,549 @@
+# Reading pref.tcl
+dir
+#  Volume in drive D is Files
+#  Volume Serial Number is 7A4C-EFF2
+# 
+#  Directory of D:\OneDrive\School\UW\TCES330\FinalProject\UWT-TCES-330_FinalProject\Control_Unit
+# 
+# 06/07/2026  11:53 AM    <DIR>          .
+# 06/07/2026  11:53 AM    <DIR>          ..
+# 06/02/2026  10:44 AM             3,225 Control_Unit.sv
+# 05/31/2026  09:09 PM             2,294 Control_Unit_tb.sv
+# 06/06/2026  08:17 PM            13,019 FSM.sv
+# 06/07/2026  11:52 AM            10,695 FSM_tb.sv
+# 05/31/2026  09:09 PM               637 IR.sv
+# 05/31/2026  09:09 PM             2,563 IR_tb.sv
+# 05/14/2026  11:30 AM                54 Launch_ModelSim.bat
+# 05/31/2026  09:09 PM               951 PC.sv
+# 05/31/2026  09:09 PM             3,123 PC_tb.sv
+# 06/07/2026  11:53 AM                20 transcript
+#               10 File(s)         36,581 bytes
+#                2 Dir(s)  19,347,353,600 bytes free
+dir
+#  Volume in drive D is Files
+#  Volume Serial Number is 7A4C-EFF2
+# 
+#  Directory of D:\OneDrive\School\UW\TCES330\FinalProject\UWT-TCES-330_FinalProject\Control_Unit
+# 
+# 06/07/2026  11:54 AM    <DIR>          .
+# 06/07/2026  11:54 AM    <DIR>          ..
+# 06/02/2026  10:44 AM             3,225 Control_Unit.sv
+# 05/31/2026  09:09 PM             2,294 Control_Unit_tb.sv
+# 06/06/2026  08:17 PM            13,019 FSM.sv
+# 06/07/2026  11:52 AM            10,695 FSM_tb.sv
+# 05/31/2026  09:09 PM               637 IR.sv
+# 05/31/2026  09:09 PM             2,563 IR_tb.sv
+# 05/14/2026  11:30 AM                54 Launch_ModelSim.bat
+# 05/31/2026  09:09 PM               951 PC.sv
+# 05/31/2026  09:09 PM             3,123 PC_tb.sv
+# 06/07/2026  11:55 AM               734 run_FSM_tb.do
+# 06/07/2026  11:54 AM               926 transcript
+#               11 File(s)         38,221 bytes
+#                2 Dir(s)  19,347,345,408 bytes free
+do run_FSM_tb.do
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:55:44 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM.sv 
+# -- Compiling module FSM
+# ** Error: FSM.sv(292): (vlog-2730) Undefined variable: 'ALU_PASS'.
+# End time: 11:55:44 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 1, Warnings: 0
+# ** Error: C:/intelFPGA/20.1/modelsim_ase/win32aloem/vlog failed.
+# Error in macro ./run_FSM_tb.do line 15
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vlog failed.
+#     while executing
+# "vlog -reportprogress 300 -sv FSM.sv"
+do run_FSM_tb.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:57:11 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 11:57:11 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -t 1ps work.FSM_tb 
+# Start time: 11:57:11 on Jun 07,2026
+# ** Error: (vsim-3170) Could not find 'FSM_tb'.
+#         Searched libraries:
+#             D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/Control_Unit/work
+# Error loading design
+# Error: Error loading design
+#        Pausing macro execution
+# MACRO ./run_FSM_tb.do PAUSED at line 20
+
+do run_FSM_tb.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:57:52 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 11:57:52 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:57:52 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM_tb.sv 
+# -- Compiling module FSM_tb
+# ** Error: FSM_tb.sv(177): Number of actuals and formals does not match in task call.
+# ** Error: FSM_tb.sv(178): Number of actuals and formals does not match in task call.
+# ** Error: FSM_tb.sv(179): Number of actuals and formals does not match in task call.
+# ** Error: FSM_tb.sv(180): Number of actuals and formals does not match in task call.
+# ** Error: FSM_tb.sv(181): Number of actuals and formals does not match in task call.
+# ** Error: FSM_tb.sv(182): Number of actuals and formals does not match in task call.
+# ** Error: FSM_tb.sv(183): Number of actuals and formals does not match in task call.
+# End time: 11:57:52 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 7, Warnings: 0
+# ** Error: C:/intelFPGA/20.1/modelsim_ase/win32aloem/vlog failed.
+# Error in macro ./run_FSM_tb.do line 16
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vlog failed.
+#     while executing
+# "vlog -sv FSM_tb.sv"
+do run_FSM_tb.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:00:30 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 12:00:30 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:00:30 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM_tb.sv 
+# -- Compiling module FSM_tb
+# 
+# Top level modules:
+# 	FSM_tb
+# End time: 12:00:30 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -t 1ps work.FSM_tb 
+# Start time: 11:57:11 on Jun 07,2026
+# Loading sv_std.std
+# Loading work.FSM_tb
+# Loading work.FSM
+# Starting FSM testbench.
+# Testing NOOP.
+# Testing STORE.
+# Testing LOAD.
+# Testing ADD.
+# FAIL: ADD Alu_s0 expected=00000001 actual=00000006 time=176
+# Testing SUB.
+# Testing HALT.
+# Testing JMP.
+# Testing JNZ taken.
+# Testing JNZ not taken.
+# Testing JLT taken.
+# Testing JLT not taken.
+# FSM testbench complete.
+# Passes: 117
+# Failures: 1
+# RESULT: FAIL
+# ** Note: $stop    : FSM_tb.sv(391)
+#    Time: 506 ps  Iteration: 0  Instance: /FSM_tb
+# Break in Module FSM_tb at FSM_tb.sv line 391
+do run_FSM_tb.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:03:07 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 12:03:07 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:03:07 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM_tb.sv 
+# -- Compiling module FSM_tb
+# 
+# Top level modules:
+# 	FSM_tb
+# End time: 12:03:07 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# End time: 12:03:13 on Jun 07,2026, Elapsed time: 0:06:02
+# Errors: 2, Warnings: 0
+# vsim -voptargs=""+acc"" -t 1ps work.FSM_tb 
+# Start time: 12:03:13 on Jun 07,2026
+# Loading sv_std.std
+# Loading work.FSM_tb
+# Loading work.FSM
+# Starting FSM testbench.
+# Testing NOOP.
+# Testing STORE.
+# Testing LOAD.
+# Testing ADD.
+# Testing SUB.
+# Testing HALT.
+# Testing JMP.
+# Testing JNZ taken.
+# Testing JNZ not taken.
+# Testing JLT taken.
+# Testing JLT not taken.
+# FSM testbench complete.
+# Passes: 118
+# Failures: 0
+# RESULT: PASS
+# ** Note: $stop    : FSM_tb.sv(391)
+#    Time: 506 ps  Iteration: 0  Instance: /FSM_tb
+# Break in Module FSM_tb at FSM_tb.sv line 391
+do run_FSM_tb.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:07:17 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 12:07:17 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:07:17 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM_tb.sv 
+# -- Compiling module FSM_tb
+# 
+# Top level modules:
+# 	FSM_tb
+# End time: 12:07:17 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# End time: 12:07:23 on Jun 07,2026, Elapsed time: 0:04:10
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -t 1ps work.FSM_tb 
+# Start time: 12:07:23 on Jun 07,2026
+# Loading sv_std.std
+# Loading work.FSM_tb
+# Loading work.FSM
+# Starting FSM testbench.
+# Testing NOOP.
+# Testing STORE.
+# Testing LOAD.
+# Testing ADD.
+# Testing SUB.
+# Testing SUB.
+# Testing HALT.
+# Testing JMP.
+# Testing JNZ taken.
+# Testing JNZ not taken.
+# Testing JLT taken.
+# Testing JLT not taken.
+# FSM testbench complete.
+# Passes: 131
+# Failures: 0
+# RESULT: PASS
+# ** Note: $stop    : FSM_tb.sv(394)
+#    Time: 546 ps  Iteration: 0  Instance: /FSM_tb
+# Break in Module FSM_tb at FSM_tb.sv line 394
+do run_FSM_tb.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:08:24 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 12:08:24 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:08:24 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM_tb.sv 
+# -- Compiling module FSM_tb
+# 
+# Top level modules:
+# 	FSM_tb
+# End time: 12:08:24 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# End time: 12:08:31 on Jun 07,2026, Elapsed time: 0:01:08
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -t 1ps work.FSM_tb 
+# Start time: 12:08:31 on Jun 07,2026
+# Loading sv_std.std
+# Loading work.FSM_tb
+# Loading work.FSM
+# Starting FSM testbench.
+# Testing NOOP.
+# Testing STORE.
+# Testing LOAD.
+# Testing ADD.
+# Testing SUB.
+# Testing HALT.
+# Testing JMP.
+# Testing JNZ taken.
+# Testing JNZ not taken.
+# Testing JLT taken.
+# Testing JLT not taken.
+# FSM testbench complete.
+# Passes: 118
+# Failures: 0
+# RESULT: PASS
+# ** Note: $stop    : FSM_tb.sv(373)
+#    Time: 506 ps  Iteration: 0  Instance: /FSM_tb
+# Break in Module FSM_tb at FSM_tb.sv line 373
+do run_FSM_tb.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:14:19 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 12:14:19 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:14:19 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM_tb.sv 
+# -- Compiling module FSM_tb
+# 
+# Top level modules:
+# 	FSM_tb
+# End time: 12:14:19 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# End time: 12:14:25 on Jun 07,2026, Elapsed time: 0:05:54
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -t 1ps work.FSM_tb 
+# Start time: 12:14:25 on Jun 07,2026
+# Loading sv_std.std
+# Loading work.FSM_tb
+# Loading work.FSM
+# Starting FSM testbench.
+# Testing NOOP.
+# Testing STORE.
+# Testing LOAD.
+# Testing ADD.
+# Testing SUB.
+# Testing XOR.
+# Testing OR.
+# Testing AND.
+# Testing HALT.
+# Testing JMP.
+# Testing JNZ taken.
+# Testing JNZ not taken.
+# Testing JLT taken.
+# Testing JLT not taken.
+# FSM testbench complete.
+# Passes: 157
+# Failures: 0
+# RESULT: PASS
+# ** Note: $stop    : FSM_tb.sv(396)
+#    Time: 626 ps  Iteration: 0  Instance: /FSM_tb
+# Break in Module FSM_tb at FSM_tb.sv line 396
+do run_FSM_tb.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:18:26 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 12:18:26 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:18:26 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM_tb.sv 
+# -- Compiling module FSM_tb
+# 
+# Top level modules:
+# 	FSM_tb
+# End time: 12:18:26 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# End time: 12:18:32 on Jun 07,2026, Elapsed time: 0:04:07
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -t 1ps work.FSM_tb 
+# Start time: 12:18:32 on Jun 07,2026
+# Loading sv_std.std
+# Loading work.FSM_tb
+# Loading work.FSM
+# Starting FSM testbench.
+# Testing NOOP.
+# Testing STORE.
+# Testing LOAD.
+# Testing ADD.
+# Testing SUB.
+# Testing XOR.
+# Testing OR.
+# Testing AND.
+# Testing SHL.
+# Testing MULT.
+# FAIL: RF_Ra_addr expected=0000000a actual=0000000d time=416
+# FAIL: Alu_s0 expected=00000003 actual=00000002 time=416
+# Testing HALT.
+# Testing JMP.
+# Testing JNZ taken.
+# Testing JNZ not taken.
+# Testing JLT taken.
+# Testing JLT not taken.
+# FSM testbench complete.
+# Passes: 181
+# Failures: 2
+# RESULT: FAIL
+# ** Note: $stop    : FSM_tb.sv(412)
+#    Time: 706 ps  Iteration: 0  Instance: /FSM_tb
+# Break in Module FSM_tb at FSM_tb.sv line 412
+do run_FSM_tb.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:19:41 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 12:19:41 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:19:41 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM_tb.sv 
+# -- Compiling module FSM_tb
+# ** Warning: FSM_tb.sv(305): (vlog-2600) [RDGN] - Redundant digits in numeric literal.
+# 
+# Top level modules:
+# 	FSM_tb
+# End time: 12:19:42 on Jun 07,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 1
+# End time: 12:19:48 on Jun 07,2026, Elapsed time: 0:01:16
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -t 1ps work.FSM_tb 
+# Start time: 12:19:48 on Jun 07,2026
+# Loading sv_std.std
+# Loading work.FSM_tb
+# Loading work.FSM
+# Starting FSM testbench.
+# Testing NOOP.
+# Testing STORE.
+# Testing LOAD.
+# Testing ADD.
+# Testing SUB.
+# Testing XOR.
+# Testing OR.
+# Testing AND.
+# Testing SHL.
+# Testing MULT.
+# FAIL: StateOut expected=00000007 actual=0000000f time=416
+# Testing HALT.
+# Testing JMP.
+# Testing JNZ taken.
+# Testing JNZ not taken.
+# Testing JLT taken.
+# Testing JLT not taken.
+# FSM testbench complete.
+# Passes: 182
+# Failures: 1
+# RESULT: FAIL
+# ** Note: $stop    : FSM_tb.sv(412)
+#    Time: 706 ps  Iteration: 0  Instance: /FSM_tb
+# Break in Module FSM_tb at FSM_tb.sv line 412
+do run_FSM_tb.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:23:56 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 12:23:56 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:23:56 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM_tb.sv 
+# -- Compiling module FSM_tb
+# ** Warning: FSM_tb.sv(306): (vlog-2600) [RDGN] - Redundant digits in numeric literal.
+# 
+# Top level modules:
+# 	FSM_tb
+# End time: 12:23:56 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+# End time: 12:23:59 on Jun 07,2026, Elapsed time: 0:04:11
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -t 1ps work.FSM_tb 
+# Start time: 12:23:59 on Jun 07,2026
+# Loading sv_std.std
+# Loading work.FSM_tb
+# Loading work.FSM
+# Starting FSM testbench.
+# Testing NOOP.
+# Testing STORE.
+# Testing LOAD.
+# Testing ADD.
+# Testing SUB.
+# Testing XOR.
+# Testing OR.
+# Testing AND.
+# Testing SHL.
+# Testing MULT.
+# Testing HALT.
+# Testing JMP.
+# Testing JNZ taken.
+# Testing JNZ not taken.
+# Testing JLT taken.
+# Testing JLT not taken.
+# FSM testbench complete.
+# Passes: 183
+# Failures: 0
+# RESULT: PASS
+# ** Note: $stop    : FSM_tb.sv(413)
+#    Time: 706 ps  Iteration: 0  Instance: /FSM_tb
+# Break in Module FSM_tb at FSM_tb.sv line 413
+do run_FSM_tb.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:24:26 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 12:24:26 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:24:26 on Jun 07,2026
+# vlog -reportprogress 300 -sv FSM_tb.sv 
+# -- Compiling module FSM_tb
+# 
+# Top level modules:
+# 	FSM_tb
+# End time: 12:24:26 on Jun 07,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# End time: 12:24:32 on Jun 07,2026, Elapsed time: 0:00:33
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -t 1ps work.FSM_tb 
+# Start time: 12:24:32 on Jun 07,2026
+# Loading sv_std.std
+# Loading work.FSM_tb
+# Loading work.FSM
+# Starting FSM testbench.
+# Testing NOOP.
+# Testing STORE.
+# Testing LOAD.
+# Testing ADD.
+# Testing SUB.
+# Testing XOR.
+# Testing OR.
+# Testing AND.
+# Testing SHL.
+# Testing MULT.
+# Testing HALT.
+# Testing JMP.
+# Testing JNZ taken.
+# Testing JNZ not taken.
+# Testing JLT taken.
+# Testing JLT not taken.
+# FSM testbench complete.
+# Passes: 183
+# Failures: 0
+# RESULT: PASS
+# ** Note: $stop    : FSM_tb.sv(413)
+#    Time: 706 ps  Iteration: 0  Instance: /FSM_tb
+# Break in Module FSM_tb at FSM_tb.sv line 413
+# End time: 12:25:15 on Jun 07,2026, Elapsed time: 0:00:43
+# Errors: 0, Warnings: 0

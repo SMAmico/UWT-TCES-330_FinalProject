@@ -50,19 +50,23 @@ module FSM_tb();
                      S_STR      = 4'd4,
                      S_LDA      = 4'd5,
                      S_LDB      = 4'd6,
-                     S_ADD      = 4'd7,
-                     S_SUB      = 4'd8,
+                     S_ALU      = 4'd7,//S_ALU contains all alu operations
                      S_HLT      = 4'd9,
                      S_JMP      = 4'd10,
                      S_JNZ_TEST = 4'd11,
                      S_JNZ_JUMP = 4'd12,
                      S_JLT_TEST = 4'd13,
-                     S_JLT_JUMP = 4'd14;
+                     S_JLT_JUMP = 4'd14,
+                     S_MULT     = 4'd15;
 
     localparam [2:0] ALU_ADDZERO = 3'b000,
                      ALU_ADD     = 3'b001,
                      ALU_SUB     = 3'b010,
-                     ALU_PASS    = 3'b011;
+                     ALU_MULT    = 3'b011,
+                     ALU_XOR     = 3'b100,
+                     ALU_OR      = 3'b101,
+                     ALU_AND     = 3'b110,
+                     ALU_SHL     = 3'b111;
 
     FSM dut(
         .Clk(Clk),
@@ -156,6 +160,30 @@ module FSM_tb();
         end
     endtask
 
+    task automatic test_alu;
+        input [255:0] operation;
+        input [15:0] instruction;
+        input [3:0] expected_state;
+        input [2:0] Alu_op;
+        input [3:0] Ra_addr, Rb_addr, Rc_addr;
+    /*
+        Test ALU:
+        ALUOP raaa rbbb rccc
+        INS RF[A] X RF[B] -> RF[C]
+        */
+        $display("Testing %0s.", operation);
+        reset_fsm_with_instruction(instruction);
+        tick();
+
+        check_value("StateOut", StateOut, expected_state);
+        check_value("RF_Ra_addr", RF_Ra_addr, Ra_addr);
+        check_value("RF_Rb_addr", RF_Rb_addr, Rb_addr);
+        check_value("RF_W_addr", RF_W_addr, Rc_addr);
+        check_value("RF_W_en", RF_W_en, 1);
+        check_value("Alu_s0", Alu_s0, Alu_op);
+        check_value("RF_s", RF_s, 0);
+    endtask
+
     initial begin
         pass_count = 0;
         fail_count = 0;
@@ -226,34 +254,56 @@ module FSM_tb();
         0011 raaa rbbb rccc
         ADD RF[A] + RF[B] -> RF[C]
         */
-        $display("Testing ADD.");
-        reset_fsm_with_instruction(16'h3ABC);
-        tick();
-
-        check_value("ADD StateOut", StateOut, S_ADD);
-        check_value("ADD RF_Ra_addr", RF_Ra_addr, 4'hA);
-        check_value("ADD RF_Rb_addr", RF_Rb_addr, 4'hB);
-        check_value("ADD RF_W_addr", RF_W_addr, 4'hC);
-        check_value("ADD RF_W_en", RF_W_en, 1);
-        check_value("ADD Alu_s0", Alu_s0, ALU_ADD);
-        check_value("ADD RF_s", RF_s, 0);
+        //test_alu([255:0] operation, [15:0] instruction, [3:0] expected_state, [2:0] Alu_op, [3:0] Ra_addr, Rb_addr, Rc_addr)
+        test_alu("ADD", 16'h3ABC, S_ALU, ALU_ADD, 4'hA, 4'hB, 4'hC);
 
         /*
         Test SUB:
         0100 raaa rbbb rccc
         SUB RF[A] - RF[B] -> RF[C]
         */
-        $display("Testing SUB.");
-        reset_fsm_with_instruction(16'h4ABC);
-        tick();
+        //test_alu([255:0] operation, [15:0] instruction, [3:0] expected_state, [2:0] Alu_op, [3:0] Ra_addr, Rb_addr, Rc_addr)
+        test_alu("SUB", 16'h4ABC, S_ALU, ALU_SUB, 4'hA, 4'hB, 4'hC);
 
-        check_value("SUB StateOut", StateOut, S_SUB);
-        check_value("SUB RF_Ra_addr", RF_Ra_addr, 4'hA);
-        check_value("SUB RF_Rb_addr", RF_Rb_addr, 4'hB);
-        check_value("SUB RF_W_addr", RF_W_addr, 4'hC);
-        check_value("SUB RF_W_en", RF_W_en, 1);
-        check_value("SUB Alu_s0", Alu_s0, ALU_SUB);
-        check_value("SUB RF_s", RF_s, 0);
+        /*
+        Test XOR:
+        0110 raaa rbbb rccc
+        XOR RF[A] ^ RF[B] -> RF[C]
+        */
+        //test_alu([255:0] operation, [15:0] instruction, [3:0] expected_state, [2:0] Alu_op, [3:0] Ra_addr, Rb_addr, Rc_addr)
+        test_alu("XOR", 16'h6ABC, S_ALU, ALU_XOR, 4'hA, 4'hB, 4'hC);
+
+        /*
+        Test OR:
+        0111 raaa rbbb rccc
+        OR RF[A] | RF[B] -> RF[C]
+        */
+        //test_alu([255:0] operation, [15:0] instruction, [3:0] expected_state, [2:0] Alu_op, [3:0] Ra_addr, Rb_addr, Rc_addr)
+        test_alu("OR", 16'h7ABC, S_ALU, ALU_OR, 4'hA, 4'hB, 4'hC);
+
+        /*
+        Test AND:
+        1000 raaa rbbb rccc
+        AND RF[A] & RF[B] -> RF[C]
+        */
+        //test_alu([255:0] operation, [15:0] instruction, [3:0] expected_state, [2:0] Alu_op, [3:0] Ra_addr, Rb_addr, Rc_addr)
+        test_alu("AND", 16'h8ABC, S_ALU, ALU_AND, 4'hA, 4'hB, 4'hC);
+
+        /*
+        Test SHL:
+        1100 raaa rbbb
+        SHL RF[A] << 1 -> RF[C]
+        */
+        //test_alu([255:0] operation, [15:0] instruction, [3:0] expected_state, [2:0] Alu_op, [3:0] Ra_addr, Rb_addr, Rc_addr)
+        test_alu("SHL", 16'hCABC, S_ALU, ALU_SHL, 4'hA, 4'hB, 4'hC);
+
+        /*
+        Test MULT:
+        1101 raaa rbbb rccc
+        MULT RF[A] * RF[B] -> RF[C]
+        */
+        //test_alu([255:0] operation, [15:0] instruction, [3:0] expected_state, [2:0] Alu_op, [3:0] Ra_addr, Rb_addr, Rc_addr)
+        test_alu("MULT", 16'hDABC, S_MULT, ALU_MULT, 4'hA, 4'hB, 4'hC);
 
         /*
         Test HALT:
@@ -293,7 +343,7 @@ module FSM_tb();
 
         check_value("JNZ_TEST StateOut", StateOut, S_JNZ_TEST);
         check_value("JNZ_TEST RF_Ra_addr", RF_Ra_addr, 4'h3);
-        check_value("JNZ_TEST Alu_s0", Alu_s0, ALU_PASS);
+        check_value("JNZ_TEST Alu_s0", Alu_s0, ALU_ADDZERO);
 
         Alu_Z = 1'b0;
         tick();

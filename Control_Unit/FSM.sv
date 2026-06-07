@@ -247,7 +247,7 @@ module FSM(
 
                 //set ALU control lines to the appropriate operation
                 case(IR_data[15:12]) 
-                    INS_ADD: Alu_s0 = ALU_AND;
+                    INS_ADD: Alu_s0 = ALU_ADD;
                     INS_SUB: Alu_s0 = ALU_SUB;
                     INS_AND: Alu_s0 = ALU_AND;
                     INS_OR : Alu_s0 = ALU_OR;
@@ -289,7 +289,7 @@ module FSM(
             */
             S_JNZ_TEST: begin
                 RF_Ra_addr = IR_data[3:0];
-                Alu_s0     = ALU_PASS;
+                Alu_s0     = ALU_ADDZERO;
 
                 NextState  = S_JNZ_JUMP;
             end

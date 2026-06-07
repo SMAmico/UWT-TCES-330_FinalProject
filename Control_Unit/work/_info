@@ -1,0 +1,63 @@
+m255
+K4
+z2
+!s11f vlog 2020.1 2020.02, Feb 28 2020
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dD:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/Control_Unit
+vFSM
+Z1 DXx6 sv_std 3 std 0 22 VYECXdT12H8WgbUP_5Y6:3
+Z2 !s110 1780860266
+!i10b 1
+!s100 hMZLh2cJZz;fW8h=QR0nS1
+Z3 !s11b Dg1SIo80bB@j0V0VzS_@n1
+IjB0Td7KA?7dz8HD2jamYR1
+Z4 VDg1SIo80bB@j0V0VzS_@n1
+S1
+R0
+w1780858981
+8FSM.sv
+FFSM.sv
+!i122 18
+L0 10 356
+Z5 OV;L;2020.1;71
+r1
+!s85 0
+31
+Z6 !s108 1780860266.000000
+!s107 FSM.sv|
+!s90 -reportprogress|300|-sv|FSM.sv|
+!i113 1
+o-sv
+Z7 tCvgOpt 0
+n@f@s@m
+vFSM_tb
+R1
+R2
+!i10b 1
+!s100 `bkW^EVAM_7gjL[^hZ?DZ1
+R3
+IPRmZ[X0EcBnYN^>al@Kbo0
+R4
+S1
+R0
+w1780860262
+8FSM_tb.sv
+FFSM_tb.sv
+!i122 19
+L0 9 408
+R5
+r1
+!s85 0
+31
+R6
+!s107 FSM_tb.sv|
+!s90 -reportprogress|300|-sv|FSM_tb.sv|
+!i113 1
+o-sv
+R7
+n@f@s@m_tb
