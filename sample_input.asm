@@ -8,7 +8,7 @@ START:
     JLT R1, R2, SKIP  ; branch forward if R1 < R2
     XOR R5, R5, R6    ; execute when no branch
 SKIP:
-    SHL R5, R7, R8    ; R8 = R5 << 1
+    SHL R5, R7, R8    ; R8 = R5 << R7
     JMP DONE
     HLT
 DONE:

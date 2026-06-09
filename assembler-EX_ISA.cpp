@@ -375,13 +375,13 @@ int main(int argc, char** argv) {
 
             // SHL: shifts register left by one bit into a second register
             } else if (op=="SHL") {
-                if (tokens.size()<3) throw runtime_error("SHL expects RA,RB");
+                if (tokens.size()<4) throw runtime_error("SHL expects RA,RB");
 
                 int ra=parse_reg(tokens[1]);
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
 
-                instr = (0x8<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = (0xC<<12) | (ra<<8) | (rb<<4) | rc;
 
             //MULT: the heaviest ALU operation. multiplies two registers and puts result into a third register.
             } else if (op=="MULT") {
