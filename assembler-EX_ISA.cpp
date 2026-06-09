@@ -373,15 +373,25 @@ int main(int argc, char** argv) {
                 uint16_t ob = (uint16_t)(offset & 0xF);
                 instr = (0xB<<12) | (ra<<8) | (rb<<4) | ob;
 
-            // SHL: shifts register left by one bit into a second register
+            // SHL: shifts ra left by rb into rc
             } else if (op=="SHL") {
-                if (tokens.size()<4) throw runtime_error("SHL expects RA,RB");
+                if (tokens.size()<4) throw runtime_error("SHL expects RA,RB,RC");
 
                 int ra=parse_reg(tokens[1]);
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
 
                 instr = (0xC<<12) | (ra<<8) | (rb<<4) | rc;
+
+            // SHR: shifts ra right by rb into rc
+            } else if (op=="SHR") {
+                if (tokens.size()<4) throw runtime_error("SHR expects RA,RB,RC");
+
+                int ra=parse_reg(tokens[1]);
+                int rb=parse_reg(tokens[2]);
+                int rc=parse_reg(tokens[3]);
+
+                instr = (0x0<<12) | (ra<<8) | (rb<<4) | rc;
 
             //MULT: the heaviest ALU operation. multiplies two registers and puts result into a third register.
             } else if (op=="MULT") {
