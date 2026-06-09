@@ -62,8 +62,8 @@ module ALU (
 
     /*
     ALU operation select:
-        S = 000: Q = A >> B
-        S = 001: Q = A + B
+        S = 000: Q = A >> B     (Don't ask why it's up here. You know it's from not wanting to
+        S = 001: Q = A + B       realign everything in the ISA.)
         S = 010: Q = A - B
         S = 011: Q = A * B
         S = 100: Q = A ^ B
@@ -75,48 +75,56 @@ module ALU (
     Alu_N is the sign bit of Q.
     Alu_V is signed overflow for ADD, SUB, and INC.
     */
+    localparam [2:0] ALU_SHR     = 3'b000,
+                     ALU_ADD     = 3'b001,
+                     ALU_SUB     = 3'b010,
+                     ALU_MULT    = 3'b011,
+                     ALU_XOR     = 3'b100,
+                     ALU_OR      = 3'b101,
+                     ALU_AND     = 3'b110,
+                     ALU_SHL     = 3'b111;
 
     always_comb begin
         Q = 16'h0000;
         Alu_V = 1'b0;
 
         case (S)
-            3'b000: begin
+            ALU_SHR: begin
                 Q = A >> B;
                 Alu_V = 1'b0;
             end
 
-            3'b001: begin
+            ALU_ADD: begin
                 Q = A + B;
                 Alu_V = (~(A[15] ^ B[15])) & (Q[15] ^ A[15]);
             end
 
-            3'b010: begin
+            ALU_SUB: begin
                 Q = A - B;
                 Alu_V = (A[15] ^ B[15]) & (Q[15] ^ A[15]);
             end
 
-            3'b011: begin
+            ALU_MULT: begin
                 Q = A * B;
                 Alu_V = (~(A[15] ^ B[15]) & (Q[15] ^ A[15]));
             end
 
-            3'b100: begin
+            ALU_XOR: begin
                 Q = A ^ B;
                 Alu_V = 1'b0;
             end
 
-            3'b101: begin
+            ALU_OR: begin
                 Q = A | B;
                 Alu_V = 1'b0;
             end
 
-            3'b110: begin
+            ALU_AND: begin
                 Q = A & B;
                 Alu_V = 1'b0;
             end
 
-            3'b111: begin
+            ALU_SHL: begin
                 Q = A << B;
                 Alu_V = 1'b0;
             end
@@ -139,7 +147,7 @@ module mux16w_2to1 (
     input [15:0] ALU,
     input RF_s,
     output [15:0] Q
-);
+    );
 
     /*
     RF_s selects the source that writes back into the register file.
@@ -157,7 +165,7 @@ module RAM (
     input Clk,
     input [15:0] W_data,
     output [15:0] R_data
-);
+    );
 
     /*
     RAM wrapper for the Quartus-generated myRAM LPM module.

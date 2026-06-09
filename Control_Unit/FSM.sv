@@ -61,7 +61,8 @@ module FSM(
                      INS_JLT = 4'hB,
 
                      INS_SHL = 4'hC,//added instructions
-                     INS_MULT= 4'hD;
+                     INS_MULT= 4'hD,
+                     INS_SHR = 4'hE;
                      
     /*
     ALU select values. These must match the ALU module. For JNZ, ALU_PASS is used to pass the selected
@@ -70,10 +71,10 @@ module FSM(
     */
     /*
     ALU operation select:
-        S = 000: Q = A + 0
+        S = 000: Q = A >> B
         S = 001: Q = A + B
         S = 010: Q = A - B
-        S = 011: Q = A * B this alu operation will be removed, so a custom state will be added to the control unit.
+        S = 011: Q = A * B
         S = 100: Q = A ^ B
         S = 101: Q = A | B
         S = 110: Q = A & B
@@ -83,7 +84,7 @@ module FSM(
     Alu_N is the sign bit of Q.
     Alu_V is signed overflow for ADD, SUB, and INC.
     */
-    localparam [2:0] ALU_ADDZERO = 3'b000,
+    localparam [2:0] ALU_SHR     = 3'b000,
                      ALU_ADD     = 3'b001,
                      ALU_SUB     = 3'b010,
                      ALU_MULT    = 3'b011,
@@ -116,8 +117,7 @@ module FSM(
                      S_JNZ_TEST = 4'd11,
                      S_JNZ_JUMP = 4'd12,
                      S_JLT_TEST = 4'd13,
-                     S_JLT_JUMP = 4'd14,
-                     S_MULT     = 4'd15;
+                     S_JLT_JUMP = 4'd14;
 
     logic [3:0] State, NextState;
     
@@ -189,12 +189,13 @@ module FSM(
 					INS_OR : NextState = S_ALU;
 					INS_XOR: NextState = S_ALU;
 					INS_SHL: NextState = S_ALU;
+                    INS_SHR: NextState = S_ALU;
+                    INS_MULT:NextState = S_ALU;
 
                     INS_HLT: NextState = S_HLT;
                     INS_JMP: NextState = S_JMP;
                     INS_JNZ: NextState = S_JNZ_TEST;
                     INS_JLT: NextState = S_JLT_TEST;
-					INS_MULT:NextState = S_MULT;//special multiplication state
                     default: NextState = S_HLT;
                 endcase
             end
@@ -253,23 +254,9 @@ module FSM(
                     INS_OR : Alu_s0 = ALU_OR;
                     INS_XOR: Alu_s0 = ALU_XOR;
                     INS_SHL: Alu_s0 = ALU_SHL;
+                    INS_SHR: Alu_s0 = ALU_SHR;
+                    INS_MULT:Alu_s0 = ALU_MULT;
                 endcase
-                RF_s       = 1'b0;
-
-                NextState  = S_FETCH;
-            end
-
-            // MULT instruction: perform multiplication and write result back
-            S_MULT: begin
-                // Instruction format assumed: 1101 raaa rbbb rccc
-                // RF[rccc] = RF[raaa] * RF[rbbb]
-                RF_Ra_addr = IR_data[11:8];
-                RF_Rb_addr = IR_data[7:4];
-                RF_W_addr  = IR_data[3:0];
-                RF_W_en    = 1'b1;
-
-                // Use ALU multiply operation (shift-add style may be implemented in ALU)
-                Alu_s0     = ALU_MULT;
                 RF_s       = 1'b0;
 
                 NextState  = S_FETCH;
@@ -285,11 +272,13 @@ module FSM(
 
             /*
             JNZ_TEST instruction state: 1010 bbbbbbbb rrrr Select RF[rrrr] and pass it through the 
-			ALUso the zero flag can indicate whether the register is zero.
+			ALU so the zero flag can indicate whether the register is zero.
             */
             S_JNZ_TEST: begin
                 RF_Ra_addr = IR_data[3:0];
-                Alu_s0     = ALU_ADDZERO;
+                RF_Rb_addr = 4'h0;//blank Rb to emulate adding 0
+
+                Alu_s0     = ALU_ADD;
 
                 NextState  = S_JNZ_JUMP;
             end
