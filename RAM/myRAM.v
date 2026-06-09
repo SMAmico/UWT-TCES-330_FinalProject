@@ -35,7 +35,7 @@
 
 
 // synopsys translate_off
-`timescale 1 ps / 1 ps
+`timescale 1ns/1ps
 // synopsys translate_on
 module myRAM (
 	address,
@@ -173,3 +173,126 @@ endmodule
 // Retrieval info: GEN_FILE: TYPE_NORMAL myRAM_inst.v FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL myRAM_bb.v FALSE
 // Retrieval info: LIB_FILE: altera_mf
+
+`timescale 1ns/1ps
+
+module myRAM_tb();
+
+    logic Clk;
+    logic [7:0] address;
+    logic [15:0] data;
+    logic wren;
+    logic [15:0] q;
+
+    int passes;
+    int failures;
+
+    /*
+    Device under test. This connects the testbench signals to the myRAM module. The testbench 
+    controls the address, data, write enable, and clock inputs, then checks the q output.
+    */
+    myRAM dut(
+        .address(address),
+        .clock(Clk),
+        .data(data),
+        .wren(wren),
+        .q(q)
+    );
+
+    /*
+    Clock generation. The RAM uses a clock input, so this creates a repeating clock signal with 
+    a 10 time-unit period.
+    */
+    initial Clk = 1'b0;
+
+    always begin
+        #5 Clk = ~Clk;
+    end
+
+    /*
+    Advance the simulation by one positive clock edge. The #1 delay gives clocked outputs time 
+    to update before the testbench checks the result.
+    */
+    task automatic tick;
+        begin
+            @(posedge Clk);
+            #1;
+        end
+    endtask
+
+    /*
+    Read and check one RAM address. The address is applied, write enable is turned off, and the
+    output q is compared against the expected value. Case equality is used so unknown values are
+    treated as failures.
+    */
+    task automatic check_read;
+        input [7:0] test_address;
+        input [15:0] expected;
+        begin
+            address = test_address;
+            wren = 1'b0;
+
+            #10;
+
+            if (q === expected) begin
+                passes++;
+                $display("PASS: address=%h q=%h expected=%h", address, q, expected);
+            end
+            else begin
+                failures++;
+                $display("FAIL: address=%h q=%h expected=%h", address, q, expected);
+            end
+        end
+    endtask
+
+    initial begin
+        $display("Starting myRAM testbench.");
+
+        passes = 0;
+        failures = 0;
+
+        // Set default inactive values before testing begins.
+        wren = 1'b0;
+        data = 16'h0000;
+        address = 8'h00;
+
+        /*
+        Test 1: RAM initialization. These checks verify that myRAM correctly loads its starting
+	values from mifRAM.mif. These expected values match the current Phase 3 RAM contents.
+        */
+        check_read(8'h1B, 16'h21BA);
+        check_read(8'h2A, 16'hA04E);
+        check_read(8'h3C, 16'h71AC);
+        check_read(8'h7E, 16'hB17F);
+
+	/*
+	Test 2: RAM write and read-back. This writes 4199 into address 6A, disables writing, and
+	then reads address 6A back. This confirms that wren allows the RAM to store new data
+	when asserted. This also matches the final value stored by the full processor program.
+	*/
+	address = 8'h6A;
+	data = 16'h4199;
+	wren = 1'b1;
+	tick();
+
+	wren = 1'b0;
+	tick();
+
+	check_read(8'h6A, 16'h4199);
+
+        // Print the final test summary.
+        $display("myRAM testbench complete.");
+        $display("Passes: %0d", passes);
+        $display("Failures: %0d", failures);
+
+        if (failures == 0) begin
+            $display("RESULT: PASS");
+        end
+        else begin
+            $display("RESULT: FAIL");
+        end
+
+        $finish;
+    end
+
+endmodule
