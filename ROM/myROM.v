@@ -34,9 +34,7 @@
 //https://fpgasoftware.intel.com/eula.
 
 
-// synopsys translate_off
-`timescale 1 ps / 1 ps
-// synopsys translate_on
+`timescale 1ns/1ps
 module myROM (
 	address,
 	clock,
@@ -158,3 +156,94 @@ endmodule
 // Retrieval info: GEN_FILE: TYPE_NORMAL myROM_inst.v FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL myROM_bb.v TRUE
 // Retrieval info: LIB_FILE: altera_mf
+
+module myROM_tb();
+logic Clk;
+logic [6:0] address;
+logic [15:0] q;
+
+int passes;
+int failures;
+
+/*
+Device under test. This connects the testbench address and clock signals to the ROM and checks
+the instruction output q.
+*/
+myROM dut(
+    .address(address),
+    .clock(Clk),
+    .q(q)
+);
+
+/*
+Clock generation. The ROM uses the clock input from the generated altsyncram block, so this
+creates a repeating clock signal with a 10 time-unit period.
+*/
+initial Clk = 1'b0;
+
+always begin
+    #5 Clk = ~Clk;
+end
+
+/*
+Read and check one ROM address. The address is applied and q is compared against the expected
+instruction value from mifROM.mif. Case equality is used so unknown values are treated as failures.
+*/
+task automatic check_read;
+    input string name;
+    input [6:0] test_address;
+    input [15:0] expected;
+
+    begin
+        address = test_address;
+        #10;
+
+        if (q === expected) begin
+            passes++;
+            $display("PASS: %0s address=%h q=%h expected=%h",
+                     name, address, q, expected);
+        end
+        else begin
+            failures++;
+            $display("FAIL: %0s address=%h q=%h expected=%h",
+                     name, address, q, expected);
+        end
+    end
+endtask
+
+initial begin
+    $display("Starting myROM testbench.");
+
+    passes = 0;
+    failures = 0;
+
+    address = 7'h00;
+
+    /*
+    These checks verify that myROM correctly loads the current processor program from mifROM.mif.
+    */
+    check_read("LOAD D[1B] to RF[A]", 7'h00, 16'h21BA);
+    check_read("LOAD D[2A] to RF[B]", 7'h01, 16'h22AB);
+    check_read("SUB RF[A] - RF[B] to RF[A]", 7'h02, 16'h4ABA);
+    check_read("LOAD D[3C] to RF[B]", 7'h03, 16'h23CB);
+    check_read("ADD RF[A] + RF[B] to RF[A]", 7'h04, 16'h3ABA);
+    check_read("LOAD D[7E] to RF[B]", 7'h05, 16'h27EB);
+    check_read("SUB RF[A] - RF[B] to RF[A]", 7'h06, 16'h4ABA);
+    check_read("STORE RF[A] to D[6A]", 7'h07, 16'h1A6A);
+    check_read("HALT instruction", 7'h08, 16'h5000);
+
+    $display("myROM testbench complete.");
+    $display("Passes: %0d", passes);
+    $display("Failures: %0d", failures);
+
+    if (failures == 0) begin
+        $display("RESULT: PASS");
+    end
+    else begin
+        $display("RESULT: FAIL");
+    end
+
+    $finish(0);
+end
+
+endmodule
