@@ -11,7 +11,7 @@
       - Registers: R0 .. R15 (case-insensitive) or numeric 0..15
 
     Instruction formats implemented (match FSM expectations):
-      NOP                 -> 1000 0000 0000 0000   (AND R0 with R0 into R0, effectively a NOP)
+
       STR Rr, addr        -> 0001 rrrr dddddddd    (store RF[r] -> D[addr])
       LDR addr, Rr        -> 0010 dddddddd rrrr    (load D[addr] -> RF[r])
       ADD rA, rB, rC     -> 0011 raaa rbbb rccc
@@ -29,6 +29,10 @@
       SHL rA, rB, rC     -> 1100 raaa rbbb rccc     (added instructions for extra ALU ops)
       MULT rA, rB, rC    -> 1101 raaa rbbb rccc    
       SHR rA, rB, rC     -> 1110 raaa rbbb rccc
+
+      Pseudo-ops:
+      NOP                 -> 1000 0000 0000 0000   (AND R0 with R0 into R0, effectively a NOP)
+      MOV                 -> 1000 raaa rbbb rccc    (AND RN with RN into RDest, effectively moving) 
 
     The assembler supports labels for addresses and computes relative offsets
     for `JLT` as: offset = target_address - (current_address + 1). Offset must fit
