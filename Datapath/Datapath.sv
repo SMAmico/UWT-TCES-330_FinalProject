@@ -62,7 +62,7 @@ module ALU (
 
     /*
     ALU operation select:
-        S = 000: Q = A + 0
+        S = 000: Q = A >> B
         S = 001: Q = A + B
         S = 010: Q = A - B
         S = 011: Q = A * B
@@ -82,7 +82,7 @@ module ALU (
 
         case (S)
             3'b000: begin
-                Q = A + 16'd0;
+                Q = A >> B;
                 Alu_V = 1'b0;
             end
 
