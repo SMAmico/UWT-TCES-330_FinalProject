@@ -8,17 +8,17 @@
     Assembly syntax (whitespace and commas separate tokens):
       - Labels: `label:` at start of a line
       - Comments: start with `;`, `//`, or `#`
-      - Registers: R0 .. R15 (case-insensitive) or numeric 0..15
+      - Registers: R0 .. R14 (case-insensitive) or numeric 0..14 with R15 as TMP
 
     Instruction formats implemented (match FSM expectations):
 
       STR Rr, addr        -> 0001 rrrr dddddddd    (store RF[r] -> D[addr])
-      LDR addr, Rr        -> 0010 dddddddd rrrr    (load D[addr] -> RF[r])
+      LDR addr, Rr        -> 0010 rrrr dddddddd    (load D[addr] -> RF[r])
       ADD rA, rB, rC     -> 0011 raaa rbbb rccc
       SUB rA, rB, rC     -> 0100 raaa rbbb rccc
       HLT                 -> 0101 0000 0000 0000
 
-      XOR rA, rB, rC     -> 0110 raaa rbbb rccc     (instructions in the ALU originally but unimplemented)
+      MOVI rA, rB, rC     -> 0110 raaa dddddddd     (instructions in the ALU originally but unimplemented)
       OR  rA, rB, rC     -> 0111 raaa rbbb rccc
       AND rA, rB, rC     -> 1000 raaa rbbb rccc
 
@@ -28,11 +28,13 @@
 
       SHL rA, rB, rC     -> 1100 raaa rbbb rccc     (added instructions for extra ALU ops)
       MULT rA, rB, rC    -> 1101 raaa rbbb rccc    
-      SHR rA, rB, rC     -> 1110 raaa rbbb rccc
+      SHR rA, rB, rC     -> 0000 raaa rbbb rccc
 
       Pseudo-ops:
       NOP                 -> 1000 0000 0000 0000   (AND R0 with R0 into R0, effectively a NOP)
       MOV                 -> 1000 raaa rbbb rccc    (AND RN with RN into RDest, effectively moving) 
+      XOR                 -> multiple ins.
+
 
     The assembler supports labels for addresses and computes relative offsets
     for `JLT` as: offset = target_address - (current_address + 1). Offset must fit
@@ -50,7 +52,7 @@
 #include <vector>
 using namespace std;
 
-//function cleans each line so it's just the instruction
+//function cleans each line so its just the instruction
 static inline string trim(const string &s) {
 
     size_t a = s.find_first_not_of(" \t\r\n");
@@ -92,6 +94,8 @@ static inline vector<string> split_tokens(const string &line) {
 
 }
 
+
+
 //converts RN register terminology to direct register address
 //input: token equivalent of register
 //output: register value
@@ -103,13 +107,13 @@ int parse_reg(const string &token) {
     if (s.size() > 0 && s[0] == 'R') {
         string num = s.substr(1);
         int v = stoi(num);
-        if (v < 0 || v > 15) throw runtime_error("register out of range: "+token);
+        if (v < 0 || v > 14) throw runtime_error("register out of range: "+token);
         return v;
     }
-    // as an alternate input, allow raw numbers 0-15 to convert properly too.
+    // as an alternate input, allow raw numbers 0-14 to convert properly too.
     {
         int v = stoi(s);
-        if (v < 0 || v > 15) throw runtime_error("register out of range: "+token);
+        if (v < 0 || v > 14) throw runtime_error("register out of range: "+token);
         return v;
     }
 }
@@ -255,20 +259,35 @@ int main(int argc, char** argv) {
                 if (a<0||a>255) throw runtime_error("address out of range");
                 instr = (0x1<<12) | (r<<8) | (a & 0xFF);
 
-
             //LDR: load register
             } else if (op=="LDR" || op=="LOAD") {
 
-                if (tokens.size()<3) throw runtime_error("LDR expects ADDR,R");
+                if (tokens.size()<3) throw runtime_error("LDR expects R,ADDR");
+
+                int r = parse_reg(tokens[1]);
                 int a;
 
-                if (labels.find(tokens[1])!=labels.end()) a = labels[tokens[1]];
-
-                else a = parse_number(tokens[1]);
-                int r = parse_reg(tokens[2]);
+                // addr may be label
+                if (labels.find(tokens[2])!=labels.end()) a = labels[tokens[2]];
+                else a = parse_number(tokens[2]);
 
                 if (a<0||a>255) throw runtime_error("address out of range");
-                instr = (0x2<<12) | ((a & 0xFF)<<4) | (r & 0xF);
+                instr = (0x2<<12) | (r<<8) | (a & 0xFF);
+            
+            //MOVI: load register lower half immediate
+            } else if (op=="MOVI" || op=="MOVI") {
+
+                if (tokens.size()<3) throw runtime_error("MOVI expects R,IMM");
+
+                int r = parse_reg(tokens[1]);
+                int a;
+
+                // addr may be label
+                if (labels.find(tokens[2])!=labels.end()) a = labels[tokens[2]];
+                else a = parse_number(tokens[2]);
+
+                if (a<0||a>255) throw runtime_error("address out of range");
+                instr = (0x6<<12) | (r<<8) | (a & 0xFF);
 
 
             //ADD: add two registers into a third
@@ -306,7 +325,15 @@ int main(int argc, char** argv) {
                 int ra=parse_reg(tokens[1]);
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
-                instr = (0x6<<12) | (ra<<8) | (rb<<4) | rc;
+
+                //pseudoinstruction for XOR
+                instr = (0x3<<12) | (ra << 8) | (rb << 4) | rc;
+                words.push_back(instr);
+                instr = (0x8<<12) | (0xF<<8) | (rb << 4) | rc;
+                words.push_back(instr);
+                instr = (0xC<<12) | (0xF<<8) | (0xF<<4) | 0x1;
+                words.push_back(instr);
+                instr = (0x4<<12) | (ra<<8) | (ra << 4) | 0xF;
 
 
             //OR: perform OR operation on two registers into a third

@@ -52,6 +52,7 @@ module ALU (
     input [15:0] A,
     input [15:0] B,
     input [2:0] S,
+    input [7:0] MOVI_d,
 
     output logic [15:0] Q,
 
@@ -79,7 +80,7 @@ module ALU (
                      ALU_ADD     = 3'b001,
                      ALU_SUB     = 3'b010,
                      ALU_MULT    = 3'b011,
-                     ALU_XOR     = 3'b100,
+                     ALU_MOVI     = 3'b100,
                      ALU_OR      = 3'b101,
                      ALU_AND     = 3'b110,
                      ALU_SHL     = 3'b111;
@@ -109,9 +110,8 @@ module ALU (
                 Alu_V = (~(A[15] ^ B[15]) & (Q[15] ^ A[15]));
             end
 
-            ALU_XOR: begin
-                Q = A ^ B;
-                Alu_V = 1'b0;
+            ALU_MOVI: begin
+                Q = {8'b0, MOVI_d};
             end
 
             ALU_OR: begin
@@ -204,6 +204,7 @@ module Datapath (
     input [3:0] RF_W_addr,
 
     input [2:0] Alu_s0,
+    input [7:0] MOVI_d,
 
     output [15:0] ALU_A,
     output [15:0] ALU_B,
@@ -262,7 +263,8 @@ module Datapath (
         .Q(Q_Data),
         .Alu_Z(Alu_Z),
         .Alu_N(Alu_N),
-        .Alu_V(Alu_V)
+        .Alu_V(Alu_V),
+        .MOVI_d(MOVI_d)
     );
 
     /*

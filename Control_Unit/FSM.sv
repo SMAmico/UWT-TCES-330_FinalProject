@@ -32,6 +32,7 @@ module FSM(
     output logic RF_W_en,              // register file write enable
 
     output logic [2:0] Alu_s0,         // ALU function select
+    output logic [7:0] MOVI_d,         // ALU immediate data
 
     input Alu_Z,                       // ALU zero flag, used by JNZ
     input Alu_N,                       // ALU negative flag, used by JLT
@@ -52,7 +53,7 @@ module FSM(
                      INS_SUB = 4'h4,
                      INS_HLT = 4'h5,
 
-                     INS_XOR = 4'h6,//added instructions
+                     INS_MOVI = 4'h6,//added instructions
                      INS_OR =  4'h7,
                      INS_AND = 4'h8,
 
@@ -60,7 +61,7 @@ module FSM(
                      INS_JNZ = 4'hA,
                      INS_JLT = 4'hB,
 
-                     INS_SHL = 4'hC,//added instructions
+                     INS_SHL = 4'hC,
                      INS_MULT= 4'hD,
                      INS_SHR = 4'hE;
                      
@@ -75,7 +76,7 @@ module FSM(
         S = 001: Q = A + B
         S = 010: Q = A - B
         S = 011: Q = A * B
-        S = 100: Q = A ^ B
+        S = 100: Q = IMM[7:0] 
         S = 101: Q = A | B
         S = 110: Q = A & B
         S = 111: Q = A << B
@@ -88,7 +89,7 @@ module FSM(
                      ALU_ADD     = 3'b001,
                      ALU_SUB     = 3'b010,
                      ALU_MULT    = 3'b011,
-                     ALU_XOR     = 3'b100,
+                     ALU_MOVI    = 3'b100, // new addition replacing XOR
                      ALU_OR      = 3'b101,
                      ALU_AND     = 3'b110,
                      ALU_SHL     = 3'b111;
@@ -155,7 +156,8 @@ module FSM(
         RF_Rb_addr = 4'b0;
         RF_W_en    = 1'b0;
 
-        Alu_s0     = ALU_ADDZERO;
+        Alu_s0     = ALU_SHR;
+        MOVI_d     = 8'b0;
 
         NextState  = State;
 
@@ -187,7 +189,7 @@ module FSM(
 					INS_SUB: NextState = S_ALU;
 					INS_AND: NextState = S_ALU;
 					INS_OR : NextState = S_ALU;
-					INS_XOR: NextState = S_ALU;
+					INS_MOVI:NextState = S_ALU;
 					INS_SHL: NextState = S_ALU;
                     INS_SHR: NextState = S_ALU;
                     INS_MULT:NextState = S_ALU;
@@ -252,7 +254,10 @@ module FSM(
                     INS_SUB: Alu_s0 = ALU_SUB;
                     INS_AND: Alu_s0 = ALU_AND;
                     INS_OR : Alu_s0 = ALU_OR;
-                    INS_XOR: Alu_s0 = ALU_XOR;
+                    INS_MOVI: begin
+                        Alu_s0 = ALU_MOVI;
+                        MOVI_d = IR_data[7:0];
+                    end
                     INS_SHL: Alu_s0 = ALU_SHL;
                     INS_SHR: Alu_s0 = ALU_SHR;
                     INS_MULT:Alu_s0 = ALU_MULT;
