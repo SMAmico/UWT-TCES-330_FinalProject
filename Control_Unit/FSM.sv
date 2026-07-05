@@ -21,7 +21,7 @@ module FSM(
     input [15:0] IR_data,              // current instruction stored in the instruction register
     output logic IR_ld,                // loads the instruction register during FETCH
 
-    output logic [7:0] D_Addr,         // data memory address
+    output logic [3:0] D_Addr_reg,     // data address register 
     output logic D_wr,                 // data memory write enable
 
     output logic RF_s,                 // register file write-data mux select
@@ -207,23 +207,28 @@ module FSM(
                 NextState = S_FETCH;
             end
 
-            // STORE instruction: 0001 rrrr dddddddd RF[rrrr] -> D[dddddddd]
+            // STORE instruction: 0001 aaaa bbbb 0000 RF[aaaa] -> D[RF[bbbb]]
             S_STR: begin
                 RF_Ra_addr = IR_data[11:8];
-                D_Addr     = IR_data[7:0];
+                //pass the register through
+                RF_Ra_addr = IR_data[7:4];
+                RF_Rb_addr = IR_data[7:4];
+                Alu_s0 = ALU_AND;
                 D_wr       = 1'b1;
 
                 NextState  = S_FETCH;
             end
 
             /*
-            LOAD_A instruction state: 0010 dddddddd rrrr This first LOAD state places the RAM address 
-			on D_Addr and sets the register file write address.
+            LOAD_A instruction state: 0010 aaaa bbbb dddd This first LOAD state calculates the RAM address 
+			on D_Addr_reg from the RAM address register and sets the register file write address. The address
+            is calculated by adding the address in the register with up to a 16-word positive offset. 
+            To read the data address from the register file, the ALU must add 0, then 
             */
             S_LDA: begin
-                D_Addr    = IR_data[11:4];
+                D_Addr_reg = IR_data[7:4] + IR_data[3:0];
                 RF_s      = 1'b1;
-                RF_W_addr = IR_data[3:0];
+                RF_W_addr = IR_data[11:7];
 
                 NextState = S_LDB;
             end
@@ -233,9 +238,9 @@ module FSM(
 			RAM output has had time to become valid.
             */
             S_LDB: begin
-                D_Addr    = IR_data[11:4];
+                D_Addr_reg = IR_data[7:4] + IR_data[3:0];
                 RF_s      = 1'b1;
-                RF_W_addr = IR_data[3:0];
+                RF_W_addr = IR_data[11:7];
                 RF_W_en   = 1'b1;
 
                 NextState = S_FETCH;
