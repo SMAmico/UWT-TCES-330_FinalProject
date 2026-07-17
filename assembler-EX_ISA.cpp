@@ -19,6 +19,8 @@
       HLT                 -> 0101 0000 0000 0000
 
       MOVI rA, rB, rC     -> 0110 raaa dddddddd     (instructions in the ALU originally but unimplemented)
+        (ORs the immediate value into the lower 8 bits of the selected register,
+        but the assembler accepts a 16-bit value and uses a pseudocode and tmp to copy it in
       OR  rA, rB, rC     -> 0111 raaa rbbb rccc
       AND rA, rB, rC     -> 1000 raaa rbbb rccc
 
@@ -26,9 +28,9 @@
       JNZ addr, r        -> 1010 bbbbbbbb rrrr    (absolute addr, test reg)
       JLT rA, rB, offset -> 1011 raaa rbbb bbbb    (4-bit signed offset relative to next instr)
 
-      SHL rA, rB, rC     -> 1100 raaa rbbb rccc     (added instructions for extra ALU ops)
+      SHL rA, rB, rC     -> 1100 raaa shft rccc     (added instructions for extra ALU ops)
       MULT rA, rB, rC    -> 1101 raaa rbbb rccc    
-      SHR rA, rB, rC     -> 0000 raaa rbbb rccc
+      SHR rA, rB, rC     -> 0000 raaa shft rccc
 
       Pseudo-ops:
       NOP                 -> 1000 0000 0000 0000   (AND R0 with R0 into R0, effectively a NOP)
@@ -286,8 +288,24 @@ int main(int argc, char** argv) {
                 if (labels.find(tokens[2])!=labels.end()) a = labels[tokens[2]];
                 else a = parse_number(tokens[2]);
 
-                if (a<0||a>255) throw runtime_error("address out of range");
-                instr = (0x6<<12) | (r<<8) | (a & 0xFF);
+                if (a<0||a>65535) throw runtime_error("immediate out of range");
+                else if (a>255) {
+                    // pseudoinstruction for 16-bit immediate load
+                    // uses tmp register to load upper and lower halves
+                    int upper = (a >> 8) & 0xFF;
+                    int lower = a & 0xFF;
+                    // first, load upper half into tmp
+                    words.push_back((0x6<<12) | (15<<8) | (upper & 0xFF));
+                    // then, shift tmp left by 8 bits
+                    words.push_back((0xC<<12) | (15<<8) | (15<<4) | 0x1);
+                    // then, load lower half into tmp
+                    words.push_back((0x6<<12) | (15<<8) | (lower & 0xFF));
+                    // finally, OR tmp into the target register
+                    instr = (0x7<<12) | (r<<8) | (15<<4) | r;
+                } else {
+                    // simple case: just OR the immediate into the lower half of the register
+                    instr = (0x6<<12) | (r<<8) | (a & 0xFF);
+                }
 
 
             //ADD: add two registers into a third
@@ -404,7 +422,7 @@ int main(int argc, char** argv) {
                 uint16_t ob = (uint16_t)(offset & 0xF);
                 instr = (0xB<<12) | (ra<<8) | (rb<<4) | ob;
 
-            // SHL: shifts ra left by rb into rc
+            // SHL: shifts ra left by b into rc
             } else if (op=="SHL") {
                 if (tokens.size()<4) throw runtime_error("SHL expects RA,RB,RC");
 
@@ -414,7 +432,7 @@ int main(int argc, char** argv) {
 
                 instr = (0xC<<12) | (ra<<8) | (rb<<4) | rc;
 
-            // SHR: shifts ra right by rb into rc
+            // SHR: shifts ra right by b into rc
             } else if (op=="SHR") {
                 if (tokens.size()<4) throw runtime_error("SHR expects RA,RB,RC");
 

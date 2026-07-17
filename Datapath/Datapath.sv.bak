@@ -127,7 +127,7 @@ module ALU (
             end
 
             ALU_MOVI: begin
-                Q = (A & 16'hFF00) | {8'h00, MOVI_d};
+                Q = {8'b0, MOVI_d};
             end
 
             ALU_OR: begin

@@ -262,7 +262,6 @@ module FSM(
                     INS_MOVI: begin
                         Alu_s0 = ALU_MOVI;
                         MOVI_d = IR_data[7:0];
-								RF_Ra_addr = IR_data[11:8];
                     end
                     INS_SHL: Alu_s0 = ALU_SHL;
                     INS_SHR: Alu_s0 = ALU_SHR;
