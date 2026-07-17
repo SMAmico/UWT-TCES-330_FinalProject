@@ -8,7 +8,7 @@ Project File: Control_Unit.sv
 
 module Control_Unit(
     input Clk,
-    input rst,
+    input Rst,
 		    
     /*
     ALU flag inputs come from the datapath. These are only needed for the extra-credit 
@@ -19,7 +19,6 @@ module Control_Unit(
     input Alu_V,
 	
     // Control signals sent to the datapath.
-    output [7:0] D_Addr,
     output [3:0] D_Addr_reg,
     output [3:0] D_Data_reg,
     output D_wr,
@@ -69,7 +68,7 @@ module Control_Unit(
     */
     FSM fsm0(
         .Clk(Clk),
-        .Rst(rst),
+        .ResetN(rst),
 
         .PC(PC),
         .PC_clr(PC_clr),
@@ -80,7 +79,6 @@ module Control_Unit(
         .IR_data(IR_data),
         .IR_ld(IR_ld),
 
-        .D_Addr(D_Addr),
         .D_Addr_reg(D_Addr_reg),
         .D_Data_reg(D_Data_reg),
         .D_wr(D_wr),
@@ -149,7 +147,8 @@ module Control_Unit_tb();
     logic Alu_N;
     logic Alu_V;
 
-    logic [7:0] D_Addr;
+    logic [3:0] D_Addr_reg;
+    logic [3:0] D_Data_reg;
     logic D_wr;
 
     logic RF_s;
@@ -185,13 +184,14 @@ module Control_Unit_tb();
     */
     Control_Unit dut(
         .Clk(Clk),
-        .rst(rst),
+        .ResetN(rst),
 
         .Alu_Z(Alu_Z),
         .Alu_N(Alu_N),
         .Alu_V(Alu_V),
 
-        .D_Addr(D_Addr),
+        .D_Addr_reg(D_Addr_reg),
+        .D_Data_reg(D_Data_reg),
         .D_wr(D_wr),
 
         .RF_s(RF_s),
@@ -291,9 +291,9 @@ module Control_Unit_tb();
         for (i = 0; i < 34; i = i + 1) begin
             tick();
 
-            $display("cycle=%0d PC=%h IR_ld=%b IR_in=%h IR=%h State=%0d Next=%0d D_Addr=%h D_wr=%b RF_s=%b RF_W_addr=%h RF_Ra_addr=%h RF_Rb_addr=%h RF_W_en=%b Alu_s0=%b",
+            $display("cycle=%0d PC=%h IR_ld=%b IR_in=%h IR=%h State=%0d Next=%0d D_Addr_reg=%h D_wr=%b RF_s=%b RF_W_addr=%h RF_Ra_addr=%h RF_Rb_addr=%h RF_W_en=%b Alu_s0=%b",
                      i, PC_Out, dut.IR_ld, dut.IR_in, IR_Out, StateOut, NextStateOut,
-                     D_Addr, D_wr, RF_s, RF_W_addr, RF_Ra_addr, RF_Rb_addr, RF_W_en, Alu_s0);
+                     D_Addr_reg, D_wr, RF_s, RF_W_addr, RF_Ra_addr, RF_Rb_addr, RF_W_en, Alu_s0);
         end
 
         /*

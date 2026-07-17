@@ -43,7 +43,6 @@ module Processor(
     intentionally use the capitalization expected by testProcessor.sv. The testbench monitors 
     DUT.RF_Ra_Addr directly.
     */
-    wire [7:0] D_Addr;
     wire [3:0] D_Addr_reg;
     wire [3:0] D_Data_reg;
     wire D_wr;
@@ -69,13 +68,12 @@ module Processor(
     // Control Unit instance.
     Control_Unit control0(
         .Clk(Clk),
-        .rst(Reset),
+        .Rst(Reset),
 
         .Alu_Z(Alu_Z),
         .Alu_N(Alu_N),
         .Alu_V(Alu_V),
 
-        .D_Addr(D_Addr),
         .D_Addr_reg(D_Addr_reg),
         .D_Data_reg(D_Data_reg),
         .D_wr(D_wr),

@@ -266,6 +266,7 @@ module FSM(
                     INS_SHL: Alu_s0 = ALU_SHL;
                     INS_SHR: Alu_s0 = ALU_SHR;
                     INS_MULT:Alu_s0 = ALU_MULT;
+                    default: Alu_s0 = ALU_ADD;
                 endcase
                 RF_s       = 1'b0;
 

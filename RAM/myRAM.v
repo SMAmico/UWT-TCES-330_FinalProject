@@ -178,14 +178,14 @@ endmodule
 
 module myRAM_tb();
 
-    logic Clk;
-    logic [7:0] address;
-    logic [15:0] data;
-    logic wren;
-    logic [15:0] q;
+    reg Clk;
+    reg [7:0] address;
+    reg [15:0] data;
+    reg wren;
+    reg [15:0] q;
 
-    int passes;
-    int failures;
+    integer passes;
+    integer failures;
 
     /*
     Device under test. This connects the testbench signals to the myRAM module. The testbench 
@@ -235,11 +235,11 @@ module myRAM_tb();
             #10;
 
             if (q === expected) begin
-                passes++;
+                passes = passes + 1;
                 $display("PASS: address=%h q=%h expected=%h", address, q, expected);
             end
             else begin
-                failures++;
+                failures = failures + 1;
                 $display("FAIL: address=%h q=%h expected=%h", address, q, expected);
             end
         end
@@ -296,3 +296,4 @@ module myRAM_tb();
     end
 
 endmodule
+
