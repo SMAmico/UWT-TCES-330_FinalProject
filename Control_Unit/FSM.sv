@@ -21,7 +21,8 @@ module FSM(
     input [15:0] IR_data,              // current instruction stored in the instruction register
     output logic IR_ld,                // loads the instruction register during FETCH
 
-    output logic [3:0] D_Addr_reg,     // data address register 
+    output logic [3:0] D_Addr_reg,     // data address register
+    output logic [3:0] D_Data_reg,     // data register (contains data to write or destination for load)
     output logic D_wr,                 // data memory write enable
 
     output logic RF_s,                 // register file write-data mux select
@@ -146,7 +147,8 @@ module FSM(
 
         IR_ld      = 1'b0;
 
-        D_Addr     = 8'b0;
+        D_Addr_reg = 4'b0;
+        D_Data_reg = 4'b0;
         D_wr       = 1'b0;
 
         RF_s       = 1'b0;
@@ -209,26 +211,23 @@ module FSM(
 
             // STORE instruction: 0001 aaaa bbbb 0000 RF[aaaa] -> D[RF[bbbb]]
             S_STR: begin
-                RF_Ra_addr = IR_data[11:8];
-                //pass the register through
-                RF_Ra_addr = IR_data[7:4];
-                RF_Rb_addr = IR_data[7:4];
-                Alu_s0 = ALU_AND;
+                D_Data_reg = IR_data[11:8];  // data register
+                D_Addr_reg = IR_data[7:4];   // address register
                 D_wr       = 1'b1;
 
                 NextState  = S_FETCH;
             end
 
             /*
-            LOAD_A instruction state: 0010 aaaa bbbb dddd This first LOAD state calculates the RAM address 
-			on D_Addr_reg from the RAM address register and sets the register file write address. The address
-            is calculated by adding the address in the register with up to a 16-word positive offset. 
-            To read the data address from the register file, the ALU must add 0, then 
+            LOAD_A instruction state: 0010 aaaa bbbb 0000 This first LOAD state reads the RAM address
+            from the address register (bbbb) specified in the instruction. The destination register (aaaa)
+            is set for write-back on the next cycle after RAM data is valid.
             */
             S_LDA: begin
-                D_Addr_reg = IR_data[7:4] + IR_data[3:0];
-                RF_s      = 1'b1;
-                RF_W_addr = IR_data[11:7];
+                D_Data_reg = IR_data[11:8];  // destination register for loaded data
+                D_Addr_reg = IR_data[7:4];   // address register
+                RF_s      = 1'b1;            // write source select for memory writing into register file
+                RF_W_addr = IR_data[11:8];   // writeback register for memory data
 
                 NextState = S_LDB;
             end
@@ -238,10 +237,11 @@ module FSM(
 			RAM output has had time to become valid.
             */
             S_LDB: begin
-                D_Addr_reg = IR_data[7:4] + IR_data[3:0];
+                D_Data_reg = IR_data[11:8];  // destination register for loaded data
+                D_Addr_reg = IR_data[7:4];   // address register
                 RF_s      = 1'b1;
-                RF_W_addr = IR_data[11:7];
-                RF_W_en   = 1'b1;
+                RF_W_addr = IR_data[11:8];
+                RF_W_en   = 1'b1;            // register file writes cleared data into register
 
                 NextState = S_FETCH;
             end

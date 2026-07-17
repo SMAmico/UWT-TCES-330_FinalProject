@@ -20,6 +20,8 @@ module Control_Unit(
 	
     // Control signals sent to the datapath.
     output [7:0] D_Addr,
+    output [3:0] D_Addr_reg,
+    output [3:0] D_Data_reg,
     output D_wr,
 
     output RF_s,
@@ -79,6 +81,8 @@ module Control_Unit(
         .IR_ld(IR_ld),
 
         .D_Addr(D_Addr),
+        .D_Addr_reg(D_Addr_reg),
+        .D_Data_reg(D_Data_reg),
         .D_wr(D_wr),
 
         .RF_s(RF_s),

@@ -24,7 +24,13 @@ module RegFile (
     output [15:0] rdDataA,
 
     input [3:0] rdAddrB,
-    output [15:0] rdDataB
+    output [15:0] rdDataB,
+
+    input [3:0] DAddrReg,
+    output [15:0] DAddrDat,
+
+    input [3:0] DDataReg,
+    output [15:0] DDataDat
 );
 
     logic [15:0] regfile [0:15];
@@ -36,6 +42,16 @@ module RegFile (
     assign rdDataA = regfile[rdAddrA];
     assign rdDataB = regfile[rdAddrB];
 
+    /*
+    The memory is accessed by reading the register at DAddrReg and sending it to DAddrDat
+    to be used as a RAM address.
+    */
+    assign DAddrDat = regfile[DAddrReg];
+    
+    /*
+    The data to be written to memory is read from the register at DDataReg and sent to DDataDat.
+    */
+    assign DDataDat = regfile[DDataReg];
     /*
     The register file has one clocked write port. When write is high, wrData is copied into the
     register selected by wrAddr on the rising edge of Clk. When write is low, no register changes.
@@ -193,7 +209,13 @@ endmodule
 module Datapath (
     input Clk,
 
-    input [7:0] D_Addr,
+    /*
+    change: the datapath block now has a D_wr line to allow the control module to tell the
+    datapath when to read from data memory, as well as a select line of the register to
+    read the address from.
+    */
+    input [3:0] D_Addr_reg,
+    input [3:0] D_Data_reg,
     input D_wr,
 
     input RF_s,
@@ -222,12 +244,16 @@ module Datapath (
         Q_Data is the ALU result.
         R_data is the RAM read output.
         W_data is the selected write-back value for the register file.
+        D_Addr is the address sent from the register file to the ram.
+        D_Data is the data from the data register to be written to memory.
     */
     wire [15:0] Ra_data;
     wire [15:0] Rb_data;
     wire [15:0] Q_Data;
     wire [15:0] R_data;
     wire [15:0] W_data;
+    wire [15:0] D_Addr;
+    wire [15:0] D_Data;
 
     assign ALU_A   = Ra_data;
     assign ALU_B   = Rb_data;
@@ -238,6 +264,10 @@ module Datapath (
 
     LOAD writes RAM data into the register file through W_data.
     ADD/SUB and other ALU operations write ALU data into the register file through W_data.
+    
+    D_Addr_reg specifies which register contains the memory address.
+    D_Data_reg specifies which register contains the data to write to memory on STORE,
+    or which register to write the loaded data to on LOAD.
     */
     RegFile rf0(
         .Clk(Clk),
@@ -247,7 +277,11 @@ module Datapath (
         .rdAddrA(RF_Ra_addr),
         .rdDataA(Ra_data),
         .rdAddrB(RF_Rb_addr),
-        .rdDataB(Rb_data)
+        .rdDataB(Rb_data),
+        .DAddrReg(D_Addr_reg),
+        .DAddrDat(D_Addr),
+        .DDataReg(D_Data_reg),
+        .DDataDat(D_Data)
     );
 
     /*
@@ -283,14 +317,17 @@ module Datapath (
     /*
     RAM instance.
 
-    STORE writes Ra_data into RAM.
-    LOAD reads RAM data through R_data and sends it to the register-file write-back mux.
+    STORE writes D_Data (from the data register specified by D_Data_reg) into RAM at the address
+    specified by D_Addr (from the address register specified by D_Addr_reg).
+    LOAD reads RAM data through R_data using the address from D_Addr and sends it to the 
+    register-file write-back mux, where it is written to the register specified by D_Data_reg
+    on the next clock cycle.
     */
     RAM ram0(
         .D_Addr(D_Addr),
         .D_wr(D_wr),
         .Clk(Clk),
-        .W_data(Ra_data),
+        .W_data(D_Data),
         .R_data(R_data)
     );
 

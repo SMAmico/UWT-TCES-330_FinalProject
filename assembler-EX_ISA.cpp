@@ -12,8 +12,8 @@
 
     Instruction formats implemented (match FSM expectations):
 
-      STR Rr, addr        -> 0001 rrrr dddddddd    (store RF[r] -> D[addr])
-      LDR addr, Rr        -> 0010 rrrr dddddddd    (load D[addr] -> RF[r])
+      STR Rr, addr        -> 0001 raaa rbbb 0000    (store RF[ra] -> D[RF[rb]])
+      LDR Rr, addr        -> 0010 raaa rbbb 0000   (load D[RF[rb]] -> RF[ra])
       ADD rA, rB, rC     -> 0011 raaa rbbb rccc
       SUB rA, rB, rC     -> 0100 raaa rbbb rccc
       HLT                 -> 0101 0000 0000 0000

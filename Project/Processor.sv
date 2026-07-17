@@ -44,6 +44,8 @@ module Processor(
     DUT.RF_Ra_Addr directly.
     */
     wire [7:0] D_Addr;
+    wire [3:0] D_Addr_reg;
+    wire [3:0] D_Data_reg;
     wire D_wr;
 
     wire RF_s;
@@ -74,6 +76,8 @@ module Processor(
         .Alu_V(Alu_V),
 
         .D_Addr(D_Addr),
+        .D_Addr_reg(D_Addr_reg),
+        .D_Data_reg(D_Data_reg),
         .D_wr(D_wr),
 
         .RF_s(RF_s),
@@ -96,7 +100,8 @@ module Processor(
     Datapath datapath0(
         .Clk(Clk),
 
-        .D_Addr(D_Addr),
+        .D_Addr_reg(D_Addr_reg),
+        .D_Data_reg(D_Data_reg),
         .D_wr(D_wr),
 
         .RF_s(RF_s),
