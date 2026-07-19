@@ -188,11 +188,11 @@ module FSM(
                     INS_LDR: NextState = S_LDA;
 
                     INS_ADD: NextState = S_ALU;//all simple ALU ops route to one ALU operation state
-					INS_SUB: NextState = S_ALU;
-					INS_AND: NextState = S_ALU;
-					INS_OR : NextState = S_ALU;
-					INS_MOVI:NextState = S_ALU;
-					INS_SHL: NextState = S_ALU;
+					     INS_SUB: NextState = S_ALU;
+					     INS_AND: NextState = S_ALU;
+					     INS_OR : NextState = S_ALU;
+					     INS_MOVI:NextState = S_ALU;
+						  INS_SHL: NextState = S_ALU;
                     INS_SHR: NextState = S_ALU;
                     INS_MULT:NextState = S_ALU;
 

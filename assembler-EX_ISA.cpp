@@ -12,8 +12,10 @@
 
     Instruction formats implemented (match FSM expectations):
 
-      STR Rr, addr        -> 0001 raaa rbbb 0000    (store RF[ra] -> D[RF[rb]])
-      LDR Rr, addr        -> 0010 raaa rbbb 0000   (load D[RF[rb]] -> RF[ra])
+      STR Rr, Rb, soff    -> 0001 raaa rbbb soff    (store RF[ra] -> D[RF[rb] + soff])
+      LDR Rr, Rb, soff    -> 0010 raaa rbbb soff    (load D[RF[rb] + soff] -> RF[ra])
+        (optional pseudoinstruction form: STR/LDR Rr, soff uses a 4-bit signed soff
+         relative to the current instruction address; the assembler expands it through TMP)
       ADD rA, rB, rC     -> 0011 raaa rbbb rccc
       SUB rA, rB, rC     -> 0100 raaa rbbb rccc
       HLT                 -> 0101 0000 0000 0000
@@ -35,7 +37,7 @@
       Pseudo-ops:
       NOP                 -> 1000 0000 0000 0000   (AND R0 with R0 into R0, effectively a NOP)
       MOV                 -> 1000 raaa rbbb rccc    (AND RN with RN into RDest, effectively moving) 
-      XOR                 -> multiple ins.
+      XOR                 -> pseudo-op
 
 
     The assembler supports labels for addresses and computes relative offsets
@@ -43,8 +45,26 @@
     in signed 4-bit (-8..+7).
 */
 
+//DEFINES: aliases for all instructions in the ISA
+#define ins_shr 0x0
+#define ins_str 0x1
+#define ins_ldr 0x2
+#define ins_add 0x3
+#define ins_sub 0x4
+#define ins_hlt 0x5
+#define ins_movi 0x6
+#define ins_or 0x7
+#define ins_and 0x8
+#define ins_jmp 0x9
+#define ins_jnz 0xA
+#define ins_jlt 0xB
+#define ins_shl 0xC
+#define ins_mult 0xD
+
+
 #include <algorithm>
 #include <cctype>
+#include <cstdint>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -133,6 +153,30 @@ int parse_number(const string &token) {
     }
     // decimal by default
     return stoi(s,nullptr,0);
+}
+
+
+static int parse_offset4(const string &token) {
+    int value = parse_number(token);
+    if (value < -8 || value > 7) throw runtime_error("offset out of range (-8..7)");
+    return value;
+}
+
+//loads a 16-bit immediate value into a register, using a temporary register if greater than 8 bits.
+static void emit_load_imm(vector<uint16_t> &words, int reg, int value, int &addr) {
+    if (value < 0 || value > 65535) throw runtime_error("immediate out of range");
+    if (value > 255) {
+        int upper = (value >> 8) & 0xFF;
+        int lower = value & 0xFF;
+        words.push_back((ins_movi<<12) | (15 << 8) | (upper & 0xFF));
+        words.push_back((ins_shl<<12) | (15 << 8) | (15 << 4) | 0x1);
+        words.push_back((ins_movi<<12) | (15 << 8) | (lower & 0xFF));
+        words.push_back((ins_or<<12) | (reg << 8) | (15 << 4) | reg);
+        addr += 4;
+    } else {
+        words.push_back((ins_movi<<12) | (reg << 8) | (value & 0xFF));
+        addr++;
+    }
 }
 
 //main loop
@@ -246,35 +290,101 @@ int main(int argc, char** argv) {
                 instr = 0x8000;
 
 
-            //STR: store register
+            //STR: store register through variable addressing
             } else if (op=="STR") {
 
-                if (tokens.size()<3) throw runtime_error("STR expects R,ADDR");
+                if (tokens.size()<3) throw runtime_error("STR expects [Ra, Rb, offset] or [Ra, Rb]");
 
                 int r = parse_reg(tokens[1]);
-                int a;
+                int base_reg = 15;
+                int soff = 0;
+                bool relative = false;
+                
+                //if there are 3 tokens, 
+                if (tokens.size()==3) {
+                    //set the address register to the last token
+                    string arg = tokens[2];
+                    //and parse it as a register
+                    base_reg = parse_reg(arg);
+                
+                //if there are 4 tokens,
+                } else if (tokens.size()>=4) {
+                    //we must be using the Ra, Rb, offset format
+                    relative = true;
+                    //set the base register properly
+                    base_reg = parse_reg(tokens[2]);
+                    //ensure the offset is a signed value within range.
+                    soff = parse_offset4(tokens[3]);
+                }
 
-                // addr may be label
-                if (labels.find(tokens[2])!=labels.end()) a = labels[tokens[2]];
-                else a = parse_number(tokens[2]);
+                //if we're asking for a relative address (ie, an offset relative to an address),
+                if (relative) {
+                    //we load the offset value into the temp,
+                    words.push_back((ins_movi<<12) | (15<<8) | (soff & 0xFF));
+                    //then add the current offset to our base address, based on its sign, putting the result back into temp
+                    if (soff >= 0) {
+                        //now we emit an immediate load using a pointer to the address counter
+                        emit_load_imm(words, 15, soff, addr);
+                        words.push_back((ins_add<<12) | (15<<8) | (15<<4) | 0);
+                    } else {
+                        emit_load_imm(words, 0, -soff, addr);
+                        words.push_back((ins_sub<<12) | (15<<8) | (15<<4) | 0);
+                    }
+                    addr++;
+                    //finally, we emit the STR instruction using the temp register as the base address
+                    instr = (ins_str<<12) | (r<<8) | (15<<4);
+                } else {
+                    //otherwise, we just emit the STR instruction using the base register
+                    instr = (ins_str<<12) | (r<<8) | (base_reg<<4);
+                }
 
-                if (a<0||a>255) throw runtime_error("address out of range");
-                instr = (0x1<<12) | (r<<8) | (a & 0xFF);
-
-            //LDR: load register
+            //LDR: load register through variable addressing
             } else if (op=="LDR" || op=="LOAD") {
 
-                if (tokens.size()<3) throw runtime_error("LDR expects R,ADDR");
+                if (tokens.size()<3) throw runtime_error("LDR expects [Ra, Rb, offset] or [Ra, Rb]");
 
                 int r = parse_reg(tokens[1]);
-                int a;
+                int base_reg = 15;
+                int soff = 0;
+                bool relative = false;
+                
+                //if there are 3 tokens, 
+                if (tokens.size()==3) {
+                    //set the address register to the last token
+                    string arg = tokens[2];
+                    //and parse it as a register
+                    base_reg = parse_reg(arg);
+                
+                //if there are 4 tokens,
+                } else if (tokens.size()>=4) {
+                    //we must be using the Ra, Rb, offset format
+                    relative = true;
+                    //set the base register properly
+                    base_reg = parse_reg(tokens[2]);
+                    //ensure the offset is a signed value within range.
+                    soff = parse_offset4(tokens[3]);
+                }
 
-                // addr may be label
-                if (labels.find(tokens[2])!=labels.end()) a = labels[tokens[2]];
-                else a = parse_number(tokens[2]);
-
-                if (a<0||a>255) throw runtime_error("address out of range");
-                instr = (0x2<<12) | (r<<8) | (a & 0xFF);
+                //if we're asking for a relative address (ie, an offset relative to an address),
+                if (relative) {
+                    //we load the offset value into the temp,
+                    words.push_back((ins_movi<<12) | (15<<8) | (soff & 0xFF));
+                    //then add the current offset to our base address, based on its sign, putting the result back into temp
+                    if (soff >= 0) {
+                        //now we emit an immediate load using a pointer to the address counter
+                        emit_load_imm(words, 15, soff, addr);
+                        words.push_back((ins_add<<12) | (15<<8) | (15<<4) | 0);
+                    } else {
+                        emit_load_imm(words, 0, -soff, addr);
+                        words.push_back((ins_sub<<12) | (15<<8) | (15<<4) | 0);
+                    }
+                    addr++;
+                    //finally, we emit the LDR instruction using the temp register as the base address
+                    instr = (ins_ldr<<12) | (r<<8) | (15<<4);
+                } else {
+                    //otherwise, we just emit the LDR instruction using the base register alone
+                    instr = (ins_ldr<<12) | (r<<8) | (base_reg<<4);
+                }
             
             //MOVI: load register lower half immediate
             } else if (op=="MOVI" || op=="MOVI") {
@@ -295,16 +405,17 @@ int main(int argc, char** argv) {
                     int upper = (a >> 8) & 0xFF;
                     int lower = a & 0xFF;
                     // first, load upper half into tmp
-                    words.push_back((0x6<<12) | (15<<8) | (upper & 0xFF));
+                    words.push_back((ins_movi<<12) | (15<<8) | (upper & 0xFF));
                     // then, shift tmp left by 8 bits
-                    words.push_back((0xC<<12) | (15<<8) | (15<<4) | 0x1);
+                    words.push_back((ins_shl<<12) | (15<<8) | (15<<4) | 0x1);
                     // then, load lower half into tmp
-                    words.push_back((0x6<<12) | (15<<8) | (lower & 0xFF));
+                    words.push_back((ins_movi<<12) | (15<<8) | (lower & 0xFF));
+                    addr += 3;
                     // finally, OR tmp into the target register
-                    instr = (0x7<<12) | (r<<8) | (15<<4) | r;
+                    instr = (ins_or<<12) | (r<<8) | (15<<4) | r;
                 } else {
                     // simple case: just OR the immediate into the lower half of the register
-                    instr = (0x6<<12) | (r<<8) | (a & 0xFF);
+                    instr = (ins_movi<<12) | (r<<8) | (a & 0xFF);
                 }
 
 
@@ -316,7 +427,7 @@ int main(int argc, char** argv) {
                 int ra=parse_reg(tokens[1]);
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
-                instr = (0x3<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = (ins_add<<12) | (ra<<8) | (rb<<4) | rc;
 
 
             //SUB: subtract two registers into a third
@@ -327,12 +438,12 @@ int main(int argc, char** argv) {
                 int ra=parse_reg(tokens[1]);
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
-                instr = (0x4<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = (ins_sub<<12) | (ra<<8) | (rb<<4) | rc;
 
 
             //HLT: stop the processor
             } else if (op=="HLT" || op=="HALT") {
-                instr = (0x5<<12);
+                instr = (ins_hlt<<12);
 
 
             //XOR: perform exclusive OR operation on two registers into a third
@@ -345,13 +456,11 @@ int main(int argc, char** argv) {
                 int rc=parse_reg(tokens[3]);
 
                 //pseudoinstruction for XOR
-                instr = (0x3<<12) | (ra << 8) | (rb << 4) | rc;
-                words.push_back(instr);
-                instr = (0x8<<12) | (0xF<<8) | (rb << 4) | rc;
-                words.push_back(instr);
-                instr = (0xC<<12) | (0xF<<8) | (0xF<<4) | 0x1;
-                words.push_back(instr);
-                instr = (0x4<<12) | (ra<<8) | (ra << 4) | 0xF;
+                words.push_back((ins_add<<12) | (ra << 8) | (rb << 4) | rc);
+                words.push_back((ins_and<<12) | (0xF<<8) | (rb << 4) | rc);
+                words.push_back((ins_shl<<12) | (0xF<<8) | (0xF<<4) | 0x1);
+                addr += 3;
+                instr = (ins_sub<<12) | (ra<<8) | (ra << 4) | 0xF;
 
 
             //OR: perform OR operation on two registers into a third
@@ -362,7 +471,7 @@ int main(int argc, char** argv) {
                 int ra=parse_reg(tokens[1]);
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
-                instr = (0x7<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = (ins_or<<12) | (ra<<8) | (rb<<4) | rc;
 
 
             //AND: perform AND operation on two registers into a third
@@ -374,7 +483,7 @@ int main(int argc, char** argv) {
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
 
-                instr = (0x8<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = (ins_and<<12) | (ra<<8) | (rb<<4) | rc;
 
 
             //JMP: jump program counter to a direct address (within 256 words)
@@ -387,7 +496,7 @@ int main(int argc, char** argv) {
                 else a = parse_number(tokens[1]);
 
                 if (a<0||a>255) throw runtime_error("JMP address out of range");
-                instr = (0x9<<12) | (0<<8) | (a & 0xFF);
+                instr = (ins_jmp<<12) | (0<<8) | (a & 0xFF);
 
 
             //JNZ: conditional branch on register not equal to zero to a direct address (within 256 words)
@@ -402,7 +511,7 @@ int main(int argc, char** argv) {
                 int r = parse_reg(tokens[2]);
 
                 if (a<0||a>255) throw runtime_error("JNZ address out of range");
-                instr = (0xA<<12) | ((a & 0xFF)<<4) | (r & 0xF);
+                instr = (ins_jnz<<12) | ((a & 0xFF)<<4) | (r & 0xF);
 
             //JNZ: conditional branch on register not equal to zero to a direct address (within 256 words)
             } else if (op=="JLT") {
@@ -420,7 +529,7 @@ int main(int argc, char** argv) {
                 }
                 if (offset < -8 || offset > 7) throw runtime_error("JLT offset out of range (-8..7)");
                 uint16_t ob = (uint16_t)(offset & 0xF);
-                instr = (0xB<<12) | (ra<<8) | (rb<<4) | ob;
+                instr = (ins_jlt<<12) | (ra<<8) | (rb<<4) | ob;
 
             // SHL: shifts ra left by b into rc
             } else if (op=="SHL") {
@@ -430,7 +539,7 @@ int main(int argc, char** argv) {
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
 
-                instr = (0xC<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = (ins_shl<<12) | (ra<<8) | (rb<<4) | rc;
 
             // SHR: shifts ra right by b into rc
             } else if (op=="SHR") {
@@ -440,7 +549,7 @@ int main(int argc, char** argv) {
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
 
-                instr = (0x0<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = (ins_shr<<12) | (ra<<8) | (rb<<4) | rc;
 
             //MULT: the heaviest ALU operation. multiplies two registers and puts result into a third register.
             } else if (op=="MULT") {
@@ -448,7 +557,7 @@ int main(int argc, char** argv) {
                 if (tokens.size()<4) throw runtime_error("MULT expects RA,RB,RC");
 
                 int ra=parse_reg(tokens[1]); int rb=parse_reg(tokens[2]); int rc=parse_reg(tokens[3]);
-                instr = (0xD<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = (ins_mult<<12) | (ra<<8) | (rb<<4) | rc;
             } else {
                 throw runtime_error(string("Unknown opcode: ")+op);
             }
