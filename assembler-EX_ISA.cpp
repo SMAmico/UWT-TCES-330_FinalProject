@@ -8,25 +8,22 @@
     Assembly syntax (whitespace and commas separate tokens):
       - Labels: `label:` at start of a line
       - Comments: start with `;`, `//`, or `#`
-      - Registers: R0 .. R14 (case-insensitive) or numeric 0..14 with R15 as TMP
+      - Registers: R1 .. R14 (case-insensitive) or numeric 0..14 with R15 as TMP and R0 as zero register
 
-    Instruction formats implemented (match FSM expectations):
+    Instruction formats implemented :
 
-      STR Rr, Rb, soff    -> 0001 raaa rbbb soff    (store RF[ra] -> D[RF[rb] + soff])
-      LDR Rr, Rb, soff    -> 0010 raaa rbbb soff    (load D[RF[rb] + soff] -> RF[ra])
-        (optional pseudoinstruction form: STR/LDR Rr, soff uses a 4-bit signed soff
-         relative to the current instruction address; the assembler expands it through TMP)
+      STR Rr, Rb, soff   -> 0001 raaa rbbb soff    (store RF[ra] -> D[RF[rb] + soff]), pseudo-ins variant accepts -8..+7 word offset
+      LDR Rr, Rb, soff   -> 0010 raaa rbbb soff    (load D[RF[rb] + soff] -> RF[ra]), pseudo-ins variant accepts -8..+7 word offset
+
       ADD rA, rB, rC     -> 0011 raaa rbbb rccc
       SUB rA, rB, rC     -> 0100 raaa rbbb rccc
-      HLT                 -> 0101 0000 0000 0000
+      HLT                -> 0101 0000 0000 0000
 
-      MOVI rA, rB, rC     -> 0110 raaa dddddddd     (instructions in the ALU originally but unimplemented)
-        (ORs the immediate value into the lower 8 bits of the selected register,
-        but the assembler accepts a 16-bit value and uses a pseudocode and tmp to copy it in
+      MOVI rA, rB, hex   -> 0110 raaa dddddddd     (ORs the immediate value into the selected register, using pseudoins for >8 bits)
       OR  rA, rB, rC     -> 0111 raaa rbbb rccc
       AND rA, rB, rC     -> 1000 raaa rbbb rccc
 
-      JMP addr            -> 1001 0000 bbbbbbbb    (absolute addr)
+      JMP addr           -> 1001 0000 bbbbbbbb    (absolute 8-bit instruction addr)
       JNZ addr, r        -> 1010 bbbbbbbb rrrr    (absolute addr, test reg)
       JLT rA, rB, offset -> 1011 raaa rbbb bbbb    (4-bit signed offset relative to next instr)
 
@@ -34,10 +31,9 @@
       MULT rA, rB, rC    -> 1101 raaa rbbb rccc    
       SHR rA, rB, rC     -> 0000 raaa shft rccc
 
-      Pseudo-ops:
-      NOP                 -> 1000 0000 0000 0000   (AND R0 with R0 into R0, effectively a NOP)
-      MOV                 -> 1000 raaa rbbb rccc    (AND RN with RN into RDest, effectively moving) 
-      XOR                 -> pseudo-op
+      NOP                -> 1000 0000 0000 0000   (AND R0 with R0 into R0, effectively a NOP)
+      MOV rA, rB         -> 1000 raaa rbbb rccc    (AND RA with RA into RB, effectively moving) 
+      XOR rA, rB, rC     -> pseudo-ins
 
 
     The assembler supports labels for addresses and computes relative offsets
@@ -129,13 +125,13 @@ int parse_reg(const string &token) {
     if (s.size() > 0 && s[0] == 'R') {
         string num = s.substr(1);
         int v = stoi(num);
-        if (v < 0 || v > 14) throw runtime_error("register out of range: "+token);
+        if (v < 1 || v > 14) throw runtime_error("register out of range: "+token);
         return v;
     }
     // as an alternate input, allow raw numbers 0-14 to convert properly too.
     {
         int v = stoi(s);
-        if (v < 0 || v > 14) throw runtime_error("register out of range: "+token);
+        if (v < 1 || v > 14) throw runtime_error("register out of range: "+token);
         return v;
     }
 }
@@ -155,7 +151,7 @@ int parse_number(const string &token) {
     return stoi(s,nullptr,0);
 }
 
-
+//checks if a signed offset fits within a 4-bit length
 static int parse_offset4(const string &token) {
     int value = parse_number(token);
     if (value < -8 || value > 7) throw runtime_error("offset out of range (-8..7)");
@@ -283,12 +279,10 @@ int main(int argc, char** argv) {
 
         try {
 
-
             //NOP: no operation
             if (op=="NOP") {
 
                 instr = 0x8000;
-
 
             //STR: store register through variable addressing
             } else if (op=="STR") {
