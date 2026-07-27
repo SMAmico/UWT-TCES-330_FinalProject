@@ -12,8 +12,8 @@
 
     Instruction formats implemented :
 
-      STR Rr, Rb, soff   -> 0001 raaa rbbb soff    (store RF[ra] -> D[RF[rb] + soff]), pseudo-ins variant accepts -8..+7 word offset
-      LDR Rr, Rb, soff   -> 0010 raaa rbbb soff    (load D[RF[rb] + soff] -> RF[ra]), pseudo-ins variant accepts -8..+7 word offset
+    STR Rr, Rb, soff   -> 0001 raaa rbbb soff    (store RF[ra] -> D[RF[rb] + soff]), pseudo-ins variant accepts 16-bit offset via TMP
+    LDR Rr, Rb, soff   -> 0010 raaa rbbb soff    (load D[RF[rb] + soff] -> RF[ra]), pseudo-ins variant accepts 16-bit offset via TMP
 
       ADD rA, rB, rC     -> 0011 raaa rbbb rccc
       SUB rA, rB, rC     -> 0100 raaa rbbb rccc
@@ -155,6 +155,13 @@ int parse_number(const string &token) {
 static int parse_offset4(const string &token) {
     int value = parse_number(token);
     if (value < -8 || value > 7) throw runtime_error("offset out of range (-8..7)");
+    return value;
+}
+
+//checks if an offset fits within a 16-bit signed value.
+static int parse_offset16(const string &token) {
+    int value = parse_number(token);
+    if (value < -32768 || value > 32767) throw runtime_error("offset out of range (-32768..32767)");
     return value;
 }
 
@@ -313,20 +320,21 @@ int main(int argc, char** argv) {
 
                 //if we're asking for a relative address (ie, an offset relative to an address),
                 if (relative) {
-                    //we load the offset value into the temp,
-                    words.push_back((ins_movi<<12) | (15<<8) | (soff & 0xFF));
-                    //then add the current offset to our base address, based on its sign, putting the result back into temp
-                    if (soff >= 0) {
-                        //now we emit an immediate load using a pointer to the address counter
-                        emit_load_imm(words, 15, soff, addr);
-                        words.push_back((ins_add<<12) | (15<<8) | (15<<4) | 0);
+                    //we first check if we're beyond the bounds of one instruction's capacity
+                    if (soff < -8 || soff > 7) {
+                        if (soff >= 0) {
+                            emit_load_imm(words, 15, soff, addr);
+                            words.push_back((ins_add<<12) | (15<<8) | (base_reg<<4) | 15);
+                        } else {
+                            emit_load_imm(words, 15, -soff, addr);
+                            words.push_back((ins_sub<<12) | (15<<8) | (base_reg<<4) | 15);
+                        }
+                        addr++;
+                        instr = (ins_str<<12) | (r<<8) | (15<<4);
                     } else {
-                        emit_load_imm(words, 0, -soff, addr);
-                        words.push_back((ins_sub<<12) | (15<<8) | (15<<4) | 0);
+                        //small offsets still use the direct form
+                        instr = (ins_str<<12) | (r<<8) | (base_reg<<4) | (soff & 0xF);
                     }
-                    addr++;
-                    //finally, we emit the STR instruction using the temp register as the base address
-                    instr = (ins_str<<12) | (r<<8) | (15<<4);
                 } else {
                     //otherwise, we just emit the STR instruction using the base register
                     instr = (ins_str<<12) | (r<<8) | (base_reg<<4);
@@ -356,25 +364,26 @@ int main(int argc, char** argv) {
                     //set the base register properly
                     base_reg = parse_reg(tokens[2]);
                     //ensure the offset is a signed value within range.
-                    soff = parse_offset4(tokens[3]);
+                    soff = parse_offset16(tokens[3]);
                 }
 
                 //if we're asking for a relative address (ie, an offset relative to an address),
                 if (relative) {
-                    //we load the offset value into the temp,
-                    words.push_back((ins_movi<<12) | (15<<8) | (soff & 0xFF));
-                    //then add the current offset to our base address, based on its sign, putting the result back into temp
-                    if (soff >= 0) {
-                        //now we emit an immediate load using a pointer to the address counter
-                        emit_load_imm(words, 15, soff, addr);
-                        words.push_back((ins_add<<12) | (15<<8) | (15<<4) | 0);
+                    //we first check if it's beyond the bounds of a single instruction
+                    if (soff < -8 || soff > 7) {
+                        if (soff >= 0) {
+                            emit_load_imm(words, 15, soff, addr);
+                            words.push_back((ins_add<<12) | (15<<8) | (base_reg<<4) | 15);
+                        } else {
+                            emit_load_imm(words, 15, -soff, addr);
+                            words.push_back((ins_sub<<12) | (15<<8) | (base_reg<<4) | 15);
+                        }
+                        addr++;
+                        instr = (ins_ldr<<12) | (r<<8) | (15<<4);
                     } else {
-                        emit_load_imm(words, 0, -soff, addr);
-                        words.push_back((ins_sub<<12) | (15<<8) | (15<<4) | 0);
+                        //small offsets still use the direct form
+                        instr = (ins_ldr<<12) | (r<<8) | (base_reg<<4) | (soff & 0xF);
                     }
-                    addr++;
-                    //finally, we emit the LDR instruction using the temp register as the base address
-                    instr = (ins_ldr<<12) | (r<<8) | (15<<4);
                 } else {
                     //otherwise, we just emit the LDR instruction using the base register alone
                     instr = (ins_ldr<<12) | (r<<8) | (base_reg<<4);
