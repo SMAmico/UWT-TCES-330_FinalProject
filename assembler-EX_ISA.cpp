@@ -8,7 +8,7 @@
     Assembly syntax (whitespace and commas separate tokens):
       - Labels: `label:` at start of a line
       - Comments: start with `;`, `//`, or `#`
-      - Registers: R1 .. R14 (case-insensitive) or numeric 0..14 with R15 as TMP and R0 as zero register
+      - Registers: R1 .. R13 (case-insensitive) or numeric 0..13 with R15 as PC, R14 as TMP, R0 as zero register
 
     Instruction formats implemented :
 
@@ -56,6 +56,11 @@
 #define ins_jlt 0xB
 #define ins_shl 0xC
 #define ins_mult 0xD
+
+//REGISTER DEFINES: aliases for special registers in the ISA
+#define reg_zero 0
+#define PC 15
+#define TMP 14
 
 
 #include <algorithm>
@@ -125,13 +130,13 @@ int parse_reg(const string &token) {
     if (s.size() > 0 && s[0] == 'R') {
         string num = s.substr(1);
         int v = stoi(num);
-        if (v < 1 || v > 14) throw runtime_error("register out of range: "+token);
+        if ((v < 1 || v > 13) || v == PC) throw runtime_error("register out of range: "+token);
         return v;
     }
     // as an alternate input, allow raw numbers 0-14 to convert properly too.
     {
         int v = stoi(s);
-        if (v < 1 || v > 14) throw runtime_error("register out of range: "+token);
+        if ((v < 1 || v > 13) || v == PC) throw runtime_error("register out of range: "+token);
         return v;
     }
 }
@@ -171,10 +176,10 @@ static void emit_load_imm(vector<uint16_t> &words, int reg, int value, int &addr
     if (value > 255) {
         int upper = (value >> 8) & 0xFF;
         int lower = value & 0xFF;
-        words.push_back((ins_movi<<12) | (15 << 8) | (upper & 0xFF));
-        words.push_back((ins_shl<<12) | (15 << 8) | (15 << 4) | 0x1);
-        words.push_back((ins_movi<<12) | (15 << 8) | (lower & 0xFF));
-        words.push_back((ins_or<<12) | (reg << 8) | (15 << 4) | reg);
+        words.push_back((ins_movi<<12) | (TMP << 8) | (upper & 0xFF));
+        words.push_back((ins_shl<<12) | (TMP << 8) | (TMP << 4) | 0x1);
+        words.push_back((ins_movi<<12) | (TMP << 8) | (lower & 0xFF));
+        words.push_back((ins_or<<12) | (reg << 8) | (TMP << 4) | reg);
         addr += 4;
     } else {
         words.push_back((ins_movi<<12) | (reg << 8) | (value & 0xFF));
@@ -297,7 +302,7 @@ int main(int argc, char** argv) {
                 if (tokens.size()<3) throw runtime_error("STR expects [Ra, Rb, offset] or [Ra, Rb]");
 
                 int r = parse_reg(tokens[1]);
-                int base_reg = 15;
+                int base_reg = TMP;
                 int soff = 0;
                 bool relative = false;
                 
@@ -323,14 +328,14 @@ int main(int argc, char** argv) {
                     //we first check if we're beyond the bounds of one instruction's capacity
                     if (soff < -8 || soff > 7) {
                         if (soff >= 0) {
-                            emit_load_imm(words, 15, soff, addr);
-                            words.push_back((ins_add<<12) | (15<<8) | (base_reg<<4) | 15);
+                            emit_load_imm(words, TMP, soff, addr);
+                            words.push_back((ins_add<<12) | (TMP<<8) | (base_reg<<4) | TMP);
                         } else {
-                            emit_load_imm(words, 15, -soff, addr);
-                            words.push_back((ins_sub<<12) | (15<<8) | (base_reg<<4) | 15);
+                            emit_load_imm(words, TMP, -soff, addr);
+                            words.push_back((ins_sub<<12) | (TMP<<8) | (base_reg<<4) | TMP);
                         }
                         addr++;
-                        instr = (ins_str<<12) | (r<<8) | (15<<4);
+                        instr = (ins_str<<12) | (r<<8) | (TMP<<4);
                     } else {
                         //small offsets still use the direct form
                         instr = (ins_str<<12) | (r<<8) | (base_reg<<4) | (soff & 0xF);
@@ -346,7 +351,7 @@ int main(int argc, char** argv) {
                 if (tokens.size()<3) throw runtime_error("LDR expects [Ra, Rb, offset] or [Ra, Rb]");
 
                 int r = parse_reg(tokens[1]);
-                int base_reg = 15;
+                int base_reg = TMP;
                 int soff = 0;
                 bool relative = false;
                 
@@ -372,14 +377,14 @@ int main(int argc, char** argv) {
                     //we first check if it's beyond the bounds of a single instruction
                     if (soff < -8 || soff > 7) {
                         if (soff >= 0) {
-                            emit_load_imm(words, 15, soff, addr);
-                            words.push_back((ins_add<<12) | (15<<8) | (base_reg<<4) | 15);
+                            emit_load_imm(words, TMP, soff, addr);
+                            words.push_back((ins_add<<12) | (TMP<<8) | (base_reg<<4) | TMP);
                         } else {
-                            emit_load_imm(words, 15, -soff, addr);
-                            words.push_back((ins_sub<<12) | (15<<8) | (base_reg<<4) | 15);
+                            emit_load_imm(words, TMP, -soff, addr);
+                            words.push_back((ins_sub<<12) | (TMP<<8) | (base_reg<<4) | TMP);
                         }
                         addr++;
-                        instr = (ins_ldr<<12) | (r<<8) | (15<<4);
+                        instr = (ins_ldr<<12) | (r<<8) | (TMP<<4);
                     } else {
                         //small offsets still use the direct form
                         instr = (ins_ldr<<12) | (r<<8) | (base_reg<<4) | (soff & 0xF);
@@ -408,14 +413,14 @@ int main(int argc, char** argv) {
                     int upper = (a >> 8) & 0xFF;
                     int lower = a & 0xFF;
                     // first, load upper half into tmp
-                    words.push_back((ins_movi<<12) | (15<<8) | (upper & 0xFF));
+                    words.push_back((ins_movi<<12) | (TMP<<8) | (upper & 0xFF));
                     // then, shift tmp left by 8 bits
-                    words.push_back((ins_shl<<12) | (15<<8) | (15<<4) | 0x1);
+                    words.push_back((ins_shl<<12) | (TMP<<8) | (TMP<<4) | 0x1);
                     // then, load lower half into tmp
-                    words.push_back((ins_movi<<12) | (15<<8) | (lower & 0xFF));
+                    words.push_back((ins_movi<<12) | (TMP<<8) | (lower & 0xFF));
                     addr += 3;
                     // finally, OR tmp into the target register
-                    instr = (ins_or<<12) | (r<<8) | (15<<4) | r;
+                    instr = (ins_or<<12) | (r<<8) | (TMP<<4) | r;
                 } else {
                     // simple case: just OR the immediate into the lower half of the register
                     instr = (ins_movi<<12) | (r<<8) | (a & 0xFF);
