@@ -17,6 +17,11 @@ module RegFile (
     input Clk,
     input write,
 
+    input PC_clr,
+    input PC_up,
+    input PC_w_en,
+    input [7:0] PC_set,
+
     input [3:0] wrAddr,
     input [15:0] wrData,
 
@@ -30,7 +35,9 @@ module RegFile (
     output [15:0] DAddrDat,
 
     input [3:0] DDataReg,
-    output [15:0] DDataDat
+    output [15:0] DDataDat,
+
+    output [7:0] PC_out
 );
 
     logic [15:0] regfile [0:15];
@@ -38,9 +45,13 @@ module RegFile (
     /*
     The register file has two combinational read ports. When rdAddrA or rdAddrB changes, the selected
     register value appears on rdDataA or rdDataB without waiting for a clock edge.
+
+    Register 16 (address 4'hF) is reserved as the program counter register. Because it is part of the
+    register file, it can still be read through either read port like any other register.
     */
     assign rdDataA = regfile[rdAddrA];
     assign rdDataB = regfile[rdAddrB];
+    assign PC_out  = regfile[4'hF][7:0];
 
     /*
     The memory is accessed by reading the register at DAddrReg and sending it to DAddrDat
@@ -53,11 +64,24 @@ module RegFile (
     */
     assign DDataDat = regfile[DDataReg];
     /*
-    The register file has one clocked write port. When write is high, wrData is copied into the
-    register selected by wrAddr on the rising edge of Clk. When write is low, no register changes.
+    The register file has one clocked write port plus dedicated PC update controls.
+
+    Priority order for register 16 (PC):
+    1) PC_clr clears PC to 0
+    2) PC_w_en loads PC_set
+    3) PC_up increments PC
+    4) regular register-file write to wrAddr=4'hF
+
+    Regular writes to registers 0..14 are unchanged.
     */
     always_ff @(posedge Clk) begin
-        if (write)
+        if (PC_clr)
+            regfile[4'hF] <= 16'h0000;
+        else if (PC_w_en)
+            regfile[4'hF] <= {8'h00, PC_set};
+        else if (PC_up)
+            regfile[4'hF] <= regfile[4'hF] + 16'h0001;
+        else if (write)
             regfile[wrAddr] <= wrData;
     end
 
@@ -210,6 +234,14 @@ module Datapath (
     input Clk,
 
     /*
+    PC control lines from the control unit. Register 16 in the register file stores the live PC value.
+    */
+    input PC_clr,
+    input PC_up,
+    input PC_w_en,
+    input [7:0] PC_set,
+
+    /*
     change: the datapath block now has a D_wr line to allow the control module to tell the
     datapath when to read from data memory, as well as a select line of the register to
     read the address from.
@@ -231,6 +263,8 @@ module Datapath (
     output [15:0] ALU_A,
     output [15:0] ALU_B,
     output [15:0] ALU_Out,
+
+    output [7:0] PC_Out,
 
     output Alu_Z,
     output Alu_N,
@@ -254,10 +288,12 @@ module Datapath (
     wire [15:0] W_data;
     wire [15:0] D_Addr;
     wire [15:0] D_Data;
+    wire [7:0] PC_reg;
 
     assign ALU_A   = Ra_data;
     assign ALU_B   = Rb_data;
     assign ALU_Out = Q_Data;
+    assign PC_Out  = PC_reg;
 
     /*
     Register file instance.
@@ -272,6 +308,10 @@ module Datapath (
     RegFile rf0(
         .Clk(Clk),
         .write(RF_W_en),
+        .PC_clr(PC_clr),
+        .PC_up(PC_up),
+        .PC_w_en(PC_w_en),
+        .PC_set(PC_set),
         .wrAddr(RF_W_addr),
         .wrData(W_data),
         .rdAddrA(RF_Ra_addr),
@@ -281,7 +321,8 @@ module Datapath (
         .DAddrReg(D_Addr_reg),
         .DAddrDat(D_Addr),
         .DDataReg(D_Data_reg),
-        .DDataDat(D_Data)
+        .DDataDat(D_Data),
+        .PC_out(PC_reg)
     );
 
     /*

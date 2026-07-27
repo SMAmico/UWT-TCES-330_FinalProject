@@ -9,6 +9,11 @@ Project File: Control_Unit.sv
 module Control_Unit(
     input Clk,
     input Rst,
+
+    /*
+    PC_in is the live program counter value read from register 16 in the datapath register file.
+    */
+    input [7:0] PC_in,
 		    
     /*
     ALU flag inputs come from the datapath. These are only needed for the extra-credit 
@@ -32,6 +37,13 @@ module Control_Unit(
     output [3:0] RF_Rb_addr,
 
     output [2:0] Alu_s0,
+    output [7:0] MOVI_d,
+
+    // Exported PC control lines so the datapath can update register 16 as the PC.
+    output PC_clr_out,
+    output PC_up_out,
+    output PC_w_en_out,
+    output [7:0] PC_set_out,
     
     /*
     Debug outputs passed up to Processor.sv. The provided processor testbench expects the 
@@ -42,7 +54,7 @@ module Control_Unit(
     output [3:0] StateOut,
     output [3:0] NextStateOut
 );
-    // Internal control wires between the FSM and PC.
+    // Internal control wires between the FSM and the PC register (register 16 in the datapath).
     wire PC_clr;
     wire PC_up;
     wire PC_w_en;
@@ -56,11 +68,16 @@ module Control_Unit(
     wire [15:0] IR_in;
     wire [15:0] IR_data;
 
-    // PC is the current program counter value. It is also exposed as PC_Out for debugging.
+    // PC is read from the datapath register file (register 16).
     wire [7:0] PC;
 
+    assign PC = PC_in;
     assign PC_Out = PC;
     assign IR_Out = IR_data;
+    assign PC_clr_out = PC_clr;
+    assign PC_up_out = PC_up;
+    assign PC_w_en_out = PC_w_en;
+    assign PC_set_out = PC_set;
     
     /*
     The FSM generates all control signals for the PC, IR, and datapath. The FSM reads the latched 
@@ -68,7 +85,7 @@ module Control_Unit(
     */
     FSM fsm0(
         .Clk(Clk),
-        .ResetN(rst),
+        .ResetN(Rst),
 
         .PC(PC),
         .PC_clr(PC_clr),
@@ -91,6 +108,7 @@ module Control_Unit(
         .RF_W_en(RF_W_en),
 
         .Alu_s0(Alu_s0),
+        .MOVI_d(MOVI_d),
 
         .Alu_Z(Alu_Z),
         .Alu_N(Alu_N),
@@ -101,17 +119,10 @@ module Control_Unit(
     );
 	
     /*
-    The PC stores the current instruction address. PC_clr and PC_up come from the FSM. PC_w_en and 
-    PC_set are only needed for jump instructions.
+    The FSM still generates PC_clr, PC_up, PC_w_en, and PC_set. These signals are exported so the
+    datapath can update register 16, which now acts as the PC storage element.
     */
-    PC pc0(
-		.Clk(Clk),
-        .PC_clr(PC_clr),
-        .PC_up(PC_up),
-        .PC_w_en(PC_w_en),
-        .PC_set(PC_set),
-        .PC_out(PC)
-    );
+
 	
     /*
     The IR stores the current instruction. The ROM output IR_in is loaded into IR_data when IR_ld is 
@@ -142,6 +153,7 @@ module Control_Unit_tb();
 
     logic Clk;
     logic rst;
+    logic [7:0] PC_in;
 
     logic Alu_Z;
     logic Alu_N;
@@ -160,6 +172,12 @@ module Control_Unit_tb();
     logic [3:0] RF_Rb_addr;
 
     logic [2:0] Alu_s0;
+    logic [7:0] MOVI_d;
+
+    logic PC_clr_out;
+    logic PC_up_out;
+    logic PC_w_en_out;
+    logic [7:0] PC_set_out;
 
     logic [15:0] IR_Out;
     logic [7:0] PC_Out;
@@ -184,7 +202,8 @@ module Control_Unit_tb();
     */
     Control_Unit dut(
         .Clk(Clk),
-        .ResetN(rst),
+        .Rst(rst),
+        .PC_in(PC_in),
 
         .Alu_Z(Alu_Z),
         .Alu_N(Alu_N),
@@ -203,12 +222,28 @@ module Control_Unit_tb();
         .RF_Rb_addr(RF_Rb_addr),
 
         .Alu_s0(Alu_s0),
+        .MOVI_d(MOVI_d),
+
+        .PC_clr_out(PC_clr_out),
+        .PC_up_out(PC_up_out),
+        .PC_w_en_out(PC_w_en_out),
+        .PC_set_out(PC_set_out),
 
         .IR_Out(IR_Out),
         .PC_Out(PC_Out),
         .StateOut(StateOut),
         .NextStateOut(NextStateOut)
     );
+
+    // Minimal PC model for this standalone testbench. It mirrors the old PC module behavior.
+    always_ff @(posedge Clk) begin
+        if (PC_clr_out)
+            PC_in <= 8'h00;
+        else if (PC_w_en_out)
+            PC_in <= PC_set_out;
+        else if (PC_up_out)
+            PC_in <= PC_in + 8'h01;
+    end
 
     /*
     Clock generation. The control unit is clocked, so the testbench creates a repeating 10 ns 
@@ -257,6 +292,7 @@ module Control_Unit_tb();
 
         passes = 0;
         failures = 0;
+        PC_in = 8'h00;
 
         /*
         Initialize ALU flags. The current instruction program does not use the jump instructions,
