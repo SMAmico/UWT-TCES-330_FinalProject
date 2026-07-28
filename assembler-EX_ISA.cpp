@@ -8,32 +8,41 @@
     Assembly syntax (whitespace and commas separate tokens):
       - Labels: `label:` at start of a line
       - Comments: start with `;`, `//`, or `#`
-      - Registers: R1 .. R13 (case-insensitive) or numeric 0..13 with R15 as PC, R14 as TMP, R0 as zero register
+      - Registers: R1 .. R13 (case-insensitive) or numeric 0..13 with R14 as TMP, R15 as PC, and R0 as zero register
+      ; Assembly formatting instructions:
+      - Use .text for instructions and instruction labels.
+      - Use .data for data directives and data labels.
+      - Labels end with ':' and may appear on their own line.
+      - Tokens are separated by whitespace and/or commas.
+      - Comments may start with ';', '//' or '#'.
+      - Registers are R1..R13 (case-insensitive).
+      - Control-flow labels (JMP/JNZ/JLT label form) must be .text labels.
+      - Memory-address labels (STR/LDR label form) must be .data labels.
 
     Instruction formats implemented :
 
-    STR Rr, Rb, soff   -> 0001 raaa rbbb soff    (store RF[ra] -> D[RF[rb] + soff]), pseudo-ins variant accepts 16-bit offset via TMP
-    LDR Rr, Rb, soff   -> 0010 raaa rbbb soff    (load D[RF[rb] + soff] -> RF[ra]), pseudo-ins variant accepts 16-bit offset via TMP
+      STR rA, rB/LABEL, soff (store RF[rA] -> D[RF[rB] + soff]) -> 0001 raaa rbbb soff  pseudo-ins variant accepts -8..+7 word offset
+      LDR rA, rB/LABEL, soff (load D[RF[rB] + soff] -> RF[rA])  -> 0010 raaa rbbb soff  pseudo-ins variant accepts -8..+7 word offset
 
-      ADD rA, rB, rC     -> 0011 raaa rbbb rccc
-      SUB rA, rB, rC     -> 0100 raaa rbbb rccc
-      HLT                -> 0101 0000 0000 0000
+      ADD rA, rB, rC (rA = rB + rC)     -> 0011 raaa rbbb rccc
+      SUB rA, rB, rC (rA = rB - rC)     -> 0100 raaa rbbb rccc
+      HLT                               -> 0101 0000 0000 0000
 
-      MOVI rA, rB, hex   -> 0110 raaa dddddddd     (ORs the immediate value into the selected register, using pseudoins for >8 bits)
-      OR  rA, rB, rC     -> 0111 raaa rbbb rccc
-      AND rA, rB, rC     -> 1000 raaa rbbb rccc
+      MOVI rA, rB, hex (rA = rB | hex)  -> 0110 raaa dddddddd     (ORs the immediate value into the selected register, using pseudoins for >8 bits)
+      OR  rA, rB, rC   (rA = rB | rC)   -> 0111 raaa rbbb rccc
+      AND rA, rB, rC   (rA = rB & rC)   -> 1000 raaa rbbb rccc
 
-      JMP addr           -> 1001 0000 bbbbbbbb    (absolute 8-bit instruction addr)
-      JNZ addr, r        -> 1010 bbbbbbbb rrrr    (absolute addr, test reg)
-      JLT rA, rB, offset -> 1011 raaa rbbb bbbb    (4-bit signed offset relative to next instr)
+      JMP addr/LABEL   (PC = addr)      -> 1001 0000 bbbbbbbb    (absolute 8-bit instruction addr)
+      JNZ addr/LABEL, r (PC = addr if r != 0)  -> 1010 bbbbbbbb rrrr    (absolute addr, test reg)
+      JLT rA, rB, offset (PC = PC + offset if rA < rB) -> 1011 raaa rbbb bbbb    (4-bit signed offset relative to next instr)
 
-      SHL rA, rB, rC     -> 1100 raaa shft rccc     (added instructions for extra ALU ops)
-      MULT rA, rB, rC    -> 1101 raaa rbbb rccc    
-      SHR rA, rB, rC     -> 0000 raaa shft rccc
+      SHL rA, rB, rC   (rA = rB << rC)  -> 1100 raaa shft rccc     (added instructions for extra ALU ops)
+      MULT rA, rB, rC  (rA = rB * rC)   -> 1101 raaa rbbb rccc    
+      SHR rA, rB, rC   (rA = rB >> rC)  -> 0000 raaa shft rccc
 
-      NOP                -> 1000 0000 0000 0000   (AND R0 with R0 into R0, effectively a NOP)
-      MOV rA, rB         -> 1000 raaa rbbb rccc    (AND RA with RA into RB, effectively moving) 
-      XOR rA, rB, rC     -> pseudo-ins
+      NOP                               -> 1000 0000 0000 0000   (AND R0 with R0 into R0, effectively a NOP)
+      MOV rA, rB       (rA = rB)  -> 1000 raaa rbbb rccc    (AND RA with RA into RB, effectively moving) 
+      XOR rA, rB, rC   (rA = rB ^ rC)  -> pseudo-ins
 
 
     The assembler supports labels for addresses and computes relative offsets
@@ -187,6 +196,66 @@ static void emit_load_imm(vector<uint16_t> &words, int reg, int value, int &addr
     }
 }
 
+//converts a string to uppercase
+static inline string upper_copy(string s) {
+    for (auto &c : s) c = toupper((unsigned char)c);
+    return s;
+}
+
+//tries to lookup a label in a table, returns true if found and sets value, false otherwise
+static bool try_lookup_label(const unordered_map<string,int> &table, const string &name, int &value) {
+    auto it = table.find(name);
+    if (it == table.end()) return false;
+    value = it->second;
+    return true;
+}
+
+// @brief resolve a label to an address, checking both instruction and data label tables
+static int resolve_any_label(const unordered_map<string,int> &instr_labels,
+                             const unordered_map<string,int> &data_labels,
+                             const string &token) {
+    int iaddr = 0;
+    int daddr = 0;
+    bool has_i = try_lookup_label(instr_labels, token, iaddr);
+    bool has_d = try_lookup_label(data_labels, token, daddr);
+    if (has_i && has_d) throw runtime_error("ambiguous label found in both instruction/data spaces: " + token);
+    if (has_i) return iaddr;
+    if (has_d) return daddr;
+    throw runtime_error("unknown label: " + token);
+}
+
+//estimates the amount of instructions generated per pseudoinstruction, to keep label addresses accurate.
+static int estimate_instr_words(const vector<string> &tokens,
+                                const unordered_map<string,int> &instr_labels,
+                                const unordered_map<string,int> &data_labels) {
+    if (tokens.empty()) return 0;
+    string op = upper_copy(tokens[0]);
+    if (op == "XOR") return 4;
+    if (op == "MOVI" && tokens.size() >= 3) {
+        int value = 0;
+        bool known = false;
+        try {
+            value = parse_number(tokens[2]);
+            known = true;
+        } catch (...) {
+            int addr = 0;
+            if (try_lookup_label(instr_labels, tokens[2], addr) || try_lookup_label(data_labels, tokens[2], addr)) {
+                value = addr;
+                known = true;
+            }
+        }
+        if (known && value > 255) return 4;
+        return 1;
+    }
+    if ((op == "STR" || op == "LDR" || op == "LOAD") && tokens.size() >= 3) {
+        int addr = 0;
+        if (try_lookup_label(data_labels, tokens[2], addr)) {
+            return (addr > 255) ? 5 : 2;
+        }
+    }
+    return 1;
+}
+
 //main loop
 int main(int argc, char** argv) {
     //print input
@@ -212,12 +281,14 @@ int main(int argc, char** argv) {
     // traverse the full length of the file twice to properly
     // capture jumps to labels, etc
 
-    // dump all labels into a map the we create here
-    unordered_map<string,int> labels;
+    unordered_map<string,int> instr_labels;
+    unordered_map<string,int> data_labels;
 
-    
-    vector<string> norm_lines; 
-    int addr = 0;
+    vector<string> norm_lines;
+    enum class Section { Text, Data };
+    Section section = Section::Text;
+    int instr_addr = 0;
+    int data_addr = 0;
 
     for (size_t i=0;i<lines.size();++i) {
 
@@ -243,41 +314,73 @@ int main(int argc, char** argv) {
         l = trim(l);
         // ignore empty lines
         if (l.empty()) continue;
-        // label?
-        if (l.back()==':') {
-            // trim label to just title
-            string lab = trim(l.substr(0,l.size()-1));
-            // ignore it if empty
-            if (lab.empty()) continue;
-            // if it exists already, throw an error
-            if (labels.find(lab)!=labels.end()) {
-                cerr<<"Duplicate label "<<lab<<"\n"; return 1; }
+        // allow one or more labels before content: label1: label2: instr
+        while (true) {
+            size_t colon = l.find(':');
+            if (colon==string::npos) break;
+            string lab = trim(l.substr(0,colon));
+            if (lab.empty()) { cerr<<"Empty label on line "<<(i+1)<<"\n"; return 1; }
+            if (section == Section::Text) {
+                if (instr_labels.find(lab)!=instr_labels.end()) {
+                    cerr<<"Duplicate instruction label "<<lab<<"\n";
+                    return 1;
+                }
+                instr_labels[lab] = instr_addr;
+            } else {
+                if (data_labels.find(lab)!=data_labels.end()) {
+                    cerr<<"Duplicate data label "<<lab<<"\n";
+                    return 1;
+                }
+                data_labels[lab] = data_addr;
+            }
+            l = trim(l.substr(colon+1));
+            if (l.empty()) break;
+        }
 
-            // store the address at the label
-            labels[lab] = addr;
+        if (l.empty()) continue;
+        auto tokens = split_tokens(l);
+        if (tokens.empty()) continue;
+        string op = upper_copy(tokens[0]);
+
+        if (op == ".TEXT") {
+            section = Section::Text;
             continue;
         }
-        // inline label at start: lab: instr
-        size_t colon = l.find(':');
-        // if the colon exists
-        if (colon!=string::npos) {
-            // trim the label again
-            string lab = trim(l.substr(0,colon));
-            // grab the rest of the string
-            string rest = trim(l.substr(colon+1));
-            // store the labels again
-            labels[lab] = addr;
-            l = rest;
-            // repeat until all labels are processed
-            if (l.empty()) continue;
+        if (op == ".DATA") {
+            section = Section::Data;
+            continue;
         }
+
+        if (section == Section::Data) {
+            if (op == ".WORD") {
+                if (tokens.size() < 2) { cerr<<".word requires at least one value on line "<<(i+1)<<"\n"; return 1; }
+                for (size_t k = 1; k < tokens.size(); ++k) {
+                    try { (void)parse_number(tokens[k]); }
+                    catch (...) { cerr<<"Invalid .word value '"<<tokens[k]<<"' on line "<<(i+1)<<"\n"; return 1; }
+                    data_addr++;
+                }
+                continue;
+            }
+            if (op == ".SPACE") {
+                if (tokens.size() != 2) { cerr<<".space requires exactly one size argument on line "<<(i+1)<<"\n"; return 1; }
+                int count = 0;
+                try { count = parse_number(tokens[1]); }
+                catch (...) { cerr<<"Invalid .space size on line "<<(i+1)<<"\n"; return 1; }
+                if (count < 0) { cerr<<".space size must be >= 0 on line "<<(i+1)<<"\n"; return 1; }
+                data_addr += count;
+                continue;
+            }
+            cerr<<"Only .word and .space are allowed in .data (line "<<(i+1)<<")\n";
+            return 1;
+        }
+
         norm_lines.push_back(l);
-        addr += 1; // each instruction is one word
+        instr_addr += estimate_instr_words(tokens, instr_labels, data_labels);
     }
 
     // Second pass: assemble
     vector<uint16_t> words;
-    addr = 0;
+    int addr = 0;
     for (auto &rawline: norm_lines) {
         string line = rawline;
         auto tokens = split_tokens(line);
@@ -305,41 +408,52 @@ int main(int argc, char** argv) {
                 int base_reg = TMP;
                 int soff = 0;
                 bool relative = false;
+                bool use_label = false;
+                int label_addr = 0;
                 
                 //if there are 3 tokens, 
                 if (tokens.size()==3) {
                     //set the address register to the last token
                     string arg = tokens[2];
-                    //and parse it as a register
-                    base_reg = parse_reg(arg);
+                    if (data_labels.find(arg)!=data_labels.end()) {
+                        use_label = true;
+                        label_addr = data_labels[arg];
+                    } else if (instr_labels.find(arg)!=instr_labels.end()) {
+                        throw runtime_error("instruction label used where data label is required: " + arg);
+                    } else {
+                        //and parse it as a register
+                        base_reg = parse_reg(arg);
+                    }
                 
                 //if there are 4 tokens,
                 } else if (tokens.size()>=4) {
                     //we must be using the Ra, Rb, offset format
                     relative = true;
                     //set the base register properly
-                    base_reg = parse_reg(tokens[2]);
+                    string arg = tokens[2];
+                    if (data_labels.find(arg)!=data_labels.end()) {
+                        use_label = true;
+                        label_addr = data_labels[arg];
+                    } else if (instr_labels.find(arg)!=instr_labels.end()) {
+                        throw runtime_error("instruction label used where data label is required: " + arg);
+                    } else {
+                        base_reg = parse_reg(arg);
+                    }
                     //ensure the offset is a signed value within range.
                     soff = parse_offset4(tokens[3]);
                 }
 
                 //if we're asking for a relative address (ie, an offset relative to an address),
-                if (relative) {
-                    //we first check if we're beyond the bounds of one instruction's capacity
-                    if (soff < -8 || soff > 7) {
-                        if (soff >= 0) {
-                            emit_load_imm(words, TMP, soff, addr);
-                            words.push_back((ins_add<<12) | (TMP<<8) | (base_reg<<4) | TMP);
-                        } else {
-                            emit_load_imm(words, TMP, -soff, addr);
-                            words.push_back((ins_sub<<12) | (TMP<<8) | (base_reg<<4) | TMP);
-                        }
-                        addr++;
-                        instr = (ins_str<<12) | (r<<8) | (TMP<<4);
-                    } else {
-                        //small offsets still use the direct form
-                        instr = (ins_str<<12) | (r<<8) | (base_reg<<4) | (soff & 0xF);
-                    }
+                if (relative && use_label) {
+                    emit_load_imm(words, TMP, label_addr + soff, addr);
+                    instr = (ins_str<<12) | (r<<8) | (TMP<<4);
+                } else if (relative) {
+                    //small offsets still use the direct form
+                    instr = (ins_str<<12) | (r<<8) | (base_reg<<4) | (soff & 0xF);
+                } else if (use_label) {
+                    emit_load_imm(words, TMP, label_addr, addr);
+                    addr++;
+                    instr = (ins_str<<12) | (r<<8) | (TMP<<4);
                 } else {
                     //otherwise, we just emit the STR instruction using the base register
                     instr = (ins_str<<12) | (r<<8) | (base_reg<<4);
@@ -354,57 +468,71 @@ int main(int argc, char** argv) {
                 int base_reg = TMP;
                 int soff = 0;
                 bool relative = false;
+                bool use_label = false;
+                int label_addr = 0;
                 
                 //if there are 3 tokens, 
                 if (tokens.size()==3) {
                     //set the address register to the last token
                     string arg = tokens[2];
-                    //and parse it as a register
-                    base_reg = parse_reg(arg);
+                    if (data_labels.find(arg)!=data_labels.end()) {
+                        use_label = true;
+                        label_addr = data_labels[arg];
+                    } else if (instr_labels.find(arg)!=instr_labels.end()) {
+                        throw runtime_error("instruction label used where data label is required: " + arg);
+                    } else {
+                        //and parse it as a register
+                        base_reg = parse_reg(arg);
+                    }
                 
                 //if there are 4 tokens,
                 } else if (tokens.size()>=4) {
                     //we must be using the Ra, Rb, offset format
                     relative = true;
                     //set the base register properly
-                    base_reg = parse_reg(tokens[2]);
+                    string arg = tokens[2];
+                    if (data_labels.find(arg)!=data_labels.end()) {
+                        use_label = true;
+                        label_addr = data_labels[arg];
+                    } else if (instr_labels.find(arg)!=instr_labels.end()) {
+                        throw runtime_error("instruction label used where data label is required: " + arg);
+                    } else {
+                        base_reg = parse_reg(arg);
+                    }
                     //ensure the offset is a signed value within range.
-                    soff = parse_offset16(tokens[3]);
+                    soff = parse_offset4(tokens[3]);
                 }
 
                 //if we're asking for a relative address (ie, an offset relative to an address),
-                if (relative) {
-                    //we first check if it's beyond the bounds of a single instruction
-                    if (soff < -8 || soff > 7) {
-                        if (soff >= 0) {
-                            emit_load_imm(words, TMP, soff, addr);
-                            words.push_back((ins_add<<12) | (TMP<<8) | (base_reg<<4) | TMP);
-                        } else {
-                            emit_load_imm(words, TMP, -soff, addr);
-                            words.push_back((ins_sub<<12) | (TMP<<8) | (base_reg<<4) | TMP);
-                        }
-                        addr++;
-                        instr = (ins_ldr<<12) | (r<<8) | (TMP<<4);
-                    } else {
-                        //small offsets still use the direct form
-                        instr = (ins_ldr<<12) | (r<<8) | (base_reg<<4) | (soff & 0xF);
-                    }
+                if (relative && use_label) {
+                    emit_load_imm(words, TMP, label_addr + soff, addr);
+                    instr = (ins_ldr<<12) | (r<<8) | (TMP<<4);
+                } else if (relative) {
+                    //small offsets still use the direct form
+                    instr = (ins_ldr<<12) | (r<<8) | (base_reg<<4) | (soff & 0xF);
+                } else if (use_label) {
+                    emit_load_imm(words, TMP, label_addr, addr);
+                    addr++;
+                    instr = (ins_ldr<<12) | (r<<8) | (TMP<<4);
                 } else {
                     //otherwise, we just emit the LDR instruction using the base register alone
                     instr = (ins_ldr<<12) | (r<<8) | (base_reg<<4);
                 }
             
             //MOVI: load register lower half immediate
-            } else if (op=="MOVI" || op=="MOVI") {
+            } else if (op=="MOVI") {
 
                 if (tokens.size()<3) throw runtime_error("MOVI expects R,IMM");
 
                 int r = parse_reg(tokens[1]);
                 int a;
 
-                // addr may be label
-                if (labels.find(tokens[2])!=labels.end()) a = labels[tokens[2]];
-                else a = parse_number(tokens[2]);
+                // immediate may be numeric or an address label in either memory space
+                try {
+                    a = parse_number(tokens[2]);
+                } catch (...) {
+                    a = resolve_any_label(instr_labels, data_labels, tokens[2]);
+                }
 
                 if (a<0||a>65535) throw runtime_error("immediate out of range");
                 else if (a>255) {
@@ -500,8 +628,13 @@ int main(int argc, char** argv) {
                 if (tokens.size()<2) throw runtime_error("JMP expects ADDR");
                 int a;
 
-                if (labels.find(tokens[1])!=labels.end()) a = labels[tokens[1]];
-                else a = parse_number(tokens[1]);
+                if (instr_labels.find(tokens[1]) != instr_labels.end()) {
+                    a = instr_labels[tokens[1]];
+                } else if (data_labels.find(tokens[1]) != data_labels.end()) {
+                    throw runtime_error("data label used where instruction label is required: " + tokens[1]);
+                } else {
+                    a = parse_number(tokens[1]);
+                }
 
                 if (a<0||a>255) throw runtime_error("JMP address out of range");
                 instr = (ins_jmp<<12) | (0<<8) | (a & 0xFF);
@@ -513,9 +646,13 @@ int main(int argc, char** argv) {
                 if (tokens.size()<3) throw runtime_error("JNZ expects ADDR,REG");
                 int a;
 
-                if (labels.find(tokens[1])!=labels.end()) a = labels[tokens[1]];
-
-                else a = parse_number(tokens[1]);
+                if (instr_labels.find(tokens[1]) != instr_labels.end()) {
+                    a = instr_labels[tokens[1]];
+                } else if (data_labels.find(tokens[1]) != data_labels.end()) {
+                    throw runtime_error("data label used where instruction label is required: " + tokens[1]);
+                } else {
+                    a = parse_number(tokens[1]);
+                }
                 int r = parse_reg(tokens[2]);
 
                 if (a<0||a>255) throw runtime_error("JNZ address out of range");
@@ -529,9 +666,11 @@ int main(int argc, char** argv) {
                 int rb = parse_reg(tokens[2]);
                 int offset = 0;
                 // offset can be numeric or label
-                if (labels.find(tokens[3])!=labels.end()) {
-                    int target = labels[tokens[3]];
+                if (instr_labels.find(tokens[3])!=instr_labels.end()) {
+                    int target = instr_labels[tokens[3]];
                     offset = target - (addr + 1);
+                } else if (data_labels.find(tokens[3])!=data_labels.end()) {
+                    throw runtime_error("data label used where instruction label is required: " + tokens[3]);
                 } else {
                     offset = parse_number(tokens[3]);
                 }
