@@ -9,6 +9,8 @@ START:
     XOR R5, R5, R6    ; execute when no branch
 SKIP:
     SHL R5, R7, R8    ; R8 = R5 << R7
+    JNZ R5, R7        ; if R5 != 0, jump to address in R7 (offset defaults to 0)
+    JNZ R5, R7, -1    ; optional signed 4-bit offset form
     JMP DONE
     HLT
 DONE:
