@@ -15,7 +15,7 @@
       - Tokens are separated by whitespace and/or commas.
       - Comments may start with ';', '//' or '#'.
       - Registers are R1..R13 (case-insensitive).
-      - Control-flow labels (JMP/JNZ/JLT label form) must be .text labels.
+    - Control-flow labels (JMP/JLT label form) must be .text labels.
       - Memory-address labels (STR/LDR label form) must be .data labels.
 
     Instruction formats implemented :
@@ -31,8 +31,8 @@
       OR  rA, rB, rC   (rA = rB | rC)   -> 0111 raaa rbbb rccc
       AND rA, rB, rC   (rA = rB & rC)   -> 1000 raaa rbbb rccc
 
-      JMP addr/LABEL   (PC = addr)      -> 1001 0000 bbbbbbbb    (absolute 8-bit instruction addr)
-      JNZ addr/LABEL, r (PC = addr if r != 0)  -> 1010 bbbbbbbb rrrr    (absolute addr, test reg)
+      JMP offset/LABEL (PC = PC + soff12) -> 1001 bbbb bbbb bbbb  (signed 12-bit PC-relative offset)
+      JNZ rA, rB, soff4 (PC = RF[rB] + soff4 if RF[rA] != 0) -> 1010 raaa rbbb bbbb
       JLT rA, rB, offset (PC = PC + offset if rA < rB) -> 1011 raaa rbbb bbbb    (4-bit signed offset relative to next instr)
 
       SHL rA, rB, rC   (rA = rB << rC)  -> 1100 raaa shft rccc     (added instructions for extra ALU ops)
@@ -44,9 +44,10 @@
       XOR rA, rB, rC   (rA = rB ^ rC)   -> pseudo-ins
 
 
-    The assembler supports labels for addresses and computes relative offsets
-    for `JLT` as: offset = target_address - (current_address + 1). Offset must fit
-    in signed 4-bit (-8..+7).
+    The assembler supports labels for PC-relative control flow and computes relative offsets
+    as: offset = target_address - (current_address + 1).
+    - JMP label uses a signed 12-bit offset (-2048..+2047).
+    - JLT label uses a signed 4-bit offset (-8..+7).
 */
 
 //DEFINES: aliases for all instructions in the ISA
@@ -643,43 +644,40 @@ int main(int argc, char** argv) {
                 instr = (ins_and<<12) | (ra<<8) | (rb<<4) | rc;
 
 
-            //JMP: jump program counter to a direct address (within 256 words)
+            //JMP: signed PC-relative jump using 12-bit immediate/label offset
             } else if (op=="JMP") {
 
-                if (tokens.size()<2) throw runtime_error("JMP expects ADDR");
-                int a;
+                if (tokens.size()<2) throw runtime_error("JMP expects OFFSET_OR_LABEL");
+                int offset;
 
                 if (instr_labels.find(tokens[1]) != instr_labels.end()) {
-                    a = instr_labels[tokens[1]];
+                    int target = instr_labels[tokens[1]];
+                    offset = target - (addr + 1);
                 } else if (data_labels.find(tokens[1]) != data_labels.end()) {
                     throw runtime_error("data label used where instruction label is required: " + tokens[1]);
                 } else {
-                    a = parse_number(tokens[1]);
+                    offset = parse_number(tokens[1]);
                 }
 
-                if (a<0||a>255) throw runtime_error("JMP address out of range");
-                instr = (ins_jmp<<12) | (0<<8) | (a & 0xFF);
+                if (offset < -2048 || offset > 2047) throw runtime_error("JMP offset out of range (-2048..2047)");
+                instr = (ins_jmp<<12) | ((uint16_t)offset & 0x0FFF);
 
 
-            //JNZ: conditional branch on register not equal to zero to a direct address (within 256 words)
+            //JNZ: if RF[rA] != 0 then jump to RF[rB] + signed 4-bit offset
             } else if (op=="JNZ") {
 
-                if (tokens.size()<3) throw runtime_error("JNZ expects ADDR,REG");
-                int a;
+                if (tokens.size() < 3 || tokens.size() > 4) throw runtime_error("JNZ expects RA,RB[,OFFSET4]");
 
-                if (instr_labels.find(tokens[1]) != instr_labels.end()) {
-                    a = instr_labels[tokens[1]];
-                } else if (data_labels.find(tokens[1]) != data_labels.end()) {
-                    throw runtime_error("data label used where instruction label is required: " + tokens[1]);
-                } else {
-                    a = parse_number(tokens[1]);
+                int ra = parse_reg(tokens[1]);
+                int rb = parse_reg(tokens[2]);
+                int offset = 0;
+                if (tokens.size() == 4) {
+                    offset = parse_offset4(tokens[3]);
                 }
-                int r = parse_reg(tokens[2]);
 
-                if (a<0||a>255) throw runtime_error("JNZ address out of range");
-                instr = (ins_jnz<<12) | ((a & 0xFF)<<4) | (r & 0xF);
+                instr = (ins_jnz<<12) | (ra<<8) | (rb<<4) | ((uint16_t)offset & 0xF);
 
-            //JNZ: conditional branch on register not equal to zero to a direct address (within 256 words)
+            //JLT: conditional signed less-than branch using signed 4-bit PC-relative offset
             } else if (op=="JLT") {
 
                 if (tokens.size()<4) throw runtime_error("JLT expects RA,RB,OFFSET_OR_LABEL");
