@@ -6,10 +6,9 @@
     Usage: assembler-EX_ISA <input.asm> <output.txt>
 
     Assembly syntax (whitespace and commas separate tokens):
-      - Labels: `label:` at start of a line
-      - Comments: start with `;`, `//`, or `#`
+
       - Registers: R1 .. R13 (case-insensitive) or numeric 0..13 with R14 as TMP, R15 as PC, and R0 as zero register
-      ; Assembly formatting instructions:
+      -- Assembly formatting instructions --
       - Use .text for instructions and instruction labels.
       - Use .data for data directives and data labels.
       - Labels end with ':' and may appear on their own line.
@@ -42,7 +41,7 @@
 
       NOP                               -> 1000 0000 0000 0000   (AND R0 with R0 into R0, effectively a NOP)
       MOV rA, rB       (rA = rB)  -> 1000 raaa rbbb rccc    (AND RA with RA into RB, effectively moving) 
-      XOR rA, rB, rC   (rA = rB ^ rC)  -> pseudo-ins
+      XOR rA, rB, rC   (rA = rB ^ rC)   -> pseudo-ins
 
 
     The assembler supports labels for addresses and computes relative offsets
@@ -284,9 +283,12 @@ int main(int argc, char** argv) {
     unordered_map<string,int> instr_labels;
     unordered_map<string,int> data_labels;
 
+    //our indicators of the section, line and current address.
     vector<string> norm_lines;
     enum class Section { Text, Data };
+    //files always start with the text segment
     Section section = Section::Text;
+    //our 'base address'. this can be changed to re-center code to any memory location.
     int instr_addr = 0;
     int data_addr = 0;
 
@@ -312,36 +314,45 @@ int main(int argc, char** argv) {
 
         //pull off spaces
         l = trim(l);
-        // ignore empty lines
+        //ignore empty lines
         if (l.empty()) continue;
-        // allow one or more labels before content: label1: label2: instr
+        //allow one or more labels before content: label1: label2: instr
         while (true) {
+            //find the first colon, if none, break
             size_t colon = l.find(':');
             if (colon==string::npos) break;
+            //extract the label name, and trim it
             string lab = trim(l.substr(0,colon));
+            //if the label is empty, error
             if (lab.empty()) { cerr<<"Empty label on line "<<(i+1)<<"\n"; return 1; }
+            //if we're in the text section
             if (section == Section::Text) {
+                //check for uniqueness, then add to the instruction label map
                 if (instr_labels.find(lab)!=instr_labels.end()) {
                     cerr<<"Duplicate instruction label "<<lab<<"\n";
                     return 1;
                 }
                 instr_labels[lab] = instr_addr;
             } else {
+                //otherwise, check for uniqueness and add to the data label map
                 if (data_labels.find(lab)!=data_labels.end()) {
                     cerr<<"Duplicate data label "<<lab<<"\n";
                     return 1;
                 }
                 data_labels[lab] = data_addr;
             }
+            //trim to remove the label and colon, then move on.
             l = trim(l.substr(colon+1));
             if (l.empty()) break;
         }
 
+        //if there aren't any more tokens in the line, continue on
         if (l.empty()) continue;
         auto tokens = split_tokens(l);
         if (tokens.empty()) continue;
         string op = upper_copy(tokens[0]);
 
+        //now, check if we're in a text or data section, and change accordingly.
         if (op == ".TEXT") {
             section = Section::Text;
             continue;
@@ -351,8 +362,10 @@ int main(int argc, char** argv) {
             continue;
         }
 
+        //if we're in data, only allow .word and .space.
         if (section == Section::Data) {
             if (op == ".WORD") {
+                //if .word, there must be at least one value to put in
                 if (tokens.size() < 2) { cerr<<".word requires at least one value on line "<<(i+1)<<"\n"; return 1; }
                 for (size_t k = 1; k < tokens.size(); ++k) {
                     try { (void)parse_number(tokens[k]); }
@@ -362,6 +375,7 @@ int main(int argc, char** argv) {
                 continue;
             }
             if (op == ".SPACE") {
+                //if space, enforce its space argument is the only thing present
                 if (tokens.size() != 2) { cerr<<".space requires exactly one size argument on line "<<(i+1)<<"\n"; return 1; }
                 int count = 0;
                 try { count = parse_number(tokens[1]); }
@@ -374,9 +388,16 @@ int main(int argc, char** argv) {
             return 1;
         }
 
+        //finally, add the lines to the lines vector, 
         norm_lines.push_back(l);
+        //and add the estimated word count to our address ticker.
         instr_addr += estimate_instr_words(tokens, instr_labels, data_labels);
     }
+
+    /*
+        now that our labels for both data and instruction memory have been 
+        converted into addresses, we can parse the instructions themselves to hex machine code. 
+    */
 
     // Second pass: assemble
     vector<uint16_t> words;
