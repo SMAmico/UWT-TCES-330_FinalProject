@@ -30,6 +30,7 @@ module FSM(
     output logic [3:0] RF_W_addr,      // register file write address
     output logic [3:0] RF_Ra_addr,     // register file A-side read address
     output logic [3:0] RF_Rb_addr,     // register file B-side read address
+    input [15:0] RF_Rb_data,           // live value read from RF_Rb_addr in datapath
     output logic RF_W_en,              // register file write enable
 
     output logic [2:0] Alu_s0,         // ALU function select
@@ -124,11 +125,19 @@ module FSM(
     logic [3:0] State, NextState;
     
 	/*
-    Sign-extended 4-bit offset for JLT. JLT uses PC-relative addressing according to the extra-credit 
-	slide: JLT instruction format: ???? raaa rbbb bbbb The bbbb field is treated as a signed offset.
+    Sign-extended 12-bit and 4-bit offsets for jump instructions.
+    JMP uses a signed 12-bit PC-relative offset and wraps to 8-bit PC space.
+    JNZ and JLT use signed 4-bit offsets.
     */
+    logic signed [12:0] JMP_offset;
+    logic [12:0] JMP_target;
+    logic signed [7:0] JNZ_offset;
     logic [7:0] JLT_offset;
+    logic JNZ_not_zero;
 
+    assign JMP_offset = {{1{IR_data[11]}}, IR_data[11:0]};
+    assign JMP_target = $unsigned($signed({5'b0, PC}) + JMP_offset);
+    assign JNZ_offset = {{4{IR_data[3]}}, IR_data[3:0]};
     assign JLT_offset = {{4{IR_data[3]}}, IR_data[3:0]};
 
     assign StateOut = State;
@@ -274,34 +283,36 @@ module FSM(
                 NextState  = S_FETCH;
             end
 
-            // JMP instruction: 1001 0000 bbbbbbbb Absolute jump. The PC is loaded with IR_data[7:0].
+            // JMP instruction: 1001 bbbb bbbb bbbb. PC-relative jump by signed 12-bit offset.
             S_JMP: begin
-                PC_set     = IR_data[7:0];
+                PC_set     = JMP_target[7:0];
                 PC_w_en    = 1'b1;
 
                 NextState  = S_FETCH;
             end
 
             /*
-            JNZ_TEST instruction state: 1010 bbbbbbbb rrrr Select RF[rrrr] and pass it through the 
-			ALU so the zero flag can indicate whether the register is zero.
+            JNZ_TEST instruction state: 1010 raaa rbbb bbbb.
+            Read RF[raaa] on both ALU inputs and use AND so the ALU output equals RF[raaa].
+            This drives Alu_Z based on the test register value.
             */
             S_JNZ_TEST: begin
-                RF_Ra_addr = IR_data[3:0];
-                RF_Rb_addr = 4'h0;//blank Rb to emulate adding 0
-
-                Alu_s0     = ALU_ADD;
+                RF_Ra_addr = IR_data[11:8];
+                RF_Rb_addr = IR_data[11:8];
+                Alu_s0     = ALU_AND;
 
                 NextState  = S_JNZ_JUMP;
             end
 
             /*
-            JNZ_JUMP instruction state: If the selected register was not zero, load the PC with the
-			absolute address stored in IR_data[11:4].
+            JNZ_JUMP instruction state: If RF[raaa] was non-zero during S_JNZ_TEST, jump to
+            RF[rbbb] + signed 4-bit offset.
             */
             S_JNZ_JUMP: begin
-                if (!Alu_Z) begin
-                    PC_set  = IR_data[11:4];
+                RF_Rb_addr = IR_data[7:4];
+
+                if (JNZ_not_zero) begin
+                    PC_set  = RF_Rb_data[7:0] + JNZ_offset;
                     PC_w_en = 1'b1;
                 end
 
@@ -357,10 +368,15 @@ module FSM(
 	FSM to INIT.
     */
     always_ff @(posedge Clk) begin
-        if (~ResetN)
+        if (~ResetN) begin
             State <= S_INIT;
-        else
+            JNZ_not_zero <= 1'b0;
+        end
+        else begin
             State <= NextState;
+            if (State == S_JNZ_TEST)
+                JNZ_not_zero <= ~Alu_Z;
+        end
     end
 
 endmodule

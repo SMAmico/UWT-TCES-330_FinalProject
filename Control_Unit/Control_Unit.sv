@@ -14,6 +14,9 @@ module Control_Unit(
     PC_in is the live program counter value read from register 16 in the datapath register file.
     */
     input [7:0] PC_in,
+
+    // Live register-file B-port read value from datapath (selected by RF_Rb_addr).
+    input [15:0] RF_Rb_data_in,
 		    
     /*
     ALU flag inputs come from the datapath. These are only needed for the extra-credit 
@@ -105,6 +108,7 @@ module Control_Unit(
         .RF_W_addr(RF_W_addr),
         .RF_Ra_addr(RF_Ra_addr),
         .RF_Rb_addr(RF_Rb_addr),
+        .RF_Rb_data(RF_Rb_data_in),
         .RF_W_en(RF_W_en),
 
         .Alu_s0(Alu_s0),
@@ -154,6 +158,7 @@ module Control_Unit_tb();
     logic Clk;
     logic rst;
     logic [7:0] PC_in;
+    logic [15:0] RF_Rb_data_in;
 
     logic Alu_Z;
     logic Alu_N;
@@ -204,6 +209,7 @@ module Control_Unit_tb();
         .Clk(Clk),
         .Rst(rst),
         .PC_in(PC_in),
+        .RF_Rb_data_in(RF_Rb_data_in),
 
         .Alu_Z(Alu_Z),
         .Alu_N(Alu_N),
@@ -293,6 +299,7 @@ module Control_Unit_tb();
         passes = 0;
         failures = 0;
         PC_in = 8'h00;
+        RF_Rb_data_in = 16'h0000;
 
         /*
         Initialize ALU flags. The current instruction program does not use the jump instructions,

@@ -78,6 +78,7 @@ module Processor(
         .Clk(Clk),
         .Rst(Reset),
         .PC_in(PC_Out_full),
+        .RF_Rb_data_in(ALU_B),
 
         .Alu_Z(Alu_Z),
         .Alu_N(Alu_N),
