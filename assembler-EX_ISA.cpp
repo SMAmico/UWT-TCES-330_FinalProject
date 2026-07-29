@@ -32,6 +32,7 @@
       AND rA, rB, rC   (rA = rB & rC)   -> 1000 raaa rbbb rccc
 
       JMP offset/LABEL (PC = PC + soff12) -> 1001 bbbb bbbb bbbb  (signed 12-bit PC-relative offset)
+      JMP rA (optional pseudo-form: PC = RF[rA]) -> copies the register value into the PC register
       JNZ rA, rB, soff4 (PC = RF[rB] + soff4 if RF[rA] != 0) -> 1010 raaa rbbb bbbb
       JLT rA, rB, offset (PC = PC + offset if rA < rB) -> 1011 raaa rbbb bbbb    (4-bit signed offset relative to next instr)
 
@@ -645,22 +646,28 @@ int main(int argc, char** argv) {
 
 
             //JMP: signed PC-relative jump using 12-bit immediate/label offset
+            //      or an optional pseudo-form that copies a register value into the PC register.
             } else if (op=="JMP") {
 
-                if (tokens.size()<2) throw runtime_error("JMP expects OFFSET_OR_LABEL");
-                int offset;
+                if (tokens.size()<2) throw runtime_error("JMP expects OFFSET_OR_LABEL_OR_REGISTER");
 
                 if (instr_labels.find(tokens[1]) != instr_labels.end()) {
                     int target = instr_labels[tokens[1]];
-                    offset = target - (addr + 1);
+                    int offset = target - (addr + 1);
+                    if (offset < -2048 || offset > 2047) throw runtime_error("JMP offset out of range (-2048..2047)");
+                    instr = (ins_jmp<<12) | ((uint16_t)offset & 0x0FFF);
                 } else if (data_labels.find(tokens[1]) != data_labels.end()) {
                     throw runtime_error("data label used where instruction label is required: " + tokens[1]);
                 } else {
-                    offset = parse_number(tokens[1]);
+                    try {
+                        int offset = parse_number(tokens[1]);
+                        if (offset < -2048 || offset > 2047) throw runtime_error("JMP offset out of range (-2048..2047)");
+                        instr = (ins_jmp<<12) | ((uint16_t)offset & 0x0FFF);
+                    } catch (...) {
+                        int reg = parse_reg(tokens[1]);
+                        instr = (ins_and<<12) | (PC<<8) | (reg<<4) | reg;
+                    }
                 }
-
-                if (offset < -2048 || offset > 2047) throw runtime_error("JMP offset out of range (-2048..2047)");
-                instr = (ins_jmp<<12) | ((uint16_t)offset & 0x0FFF);
 
 
             //JNZ: if RF[rA] != 0 then jump to RF[rB] + signed 4-bit offset
