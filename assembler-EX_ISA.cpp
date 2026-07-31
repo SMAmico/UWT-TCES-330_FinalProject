@@ -7,14 +7,14 @@
 
     Assembly syntax (whitespace and commas separate tokens):
 
-      - Registers: R1 .. R13 (case-insensitive) or numeric 0..13 with R14 as TMP, R15 as PC, and R0 as zero register
+    - Registers: R0 .. R15 (case-insensitive) or numeric 0..15. R14 is TMP, R15 is PC, and R0 is zero.
       -- Assembly formatting instructions --
       - Use .text for instructions and instruction labels.
       - Use .data for data directives and data labels.
       - Labels end with ':' and may appear on their own line.
       - Tokens are separated by whitespace and/or commas.
       - Comments may start with ';', '//' or '#'.
-      - Registers are R1..R13 (case-insensitive).
+    - Registers are R0..R15 (case-insensitive).
     - Control-flow labels (JMP/JLT label form) must be .text labels.
       - Memory-address labels (STR/LDR label form) must be .data labels.
 
@@ -32,7 +32,7 @@
       HLT                              
           -> 0101 0000 0000 0000
 
-      MOVI rA, rB, hex/LABEL (rA = rB | hex)
+    MOVI rA, imm8_or_label (rA = rA | imm)
           -> 0110 raaa dddddddd     (ORs the immediate value into the selected register, using pseudoins for >8 bits)
              can load a label from either iram or dram.
       OR  rA, rB, rC   (rA = rB | rC)
@@ -159,13 +159,13 @@ int parse_reg(const string &token) {
     if (s.size() > 0 && s[0] == 'R') {
         string num = s.substr(1);
         int v = stoi(num);
-        if ((v < 1 || v > 13) || v == PC) throw runtime_error("register out of range: "+token);
+        if (v < 0 || v > 15) throw runtime_error("register out of range: "+token);
         return v;
     }
-    // as an alternate input, allow raw numbers 0-14 to convert properly too.
+    // as an alternate input, allow raw numbers 0-15 too.
     {
         int v = stoi(s);
-        if ((v < 1 || v > 13) || v == PC) throw runtime_error("register out of range: "+token);
+        if (v < 0 || v > 15) throw runtime_error("register out of range: "+token);
         return v;
     }
 }
@@ -696,7 +696,9 @@ int main(int argc, char** argv) {
                         instr = (ins_jmp<<12) | ((uint16_t)offset & 0x0FFF);
                     } catch (...) {
                         int reg = parse_reg(tokens[1]);
-                        instr = (ins_and<<12) | (PC<<8) | (reg<<4) | reg;
+                        // Pseudo-jump via ALU writeback format: RF[rc] = RF[ra] & RF[rb].
+                        // Set ra=reg, rb=reg, rc=PC so PC receives reg's value.
+                        instr = (ins_and<<12) | (reg<<8) | (reg<<4) | PC;
                     }
                 }
 

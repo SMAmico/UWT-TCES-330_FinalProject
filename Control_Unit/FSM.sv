@@ -45,11 +45,12 @@ module FSM(
 );
 	
 	/*
-    Instruction opcode values. Base project: 0000 = NOOP 0001 = STORE 0010 = LOAD 0011 = ADD
-    0100 = SUB 0101 = HALT Extra credit: 1001 = JMP 1010 = JNZ 1011 = JLT 
+    Instruction opcode values. Current map: 0000 = SHR, 0001 = STORE, 0010 = LOAD,
+    0011 = ADD, 0100 = SUB, 0101 = HALT, 0110 = MOVI, 0111 = OR, 1000 = AND,
+    1001 = JMP, 1010 = JNZ, 1011 = JLT, 1100 = SHL, 1101 = MULT.
+    NOP is a pseudo-instruction encoded as AND R0,R0,R0 (16'h8000).
     */
-    localparam [3:0] INS_NOP = 4'h0,
-                     INS_STR = 4'h1,
+    localparam [3:0] INS_STR = 4'h1,
                      INS_LDR = 4'h2,
                      INS_ADD = 4'h3,
                      INS_SUB = 4'h4,
@@ -65,7 +66,7 @@ module FSM(
 
                      INS_SHL = 4'hC,
                      INS_MULT= 4'hD,
-                     INS_SHR = 4'hE;
+                     INS_SHR = 4'h0;
                      
     /*
     ALU select values. These must match the ALU module. For JNZ, ALU_PASS is used to pass the selected
@@ -191,8 +192,11 @@ module FSM(
 			
             // DECODE checks the opcode field of the current instruction.
             S_DEC: begin
+                // NOP is encoded as AND R0,R0,R0 (0x8000), so detect the full word first.
+                if (IR_data == 16'h8000) begin
+                    NextState = S_NOP;
+                end else begin
                 case (IR_data[15:12])
-                    INS_NOP: NextState = S_NOP;
                     INS_STR: NextState = S_STR;
                     INS_LDR: NextState = S_LDA;
 
@@ -211,6 +215,7 @@ module FSM(
                     INS_JLT: NextState = S_JLT_TEST;
                     default: NextState = S_HLT;
                 endcase
+                end
             end
 			
             // NOOP performs no datapath operation.
@@ -272,6 +277,7 @@ module FSM(
                         Alu_s0 = ALU_MOVI;
                         MOVI_d = IR_data[7:0];
 								RF_Ra_addr = IR_data[11:8];
+								RF_W_addr  = IR_data[11:8];
                     end
                     INS_SHL: Alu_s0 = ALU_SHL;
                     INS_SHR: Alu_s0 = ALU_SHR;

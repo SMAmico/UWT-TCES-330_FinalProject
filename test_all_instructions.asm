@@ -53,3 +53,9 @@ data_ptr:
     .word 0x22
 array_base:
     .space 4
+; this is how a global variable would be defined.
+; global variables would keep this label in 
+global_base:
+    .word 0x1234
+test_var:
+    .word 0x5678
