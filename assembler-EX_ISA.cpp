@@ -20,29 +20,48 @@
 
     Instruction formats implemented :
 
-      STR rA, rB/LABEL, soff (store RF[rA] -> D[RF[rB] + soff]) -> 0001 raaa rbbb soff  pseudo-ins variant accepts -8..+7 word offset
-      LDR rA, rB/LABEL, soff (load D[RF[rB] + soff] -> RF[rA])  -> 0010 raaa rbbb soff  pseudo-ins variant accepts -8..+7 word offset
+      STR rA, rB/LABEL, soff (store RF[rA] -> D[RF[rB] + soff])
+          -> 0001 raaa rbbb soff  pseudo-ins variant accepts -8..+7 word offset
+      LDR rA, rB/LABEL, soff (load D[RF[rB] + soff] -> RF[rA])
+          -> 0010 raaa rbbb soff  pseudo-ins variant accepts -8..+7 word offset
 
-      ADD rA, rB, rC (rA = rB + rC)     -> 0011 raaa rbbb rccc
-      SUB rA, rB, rC (rA = rB - rC)     -> 0100 raaa rbbb rccc
-      HLT                               -> 0101 0000 0000 0000
+      ADD rA, rB, rC (rA = rB + rC)
+          -> 0011 raaa rbbb rccc
+      SUB rA, rB, rC (rA = rB - rC)
+          -> 0100 raaa rbbb rccc
+      HLT                              
+          -> 0101 0000 0000 0000
 
-      MOVI rA, rB, hex (rA = rB | hex)  -> 0110 raaa dddddddd     (ORs the immediate value into the selected register, using pseudoins for >8 bits)
-      OR  rA, rB, rC   (rA = rB | rC)   -> 0111 raaa rbbb rccc
-      AND rA, rB, rC   (rA = rB & rC)   -> 1000 raaa rbbb rccc
+      MOVI rA, rB, hex/LABEL (rA = rB | hex)
+          -> 0110 raaa dddddddd     (ORs the immediate value into the selected register, using pseudoins for >8 bits)
+             can load a label from either iram or dram.
+      OR  rA, rB, rC   (rA = rB | rC)
+          -> 0111 raaa rbbb rccc
+      AND rA, rB, rC   (rA = rB & rC)
+          -> 1000 raaa rbbb rccc
 
-      JMP offset/LABEL (PC = PC + soff12) -> 1001 bbbb bbbb bbbb  (signed 12-bit PC-relative offset)
-      JMP rA (optional pseudo-form: PC = RF[rA]) -> copies the register value into the PC register
-      JNZ rA, rB, soff4 (PC = RF[rB] + soff4 if RF[rA] != 0) -> 1010 raaa rbbb bbbb
-      JLT rA, rB, offset (PC = PC + offset if rA < rB) -> 1011 raaa rbbb bbbb    (4-bit signed offset relative to next instr)
+      JMP offset/LABEL (PC = PC + soff12)
+          -> 1001 bbbb bbbb bbbb  (signed 12-bit PC-relative offset)
+      JMP rA (optional pseudo-form: PC = RF[rA])
+          -> copies the register value into the PC register
+      JNZ rA, rB, soff4 (PC = RF[rB] + soff4 if RF[rA] != 0)
+          -> 1010 raaa rbbb bbbb
+      JLT rA, rB, offset (PC = PC + offset if rA < rB)
+          -> 1011 raaa rbbb bbbb    (4-bit signed offset relative to next instr)
 
-      SHL rA, rB, rC   (rA = rB << rC)  -> 1100 raaa shft rccc     (added instructions for extra ALU ops)
-      MULT rA, rB, rC  (rA = rB * rC)   -> 1101 raaa rbbb rccc    
-      SHR rA, rB, rC   (rA = rB >> rC)  -> 0000 raaa shft rccc
+      SHL rA, rB, rC   (rA = rB << rC)
+          -> 1100 raaa shft rccc     (added instructions for extra ALU ops)
+      MULT rA, rB, rC  (rA = rB * rC)
+          -> 1101 raaa rbbb rccc    
+      SHR rA, rB, rC   (rA = rB >> rC)
+          -> 0000 raaa shft rccc
 
-      NOP                               -> 1000 0000 0000 0000   (AND R0 with R0 into R0, effectively a NOP)
-      MOV rA, rB       (rA = rB)  -> 1000 raaa rbbb rccc    (AND RA with RA into RB, effectively moving) 
-      XOR rA, rB, rC   (rA = rB ^ rC)   -> pseudo-ins
+      NOP                         
+          -> 1000 0000 0000 0000   (AND R0 with R0 into R0, effectively a NOP)
+      MOV rA, rB       (rA = rB)
+          -> 1000 raaa rbbb rccc    (AND RA with RA into RB, effectively moving) 
+      XOR rA, rB, rC   (rA = rB ^ rC)
+          -> pseudo-ins
 
 
     The assembler supports labels for PC-relative control flow and computes relative offsets
@@ -211,7 +230,7 @@ static bool try_lookup_label(const unordered_map<string,int> &table, const strin
     return true;
 }
 
-// @brief resolve a label to an address, checking both instruction and data label tables
+//resolve a label to an address, checking both instruction and data label tables
 static int resolve_any_label(const unordered_map<string,int> &instr_labels,
                              const unordered_map<string,int> &data_labels,
                              const string &token) {
@@ -438,6 +457,7 @@ int main(int argc, char** argv) {
                 if (tokens.size()==3) {
                     //set the address register to the last token
                     string arg = tokens[2];
+                    //if we find a label, mark the flag accordingly
                     if (data_labels.find(arg)!=data_labels.end()) {
                         use_label = true;
                         label_addr = data_labels[arg];
@@ -466,20 +486,25 @@ int main(int argc, char** argv) {
                     soff = parse_offset4(tokens[3]);
                 }
 
-                //if we're asking for a relative address (ie, an offset relative to an address),
+                //if we're asking for a relative address (ie, an offset relative to a label),
                 if (relative && use_label) {
+                    //we load the label and add the offset, then load
                     emit_load_imm(words, TMP, label_addr + soff, addr);
-                    instr = (ins_str<<12) | (r<<8) | (TMP<<4);
+                    instr = (ins_str<<12) | (r<<8) | (TMP<<4) | (0x0);
+                //if we're asking for an address with an offset
                 } else if (relative) {
-                    //small offsets still use the direct form
-                    instr = (ins_str<<12) | (r<<8) | (base_reg<<4) | (soff & 0xF);
+                    //we sum the base register and the offset, then load
+                    emit_load_imm(words, TMP, base_reg + soff, addr);
+                    instr = (ins_str<<12) | (r<<8) | (TMP<<4) | (0x0);
+                //if we're asking for a label with no offset
                 } else if (use_label) {
+                    //we load the label into temp, then store
                     emit_load_imm(words, TMP, label_addr, addr);
                     addr++;
-                    instr = (ins_str<<12) | (r<<8) | (TMP<<4);
+                    instr = (ins_str<<12) | (r<<8) | (TMP<<4) | (0x0);
                 } else {
                     //otherwise, we just emit the STR instruction using the base register
-                    instr = (ins_str<<12) | (r<<8) | (base_reg<<4);
+                    instr = (ins_str<<12) | (r<<8) | (base_reg<<4) | (0x0);
                 }
 
             //LDR: load register through variable addressing
@@ -498,6 +523,7 @@ int main(int argc, char** argv) {
                 if (tokens.size()==3) {
                     //set the address register to the last token
                     string arg = tokens[2];
+                    //if the token is a label, parse it to an address, prohibiting iram
                     if (data_labels.find(arg)!=data_labels.end()) {
                         use_label = true;
                         label_addr = data_labels[arg];
@@ -526,22 +552,27 @@ int main(int argc, char** argv) {
                     soff = parse_offset4(tokens[3]);
                 }
 
-                //if we're asking for a relative address (ie, an offset relative to an address),
+                //if we're asking for a relative address with an offset (ie, a label with offset),
                 if (relative && use_label) {
+                    //copy the label into temp, add the offset, and load
                     emit_load_imm(words, TMP, label_addr + soff, addr);
-                    instr = (ins_ldr<<12) | (r<<8) | (TMP<<4);
+                    instr = (ins_ldr<<12) | (r<<8) | (TMP<<4) | (0x0);
+                //if we're asking for an address with an offset
                 } else if (relative) {
-                    //small offsets still use the direct form
-                    instr = (ins_ldr<<12) | (r<<8) | (base_reg<<4) | (soff & 0xF);
+                    //sum the base address with the offset, then load
+                    emit_load_imm(words, TMP, base_reg + soff, addr);
+                    instr = (ins_ldr<<12) | (r<<8) | (TMP<<4) | (0x0);
+                //if we're asking for a label with no offset
                 } else if (use_label) {
+                    //copy the label into temp, then load
                     emit_load_imm(words, TMP, label_addr, addr);
                     addr++;
-                    instr = (ins_ldr<<12) | (r<<8) | (TMP<<4);
+                    instr = (ins_ldr<<12) | (r<<8) | (TMP<<4) | (0x0);
                 } else {
                     //otherwise, we just emit the LDR instruction using the base register alone
                     instr = (ins_ldr<<12) | (r<<8) | (base_reg<<4);
                 }
-            
+
             //MOVI: load register lower half immediate
             } else if (op=="MOVI") {
 
