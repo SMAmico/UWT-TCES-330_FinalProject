@@ -87,8 +87,11 @@
 #define ins_mult 0xD
 
 //REGISTER DEFINES: aliases for special registers in the ISA
+//zero reg is always left at 0
 #define reg_zero 0
+//program counter indicates the address in the instruction memory to execute next
 #define PC 15
+//temporary register for assembly to machine code translation
 #define TMP 14
 
 
