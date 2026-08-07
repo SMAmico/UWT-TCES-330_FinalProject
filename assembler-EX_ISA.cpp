@@ -3,7 +3,7 @@
 /*
     Simple two-pass assembler for the project's EX_ISA.
 
-    Usage: assembler-EX_ISA <input.asm> <output.txt>
+    Usage: assembler-EX_ISA <input.asm> <output.txt> [--mif] [--mif-out <output.mif>]
 
     Assembly syntax (whitespace and commas separate tokens):
 
@@ -203,18 +203,28 @@ static int parse_offset16(const string &token) {
 }
 
 //loads a 16-bit immediate value into a register, using a temporary register if greater than 8 bits.
-static void emit_load_imm(vector<uint16_t> &words, int reg, int value, int &addr) {
+static void emit_load_imm(vector<uint16_t> &words,
+                          int reg,
+                          int value,
+                          int &addr,
+                          vector<string> *comments = nullptr,
+                          const string &comment = "") {
     if (value < 0 || value > 65535) throw runtime_error("immediate out of range");
     if (value > 255) {
         int upper = (value >> 8) & 0xFF;
         int lower = value & 0xFF;
         words.push_back((ins_movi<<12) | (TMP << 8) | (upper & 0xFF));
+        if (comments) comments->push_back(comment);
         words.push_back((ins_shl<<12) | (TMP << 8) | (TMP << 4) | 0x1);
+        if (comments) comments->push_back(comment);
         words.push_back((ins_movi<<12) | (TMP << 8) | (lower & 0xFF));
+        if (comments) comments->push_back(comment);
         words.push_back((ins_or<<12) | (reg << 8) | (TMP << 4) | reg);
+        if (comments) comments->push_back(comment);
         addr += 4;
     } else {
         words.push_back((ins_movi<<12) | (reg << 8) | (value & 0xFF));
+        if (comments) comments->push_back(comment);
         addr++;
     }
 }
@@ -231,6 +241,53 @@ static bool try_lookup_label(const unordered_map<string,int> &table, const strin
     if (it == table.end()) return false;
     value = it->second;
     return true;
+}
+
+//replace or append a file extension (including the leading dot)
+static string replace_extension(const string &path, const string &new_ext) {
+    size_t slash = path.find_last_of("/\\");
+    size_t dot = path.find_last_of('.');
+    if (dot != string::npos && (slash == string::npos || dot > slash)) {
+        return path.substr(0, dot) + new_ext;
+    }
+    return path + new_ext;
+}
+
+//write Quartus-style MIF output for ROM/RAM initialization
+static void write_mif_file(const string &path,
+                           const vector<uint16_t> &words,
+                           int depth,
+                           const vector<string> &comments = {}) {
+    if (depth <= 0) throw runtime_error("MIF depth must be positive");
+    if ((int)words.size() > depth) throw runtime_error("program is larger than MIF depth");
+    if (!comments.empty() && comments.size() != words.size()) {
+        throw runtime_error("internal error: MIF comment count does not match word count");
+    }
+
+    ofstream ofs(path);
+    if (!ofs) throw runtime_error("Cannot open MIF output " + path);
+
+    ofs << "WIDTH=16;\n";
+    ofs << "DEPTH=" << dec << depth << ";\n\n";
+    ofs << "ADDRESS_RADIX=HEX;\n";
+    ofs << "DATA_RADIX=HEX;\n\n";
+    ofs << "CONTENT BEGIN\n";
+
+    ofs << uppercase << hex << setfill('0');
+    for (size_t i = 0; i < words.size(); ++i) {
+        ofs << "    " << setw(2) << i << " : " << setw(4) << (unsigned int)words[i] << ";";
+        if (!comments.empty() && !comments[i].empty()) {
+            ofs << " -- " << comments[i];
+        }
+        ofs << "\n";
+    }
+
+    if ((int)words.size() < depth) {
+        ofs << "\n    [" << setw(2) << words.size() << ".." << setw(4) << (unsigned int)(depth - 1)
+            << "] : 0000;\n";
+    }
+
+    ofs << "END;\n";
 }
 
 //resolve a label to an address, checking both instruction and data label tables
@@ -283,12 +340,32 @@ static int estimate_instr_words(const vector<string> &tokens,
 int main(int argc, char** argv) {
     //print input
     if (argc<3) {
-        cerr<<"Usage: "<<argv[0]<<" <input.asm> <output.txt>\n";
+        cerr<<"Usage: "<<argv[0]<<" <input.asm> <output.txt> [--mif] [--mif-out <output.mif>]\n";
         return 1;
     }
     //the paths for our input and output files
     string inpath = argv[1];
     string outpath = argv[2];
+    bool emit_mif = false;
+    string mif_outpath = replace_extension(outpath, ".mif");
+
+    for (int i = 3; i < argc; ++i) {
+        string arg = argv[i];
+        if (arg == "--mif") {
+            emit_mif = true;
+        } else if (arg == "--mif-out") {
+            if (i + 1 >= argc) {
+                cerr<<"Missing value for --mif-out\n";
+                return 1;
+            }
+            emit_mif = true;
+            mif_outpath = argv[++i];
+        } else {
+            cerr<<"Unknown argument: "<<arg<<"\n";
+            cerr<<"Usage: "<<argv[0]<<" <input.asm> <output.txt> [--mif] [--mif-out <output.mif>]\n";
+            return 1;
+        }
+    }
 
     //the raw lines as a vector
     vector<string> lines;
@@ -425,9 +502,14 @@ int main(int argc, char** argv) {
 
     // Second pass: assemble
     vector<uint16_t> words;
+    vector<string> word_comments;
     int addr = 0;
     for (auto &rawline: norm_lines) {
         string line = rawline;
+        auto push_word = [&](uint16_t w) {
+            words.push_back(w);
+            word_comments.push_back(rawline);
+        };
         auto tokens = split_tokens(line);
         if (tokens.empty()) {
             addr++;
@@ -492,17 +574,17 @@ int main(int argc, char** argv) {
                 //if we're asking for a relative address (ie, an offset relative to a label),
                 if (relative && use_label) {
                     //we load the label and add the offset, then load
-                    emit_load_imm(words, TMP, label_addr + soff, addr);
+                    emit_load_imm(words, TMP, label_addr + soff, addr, &word_comments, rawline);
                     instr = (ins_str<<12) | (r<<8) | (TMP<<4) | (0x0);
                 //if we're asking for an address with an offset
                 } else if (relative) {
                     //we sum the base register and the offset, then load
-                    emit_load_imm(words, TMP, base_reg + soff, addr);
+                    emit_load_imm(words, TMP, base_reg + soff, addr, &word_comments, rawline);
                     instr = (ins_str<<12) | (r<<8) | (TMP<<4) | (0x0);
                 //if we're asking for a label with no offset
                 } else if (use_label) {
                     //we load the label into temp, then store
-                    emit_load_imm(words, TMP, label_addr, addr);
+                    emit_load_imm(words, TMP, label_addr, addr, &word_comments, rawline);
                     addr++;
                     instr = (ins_str<<12) | (r<<8) | (TMP<<4) | (0x0);
                 } else {
@@ -558,17 +640,17 @@ int main(int argc, char** argv) {
                 //if we're asking for a relative address with an offset (ie, a label with offset),
                 if (relative && use_label) {
                     //copy the label into temp, add the offset, and load
-                    emit_load_imm(words, TMP, label_addr + soff, addr);
+                    emit_load_imm(words, TMP, label_addr + soff, addr, &word_comments, rawline);
                     instr = (ins_ldr<<12) | (r<<8) | (TMP<<4) | (0x0);
                 //if we're asking for an address with an offset
                 } else if (relative) {
                     //sum the base address with the offset, then load
-                    emit_load_imm(words, TMP, base_reg + soff, addr);
+                    emit_load_imm(words, TMP, base_reg + soff, addr, &word_comments, rawline);
                     instr = (ins_ldr<<12) | (r<<8) | (TMP<<4) | (0x0);
                 //if we're asking for a label with no offset
                 } else if (use_label) {
                     //copy the label into temp, then load
-                    emit_load_imm(words, TMP, label_addr, addr);
+                    emit_load_imm(words, TMP, label_addr, addr, &word_comments, rawline);
                     addr++;
                     instr = (ins_ldr<<12) | (r<<8) | (TMP<<4) | (0x0);
                 } else {
@@ -598,11 +680,11 @@ int main(int argc, char** argv) {
                     int upper = (a >> 8) & 0xFF;
                     int lower = a & 0xFF;
                     // first, load upper half into tmp
-                    words.push_back((ins_movi<<12) | (TMP<<8) | (upper & 0xFF));
+                    push_word((ins_movi<<12) | (TMP<<8) | (upper & 0xFF));
                     // then, shift tmp left by 8 bits
-                    words.push_back((ins_shl<<12) | (TMP<<8) | (TMP<<4) | 0x1);
+                    push_word((ins_shl<<12) | (TMP<<8) | (TMP<<4) | 0x1);
                     // then, load lower half into tmp
-                    words.push_back((ins_movi<<12) | (TMP<<8) | (lower & 0xFF));
+                    push_word((ins_movi<<12) | (TMP<<8) | (lower & 0xFF));
                     addr += 3;
                     // finally, OR tmp into the target register
                     instr = (ins_or<<12) | (r<<8) | (TMP<<4) | r;
@@ -649,9 +731,9 @@ int main(int argc, char** argv) {
                 int rc=parse_reg(tokens[3]);
 
                 //pseudoinstruction for XOR
-                words.push_back((ins_add<<12) | (ra << 8) | (rb << 4) | rc);
-                words.push_back((ins_and<<12) | (0xF<<8) | (rb << 4) | rc);
-                words.push_back((ins_shl<<12) | (0xF<<8) | (0xF<<4) | 0x1);
+                push_word((ins_add<<12) | (ra << 8) | (rb << 4) | rc);
+                push_word((ins_and<<12) | (0xF<<8) | (rb << 4) | rc);
+                push_word((ins_shl<<12) | (0xF<<8) | (0xF<<4) | 0x1);
                 addr += 3;
                 instr = (ins_sub<<12) | (ra<<8) | (ra << 4) | 0xF;
 
@@ -775,7 +857,7 @@ int main(int argc, char** argv) {
             cerr<<"Error at instruction "<<addr<<": "<<e.what()<<" -> '"<<rawline<<"'\n";
             return 1;
         }
-        words.push_back(instr);
+        push_word(instr);
         addr++;
     }
 
@@ -788,6 +870,17 @@ int main(int argc, char** argv) {
         ofs << uppercase << hex << setw(4) << setfill('0') << w << '\n';
     }
     ofs.close();
-    cout<<"Assembled "<<words.size()<<" words to "<<outpath<<"\n";
+
+    if (emit_mif) {
+        try {
+            write_mif_file(mif_outpath, words, 65536, word_comments);
+        } catch (exception &e) {
+            cerr<<"Error writing MIF: "<<e.what()<<"\n";
+            return 1;
+        }
+        cout<<"Assembled "<<words.size()<<" words to "<<outpath<<" and "<<mif_outpath<<"\n";
+    } else {
+        cout<<"Assembled "<<words.size()<<" words to "<<outpath<<"\n";
+    }
     return 0;
 }
