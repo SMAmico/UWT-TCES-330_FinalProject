@@ -88,7 +88,8 @@ module Control_Unit(
     */
     FSM fsm0(
         .Clk(Clk),
-        .ResetN(Rst),
+        // FSM expects active-low ResetN, while Control_Unit input Rst is active-high.
+        .ResetN(~Rst),
 
         .PC(PC),
         .PC_clr(PC_clr),

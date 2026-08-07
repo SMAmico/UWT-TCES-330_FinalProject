@@ -36,4 +36,25 @@ vsim -t 1ps \
 
 do wave.do
 
+# -----------------------------------------------------------------------------
+# Memory debug visibility: ROM and RAM interface signals
+# -----------------------------------------------------------------------------
+add wave -noupdate -divider {Memory Debug: ROM Interface}
+add wave -noupdate -radix hexadecimal /testProcessor/DUT/control0/rom0/address
+add wave -noupdate -radix hexadecimal /testProcessor/DUT/control0/rom0/q
+
+add wave -noupdate -divider {Memory Debug: RAM Wrapper Interface}
+add wave -noupdate -radix hexadecimal /testProcessor/DUT/datapath0/ram0/D_Addr
+add wave -noupdate -radix binary /testProcessor/DUT/datapath0/ram0/D_wr
+add wave -noupdate -radix hexadecimal /testProcessor/DUT/datapath0/ram0/W_data
+add wave -noupdate -radix hexadecimal /testProcessor/DUT/datapath0/ram0/R_data
+
+add wave -noupdate -divider {Memory Debug: RAM LPM Ports}
+add wave -noupdate -radix hexadecimal /testProcessor/DUT/datapath0/ram0/ram_lpm/address
+add wave -noupdate -radix binary /testProcessor/DUT/datapath0/ram0/ram_lpm/wren
+add wave -noupdate -radix hexadecimal /testProcessor/DUT/datapath0/ram0/ram_lpm/data
+add wave -noupdate -radix hexadecimal /testProcessor/DUT/datapath0/ram0/ram_lpm/q
+
+update
+
 run -all
