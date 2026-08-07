@@ -108,6 +108,31 @@ add wave -noupdate -radix hexadecimal /testProcessor/DUT/datapath0/D_Data
 add wave -noupdate -radix hexadecimal /testProcessor/DUT/datapath0/R_data
 add wave -noupdate -radix hexadecimal /testProcessor/DUT/datapath0/W_data
 
+# -----------------------------------------------------------------------------
+# Register File Contents
+# Registers r0–r14 are general-purpose; r15 (index 4'hF) is the PC register.
+# These are the live values stored inside the RegFile instance (rf0) within
+# the datapath.  Braces prevent Tcl from interpreting square brackets as a
+# command invocation.
+# -----------------------------------------------------------------------------
+add wave -noupdate -divider {Register File Contents}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[0]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[1]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[2]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[3]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[4]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[5]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[6]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[7]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[8]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[9]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[10]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[11]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[12]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[13]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[14]}
+add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[15]}
+
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {0 ps} 0}
 quietly wave cursor active 0
