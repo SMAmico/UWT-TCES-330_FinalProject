@@ -56,7 +56,7 @@ module Project(
     Processor debug outputs.
     */
     wire [15:0] IR_Out;
-    wire [6:0] PC_Out;
+    wire [15:0] PC_Out;
     wire [3:0] State;
     wire [3:0] NextState;
 
@@ -104,7 +104,7 @@ module Project(
     always_comb begin
         case (SW[9:7])
             3'b000: Main_Display = IR_Out;
-            3'b001: Main_Display = {9'b0, PC_Out};
+            3'b001: Main_Display = {PC_Out};
             3'b010: Main_Display = {8'b0, NextState, State};
             3'b011: Main_Display = ALU_A;
             3'b100: Main_Display = ALU_B;

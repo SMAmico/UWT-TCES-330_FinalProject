@@ -12,8 +12,8 @@ module PC(
     input PC_clr,
     input PC_up,
     input PC_w_en,
-    input [7:0] PC_set,
-    output logic [7:0] PC_out
+    input [15:0] PC_set,
+    output logic [15:0] PC_out
 );
 
     /*
@@ -26,11 +26,11 @@ module PC(
 
     always_ff @(posedge Clk) begin
         if (PC_clr)
-            PC_out <= 8'b0;
+            PC_out <= 16'b0;
         else if (PC_w_en)
             PC_out <= PC_set;
         else if (PC_up)
-            PC_out <= PC_out + 8'b1;
+            PC_out <= PC_out + 16'b1;
     end
 
 endmodule
@@ -41,8 +41,8 @@ module PC_tb();
     logic PC_clr;
     logic PC_up;
     logic PC_w_en;
-    logic [7:0] PC_set;
-    logic [7:0] PC_out;
+    logic [15:0] PC_set;
+    logic [15:0] PC_out;
 
     integer pass_count;
     integer fail_count;
@@ -71,8 +71,8 @@ module PC_tb();
 
     task automatic check_value;
     	input string name;
-    	input [7:0] actual;
-    	input [7:0] expected;
+    	input [15:0] actual;
+    	input [15:0] expected;
 
         begin
             if (actual === expected) begin
@@ -92,43 +92,43 @@ module PC_tb();
         PC_clr  = 1'b0;
         PC_up   = 1'b0;
         PC_w_en = 1'b0;
-        PC_set  = 8'h00;
+        PC_set  = 16'h00;
 
         $display("Starting PC testbench.");
 
         // Clear test.
         PC_clr = 1'b1;
         tick();
-        check_value("PC clear", PC_out, 8'h00);
+        check_value("PC clear", PC_out, 16'h00);
 
         // Hold test.
         PC_clr = 1'b0;
         PC_up = 1'b0;
         PC_w_en = 1'b0;
         tick();
-        check_value("PC hold after clear", PC_out, 8'h00);
+        check_value("PC hold after clear", PC_out, 16'h00);
 
         // Increment test.
         PC_up = 1'b1;
         tick();
-        check_value("PC increment to 1", PC_out, 8'h01);
+        check_value("PC increment to 1", PC_out, 16'h01);
 
         tick();
-        check_value("PC increment to 2", PC_out, 8'h02);
+        check_value("PC increment to 2", PC_out, 16'h02);
 
         // Jump/load test.
         PC_up = 1'b0;
         PC_w_en = 1'b1;
         PC_set = 8'h3C;
         tick();
-        check_value("PC load jump address", PC_out, 8'h3C);
+        check_value("PC load jump address", PC_out, 16'h3C);
 
         // Priority test: clear should beat jump load.
         PC_clr = 1'b1;
         PC_w_en = 1'b1;
         PC_set = 8'hAA;
         tick();
-        check_value("PC clear priority over load", PC_out, 8'h00);
+        check_value("PC clear priority over load", PC_out, 16'h00);
 
         // Priority test: jump load should beat increment.
         PC_clr = 1'b0;
@@ -136,13 +136,13 @@ module PC_tb();
         PC_up = 1'b1;
         PC_set = 8'h55;
         tick();
-        check_value("PC load priority over increment", PC_out, 8'h55);
+        check_value("PC load priority over increment", PC_out, 16'h55);
 
         // Return to increment.
         PC_w_en = 1'b0;
         PC_up = 1'b1;
         tick();
-        check_value("PC increment after load", PC_out, 8'h56);
+        check_value("PC increment after load", PC_out, 16'h56);
 
         $display("PC testbench complete.");
         $display("Passes: %0d", pass_count);

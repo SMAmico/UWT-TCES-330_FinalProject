@@ -1,0 +1,2346 @@
+# Reading pref.tcl
+dir
+#  Volume in drive D is Files
+#  Volume Serial Number is 7A4C-EFF2
+# 
+#  Directory of D:\OneDrive\School\UW\TCES330\FinalProject\UWT-TCES-330_FinalProject
+# 
+# 08/06/2026  05:34 PM    <DIR>          .
+# 08/06/2026  05:34 PM    <DIR>          ..
+# 08/02/2026  03:18 PM    <DIR>          .github
+# 06/16/2026  06:10 PM    <DIR>          .vscode
+# 05/05/2026  11:16 AM    <DIR>          ALU
+# 04/30/2026  01:09 PM            92,648 ALU.zip
+# 06/05/2026  09:52 PM           777,390 Amico Teal Project Report.docx
+# 06/05/2026  09:55 PM           800,049 Amico Teal Project Report.pdf
+# 08/06/2026  05:23 PM            34,886 assembler-EX_ISA.cpp
+# 08/06/2026  05:15 PM           367,104 assembler-EX_ISA.exe
+# 08/06/2026  05:15 PM           892,674 assembler-EX_ISA.obj
+# 06/16/2026  06:10 PM        15,994,880 assembler-EX_ISA.pdb
+# 06/09/2026  02:29 PM    <DIR>          Board
+# 07/17/2026  02:47 PM    <DIR>          Control_Unit
+# 07/17/2026  02:49 PM    <DIR>          Datapath
+# 04/24/2026  03:36 PM                54 Launch_ModelSim.bat
+# 08/06/2026  05:42 PM               353 mifROM.mif
+# 08/03/2026  12:42 PM            11,131 modelsim.ini
+# 06/09/2026  02:44 PM    <DIR>          Project
+# 08/03/2026  11:10 AM    <DIR>          RAM
+# 06/09/2026  02:29 PM             6,056 README.md
+# 05/28/2026  03:07 PM    <DIR>          RegALU
+# 05/14/2026  11:31 AM    <DIR>          RF
+# 05/08/2026  11:29 AM            69,917 RF.zip
+# 08/03/2026  11:10 AM    <DIR>          ROM
+# 08/06/2026  04:10 PM    <DIR>          rtl_work
+# 08/03/2026  11:57 AM    <DIR>          run
+# 06/09/2026  02:41 PM               824 runlab.do
+# 08/03/2026  11:56 AM             1,316 runrtl.do
+# 06/09/2026  02:41 PM               987 runrtlFSM.do
+# 06/09/2026  02:41 PM             1,583 run_all_tests.do
+# 08/06/2026  05:42 PM               590 sample_input.asm
+# 07/28/2026  06:50 PM               591 sample_input_std_isa.asm
+# 08/06/2026  05:15 PM               337 sample_output.mif
+# 08/06/2026  05:42 PM                90 sample_output.txt
+# 07/28/2026  07:03 PM                78 sample_output_std_isa.txt
+# 07/31/2026  11:51 AM             1,390 test_all_instructions.asm
+# 07/27/2026  06:44 PM               222 test_all_instructions.txt
+# 07/28/2026  06:57 PM                29 tmp_jmp_reg.asm
+# 07/28/2026  07:03 PM                12 tmp_jmp_reg.txt
+# 07/28/2026  06:47 PM                49 tmp_jnz.asm
+# 07/28/2026  06:47 PM                18 tmp_jnz.txt
+# 07/28/2026  06:47 PM                53 tmp_jump.asm
+# 07/28/2026  06:47 PM                18 tmp_jump.txt
+# 08/06/2026  05:08 PM                20 transcript
+# 06/16/2026  06:10 PM           512,000 vc140.pdb
+# 08/03/2026  11:57 AM    <DIR>          work
+#               31 File(s)     19,567,349 bytes
+#               16 Dir(s)  14,761,033,728 bytes free
+do runlab.do
+# onbreak {resume}
+# 
+# if {[file exists work]} {
+#     vdel -lib work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/rtl_work".
+# 
+# vlib work
+# ** Warning: (vlib-34) Library already exists at "work".
+# vmap work work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying modelsim.ini
+# 
+# vlog -sv -work work +acc ./myRAM.v
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:43:10 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./myRAM.v 
+# ** Error: (vlog-7) Failed to open design unit file "./myRAM.v" in read mode.
+# No such file or directory. (errno = ENOENT)
+# End time: 17:43:10 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 1, Warnings: 0
+# ** Error: C:/intelFPGA/20.1/modelsim_ase/win32aloem/vlog failed.
+# Error in macro ./runlab.do line 11
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vlog failed.
+#     while executing
+# "vlog -sv -work work +acc ./myRAM.v"
+do runrtl.do
+# 
+# avoid stopping the script if ModelSim breaks at $finish
+# onbreak {resume}
+# 
+# get rid of current rtl_work library
+# if {[file exists rtl_work]} {
+#     vdel -lib rtl_work -all
+# }
+# ** Error (suppressible): (vdel-19) Failed to access library 'rtl_work' at "rtl_work".
+# No such file or directory. (errno = ENOENT)
+# ** Warning: (vdel-57) Library 'rtl_work' is missing or is not a valid ModelSim library.
+# ** Error: C:/intelFPGA/20.1/modelsim_ase/win32aloem/vdel failed.
+# Error in macro ./runrtl.do line 10
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vdel failed.
+#     while executing
+# "error [FixExecError $msg]"
+#     (procedure "vdel" line 6)
+#     invoked from within
+# "vdel -lib rtl_work -all"
+#     invoked from within
+# "if {[file exists rtl_work]} {
+#     vdel -lib rtl_work -all
+# }"
+do runrtl.do
+# 
+# avoid stopping the script if ModelSim breaks at $finish
+# onbreak {resume}
+# 
+# get rid of current rtl_work library
+# if {[file exists rtl_work]} {
+#     vdel -lib rtl_work -all
+# }
+# ** Error (suppressible): (vdel-19) Failed to access library 'rtl_work' at "rtl_work".
+# No such file or directory. (errno = ENOENT)
+# ** Warning: (vdel-57) Library 'rtl_work' is missing or is not a valid ModelSim library.
+# ** Error: C:/intelFPGA/20.1/modelsim_ase/win32aloem/vdel failed.
+# Error in macro ./runrtl.do line 10
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vdel failed.
+#     while executing
+# "error [FixExecError $msg]"
+#     (procedure "vdel" line 6)
+#     invoked from within
+# "vdel -lib rtl_work -all"
+#     invoked from within
+# "if {[file exists rtl_work]} {
+#     vdel -lib rtl_work -all
+# }"
+do runlab.do
+# onbreak {resume}
+# 
+# if {[file exists work]} {
+#     vdel -lib work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/work".
+# 
+# vlib work
+# vmap work work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying modelsim.ini
+# 
+# vlog -sv -work work +acc ./myRAM.v
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:44:59 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./myRAM.v 
+# ** Error: (vlog-7) Failed to open design unit file "./myRAM.v" in read mode.
+# No such file or directory. (errno = ENOENT)
+# End time: 17:44:59 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 1, Warnings: 0
+# ** Error: C:/intelFPGA/20.1/modelsim_ase/win32aloem/vlog failed.
+# Error in macro ./runlab.do line 11
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vlog failed.
+#     while executing
+# "vlog -sv -work work +acc ./myRAM.v"
+do runrtlFSM.do
+# 
+# Get rid of current work lib
+# if {[file exists rtl_work]} {
+# 	vdel -lib rtl_work -all
+# }
+# ** Error (suppressible): (vdel-19) Failed to access library 'rtl_work' at "rtl_work".
+# No such file or directory. (errno = ENOENT)
+# ** Warning: (vdel-57) Library 'rtl_work' is missing or is not a valid ModelSim library.
+# ** Error: C:/intelFPGA/20.1/modelsim_ase/win32aloem/vdel failed.
+# Error in macro ./runrtlFSM.do line 7
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vdel failed.
+#     while executing
+# "error [FixExecError $msg]"
+#     (procedure "vdel" line 6)
+#     invoked from within
+# "vdel -lib rtl_work -all"
+#     invoked from within
+# "if {[file exists rtl_work]} {
+# 	vdel -lib rtl_work -all
+# }"
+do runlab.do
+# onbreak {resume}
+# 
+# if {[file exists work]} {
+#     vdel -lib work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/work".
+# 
+# vlib work
+# vmap work work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying modelsim.ini
+# 
+# vlog -sv -work work +acc ./myRAM.v
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:45:28 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./myRAM.v 
+# ** Error: (vlog-7) Failed to open design unit file "./myRAM.v" in read mode.
+# No such file or directory. (errno = ENOENT)
+# End time: 17:45:28 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 1, Warnings: 0
+# ** Error: C:/intelFPGA/20.1/modelsim_ase/win32aloem/vlog failed.
+# Error in macro ./runlab.do line 11
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vlog failed.
+#     while executing
+# "vlog -sv -work work +acc ./myRAM.v"
+do runrtl.do
+# 
+# avoid stopping the script if ModelSim breaks at $finish
+# onbreak {resume}
+# 
+# get rid of current rtl_work library
+# if {[file exists rtl_work]} {
+#     vdel -lib rtl_work -all
+# }
+# ** Error (suppressible): (vdel-19) Failed to access library 'rtl_work' at "rtl_work".
+# No such file or directory. (errno = ENOENT)
+# ** Warning: (vdel-57) Library 'rtl_work' is missing or is not a valid ModelSim library.
+# ** Error: C:/intelFPGA/20.1/modelsim_ase/win32aloem/vdel failed.
+# Error in macro ./runrtl.do line 10
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vdel failed.
+#     while executing
+# "error [FixExecError $msg]"
+#     (procedure "vdel" line 6)
+#     invoked from within
+# "vdel -lib rtl_work -all"
+#     invoked from within
+# "if {[file exists rtl_work]} {
+#     vdel -lib rtl_work -all
+# }"
+do runlab.do
+# onbreak {resume}
+# 
+# if {[file exists work]} {
+#     vdel -lib work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/work".
+# 
+# vlib work
+# vmap work work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying modelsim.ini
+# 
+# vlog -sv -work work +acc ./myRAM.v
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:45:37 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./myRAM.v 
+# ** Error: (vlog-7) Failed to open design unit file "./myRAM.v" in read mode.
+# No such file or directory. (errno = ENOENT)
+# End time: 17:45:37 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 1, Warnings: 0
+# ** Error: C:/intelFPGA/20.1/modelsim_ase/win32aloem/vlog failed.
+# Error in macro ./runlab.do line 11
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vlog failed.
+#     while executing
+# "vlog -sv -work work +acc ./myRAM.v"
+dir
+#  Volume in drive D is Files
+#  Volume Serial Number is 7A4C-EFF2
+# 
+#  Directory of D:\OneDrive\School\UW\TCES330\FinalProject\UWT-TCES-330_FinalProject
+# 
+# 08/06/2026  05:45 PM    <DIR>          .
+# 08/06/2026  05:45 PM    <DIR>          ..
+# 08/02/2026  03:18 PM    <DIR>          .github
+# 06/16/2026  06:10 PM    <DIR>          .vscode
+# 05/05/2026  11:16 AM    <DIR>          ALU
+# 04/30/2026  01:09 PM            92,648 ALU.zip
+# 06/05/2026  09:52 PM           777,390 Amico Teal Project Report.docx
+# 06/05/2026  09:55 PM           800,049 Amico Teal Project Report.pdf
+# 08/06/2026  05:23 PM            34,886 assembler-EX_ISA.cpp
+# 08/06/2026  05:15 PM           367,104 assembler-EX_ISA.exe
+# 08/06/2026  05:15 PM           892,674 assembler-EX_ISA.obj
+# 06/16/2026  06:10 PM        15,994,880 assembler-EX_ISA.pdb
+# 06/09/2026  02:29 PM    <DIR>          Board
+# 07/17/2026  02:47 PM    <DIR>          Control_Unit
+# 07/17/2026  02:49 PM    <DIR>          Datapath
+# 04/24/2026  03:36 PM                54 Launch_ModelSim.bat
+# 08/06/2026  05:42 PM               353 mifROM.mif
+# 08/06/2026  05:45 PM            11,127 modelsim.ini
+# 06/09/2026  02:44 PM    <DIR>          Project
+# 08/03/2026  11:10 AM    <DIR>          RAM
+# 06/09/2026  02:29 PM             6,056 README.md
+# 05/28/2026  03:07 PM    <DIR>          RegALU
+# 05/14/2026  11:31 AM    <DIR>          RF
+# 05/08/2026  11:29 AM            69,917 RF.zip
+# 08/03/2026  11:10 AM    <DIR>          ROM
+# 08/06/2026  05:43 PM    <DIR>          rtl_work
+# 08/03/2026  11:57 AM    <DIR>          run
+# 06/09/2026  02:41 PM               824 runlab.do
+# 08/03/2026  11:56 AM             1,316 runrtl.do
+# 06/09/2026  02:41 PM               987 runrtlFSM.do
+# 06/09/2026  02:41 PM             1,583 run_all_tests.do
+# 08/06/2026  05:42 PM               590 sample_input.asm
+# 07/28/2026  06:50 PM               591 sample_input_std_isa.asm
+# 08/06/2026  05:15 PM               337 sample_output.mif
+# 08/06/2026  05:42 PM                90 sample_output.txt
+# 07/28/2026  07:03 PM                78 sample_output_std_isa.txt
+# 07/31/2026  11:51 AM             1,390 test_all_instructions.asm
+# 07/27/2026  06:44 PM               222 test_all_instructions.txt
+# 07/28/2026  06:57 PM                29 tmp_jmp_reg.asm
+# 07/28/2026  07:03 PM                12 tmp_jmp_reg.txt
+# 07/28/2026  06:47 PM                49 tmp_jnz.asm
+# 07/28/2026  06:47 PM                18 tmp_jnz.txt
+# 07/28/2026  06:47 PM                53 tmp_jump.asm
+# 07/28/2026  06:47 PM                18 tmp_jump.txt
+# 08/06/2026  05:45 PM            10,508 transcript
+# 06/16/2026  06:10 PM           512,000 vc140.pdb
+# 08/06/2026  05:45 PM    <DIR>          work
+#               31 File(s)     19,577,833 bytes
+#               16 Dir(s)  14,761,902,080 bytes free
+do runrtl.do
+# 
+# avoid stopping the script if ModelSim breaks at $finish
+# onbreak {resume}
+# 
+# get rid of current rtl_work library
+# if {[file exists rtl_work]} {
+#     vdel -lib rtl_work -all
+# }
+# ** Error (suppressible): (vdel-19) Failed to access library 'rtl_work' at "rtl_work".
+# No such file or directory. (errno = ENOENT)
+# ** Warning: (vdel-57) Library 'rtl_work' is missing or is not a valid ModelSim library.
+# ** Error: C:/intelFPGA/20.1/modelsim_ase/win32aloem/vdel failed.
+# Error in macro ./runrtl.do line 10
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vdel failed.
+#     while executing
+# "error [FixExecError $msg]"
+#     (procedure "vdel" line 6)
+#     invoked from within
+# "vdel -lib rtl_work -all"
+#     invoked from within
+# "if {[file exists rtl_work]} {
+#     vdel -lib rtl_work -all
+# }"
+do runlab.do
+# onbreak {resume}
+# 
+# if {[file exists work]} {
+#     vdel -lib work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/work".
+# 
+# vlib work
+# vmap work work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying modelsim.ini
+# 
+# compile project source files
+# vlog -sv -work work +acc "./Project/Project.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:48:38 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Project.sv 
+# -- Compiling module Project
+# 
+# Top level modules:
+# 	Project
+# End time: 17:48:38 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./RAM/myRAM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:48:38 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./RAM/myRAM.v 
+# -- Compiling module myRAM
+# -- Compiling module myRAM_tb
+# 
+# Top level modules:
+# 	myRAM_tb
+# End time: 17:48:38 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./ROM/myROM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:48:39 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./ROM/myROM.v 
+# -- Compiling module myROM
+# 
+# Top level modules:
+# 	myROM
+# End time: 17:48:39 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/Decoder.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:48:39 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/Decoder.sv 
+# -- Compiling module Decoder
+# -- Compiling module Decoder_tb
+# 
+# Top level modules:
+# 	Decoder_tb
+# End time: 17:48:39 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/KeyFilter.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:48:39 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/KeyFilter.sv 
+# -- Compiling module KeyFilter
+# 
+# Top level modules:
+# 	KeyFilter
+# End time: 17:48:40 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/PC.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:48:40 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/PC.sv 
+# -- Compiling module PC
+# -- Compiling module PC_tb
+# 
+# Top level modules:
+# 	PC_tb
+# End time: 17:48:40 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/IR.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:48:40 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/IR.sv 
+# -- Compiling module IR
+# -- Compiling module IR_tb
+# 
+# Top level modules:
+# 	IR_tb
+# End time: 17:48:40 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/FSM.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:48:40 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 17:48:40 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/Control_Unit.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:48:41 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/Control_Unit.sv 
+# -- Compiling module Control_Unit
+# -- Compiling module Control_Unit_tb
+# 
+# Top level modules:
+# 	Control_Unit_tb
+# End time: 17:48:41 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Datapath/Datapath.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:48:41 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Datapath/Datapath.sv 
+# -- Compiling module RegFile
+# -- Compiling module ALU
+# -- Compiling module mux16w_2to1
+# -- Compiling module RAM
+# -- Compiling module Datapath
+# 
+# Top level modules:
+# 	Datapath
+# End time: 17:48:41 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Processor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:48:41 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Processor.sv 
+# -- Compiling module Processor
+# -- Compiling module Processor_tb
+# 
+# Top level modules:
+# 	Processor_tb
+# End time: 17:48:41 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/testProcessor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:48:41 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/testProcessor.sv 
+# -- Compiling module testProcessor
+# 
+# Top level modules:
+# 	testProcessor
+# End time: 17:48:41 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# vsim -t 1ps \
+#     -L altera_ver \
+#     -L lpm_ver \
+#     -L sgate_ver \
+#     -L altera_mf_ver \
+#     -L altera_lnsim_ver \
+#     -L cyclonev_ver \
+#     -L work \
+#     -voptargs="+acc" \
+#     work.testProcessor
+# vsim -t 1ps -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L cyclonev_ver -L work -voptargs=""+acc"" work.testProcessor 
+# Start time: 17:48:41 on Aug 06,2026
+# Loading sv_std.std
+# Loading work.testProcessor
+# Loading work.Processor
+# Loading work.Control_Unit
+# Loading work.FSM
+# Loading work.IR
+# Loading work.myROM
+# Loading altera_mf_ver.altsyncram
+# Loading work.Datapath
+# Loading work.RegFile
+# Loading work.ALU
+# Loading work.mux16w_2to1
+# Loading work.RAM
+# Loading work.myRAM
+# Loading altera_mf_ver.altsyncram_body
+# Loading altera_mf_ver.ALTERA_DEVICE_FAMILIES
+# Loading altera_mf_ver.ALTERA_MF_MEMORY_INITIALIZATION
+# 
+# do wave.do
+# 
+# run -all
+# ** Warning: (vsim-3534) [FOFIR] - Failed to open file "mifRAM.mif" for reading.
+# No such file or directory. (errno = ENOENT)    : $MODEL_TECH/../altera/verilog/src/altera_mf.v(264)
+#    Time: 0 ps  Iteration: 0  Instance: /testProcessor/DUT/datapath0/ram0/ram_lpm/altsyncram_component/m_default/altsyncram_inst
+# ERROR: cannot read mifRAM.mif.
+# ** Warning: (vsim-7) Failed to open readmem file "mifRAM.ver" in read mode.
+# No such file or directory. (errno = ENOENT)    : $MODEL_TECH/../altera/verilog/src/altera_mf.v(48977)
+#    Time: 0 ps  Iteration: 0  Instance: /testProcessor/DUT/datapath0/ram0/ram_lpm/altsyncram_component/m_default/altsyncram_inst
+# 
+# Begin Simulation.
+# Time is 0 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = x  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 10000 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 40000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 50000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 0  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+do runlab.do
+# onbreak {resume}
+# 
+# if {[file exists work]} {
+#     vdel -lib work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/work".
+# 
+# vlib work
+# vmap work work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying modelsim.ini
+# 
+# compile project source files
+# vlog -sv -work work +acc "./Project/Project.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:51:15 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Project.sv 
+# -- Compiling module Project
+# 
+# Top level modules:
+# 	Project
+# End time: 17:51:15 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./RAM/myRAM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:51:15 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./RAM/myRAM.v 
+# -- Compiling module myRAM
+# -- Compiling module myRAM_tb
+# 
+# Top level modules:
+# 	myRAM_tb
+# End time: 17:51:15 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./ROM/myROM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:51:16 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./ROM/myROM.v 
+# -- Compiling module myROM
+# 
+# Top level modules:
+# 	myROM
+# End time: 17:51:16 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/Decoder.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:51:16 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/Decoder.sv 
+# -- Compiling module Decoder
+# -- Compiling module Decoder_tb
+# 
+# Top level modules:
+# 	Decoder_tb
+# End time: 17:51:16 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/KeyFilter.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:51:16 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/KeyFilter.sv 
+# -- Compiling module KeyFilter
+# 
+# Top level modules:
+# 	KeyFilter
+# End time: 17:51:16 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/PC.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:51:16 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/PC.sv 
+# -- Compiling module PC
+# -- Compiling module PC_tb
+# 
+# Top level modules:
+# 	PC_tb
+# End time: 17:51:16 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/IR.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:51:16 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/IR.sv 
+# -- Compiling module IR
+# -- Compiling module IR_tb
+# 
+# Top level modules:
+# 	IR_tb
+# End time: 17:51:17 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/FSM.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:51:17 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 17:51:17 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/Control_Unit.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:51:17 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/Control_Unit.sv 
+# -- Compiling module Control_Unit
+# -- Compiling module Control_Unit_tb
+# 
+# Top level modules:
+# 	Control_Unit_tb
+# End time: 17:51:17 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Datapath/Datapath.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:51:17 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Datapath/Datapath.sv 
+# -- Compiling module RegFile
+# -- Compiling module ALU
+# -- Compiling module mux16w_2to1
+# -- Compiling module RAM
+# -- Compiling module Datapath
+# 
+# Top level modules:
+# 	Datapath
+# End time: 17:51:17 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Processor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:51:17 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Processor.sv 
+# -- Compiling module Processor
+# -- Compiling module Processor_tb
+# 
+# Top level modules:
+# 	Processor_tb
+# End time: 17:51:17 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/testProcessor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:51:17 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/testProcessor.sv 
+# -- Compiling module testProcessor
+# 
+# Top level modules:
+# 	testProcessor
+# End time: 17:51:17 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# vsim -t 1ps \
+#     -L altera_ver \
+#     -L lpm_ver \
+#     -L sgate_ver \
+#     -L altera_mf_ver \
+#     -L altera_lnsim_ver \
+#     -L cyclonev_ver \
+#     -L work \
+#     -voptargs="+acc" \
+#     work.testProcessor
+# End time: 17:51:19 on Aug 06,2026, Elapsed time: 0:02:38
+# Errors: 0, Warnings: 2
+# vsim -t 1ps -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L cyclonev_ver -L work -voptargs=""+acc"" work.testProcessor 
+# Start time: 17:51:19 on Aug 06,2026
+# Loading sv_std.std
+# Loading work.testProcessor
+# Loading work.Processor
+# Loading work.Control_Unit
+# Loading work.FSM
+# Loading work.IR
+# Loading work.myROM
+# Loading altera_mf_ver.altsyncram
+# Loading work.Datapath
+# Loading work.RegFile
+# Loading work.ALU
+# Loading work.mux16w_2to1
+# Loading work.RAM
+# Loading work.myRAM
+# Loading altera_mf_ver.altsyncram_body
+# Loading altera_mf_ver.ALTERA_DEVICE_FAMILIES
+# Loading altera_mf_ver.ALTERA_MF_MEMORY_INITIALIZATION
+# 
+# do wave.do
+# 
+# run -all
+# ** Warning: (vsim-3534) [FOFIR] - Failed to open file "./mifRAM.mif" for reading.
+# No such file or directory. (errno = ENOENT)    : $MODEL_TECH/../altera/verilog/src/altera_mf.v(264)
+#    Time: 0 ps  Iteration: 0  Instance: /testProcessor/DUT/datapath0/ram0/ram_lpm/altsyncram_component/m_default/altsyncram_inst
+# ERROR: cannot read ./mifRAM.mif.
+# ** Warning: (vsim-7) Failed to open readmem file "./mifRAM.ver" in read mode.
+# No such file or directory. (errno = ENOENT)    : $MODEL_TECH/../altera/verilog/src/altera_mf.v(48977)
+#    Time: 0 ps  Iteration: 0  Instance: /testProcessor/DUT/datapath0/ram0/ram_lpm/altsyncram_component/m_default/altsyncram_inst
+# 
+# Begin Simulation.
+# Time is 0 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = x  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 10000 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 40000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 50000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 0  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+do runlab.do
+# onbreak {resume}
+# 
+# if {[file exists work]} {
+#     vdel -lib work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/work".
+# 
+# vlib work
+# vmap work work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying modelsim.ini
+# 
+# compile project source files
+# vlog -sv -work work +acc "./Project/Project.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:52:08 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Project.sv 
+# -- Compiling module Project
+# 
+# Top level modules:
+# 	Project
+# End time: 17:52:09 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./RAM/myRAM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:52:09 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./RAM/myRAM.v 
+# -- Compiling module myRAM
+# -- Compiling module myRAM_tb
+# 
+# Top level modules:
+# 	myRAM_tb
+# End time: 17:52:09 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./ROM/myROM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:52:09 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./ROM/myROM.v 
+# -- Compiling module myROM
+# 
+# Top level modules:
+# 	myROM
+# End time: 17:52:09 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/Decoder.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:52:09 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/Decoder.sv 
+# -- Compiling module Decoder
+# -- Compiling module Decoder_tb
+# 
+# Top level modules:
+# 	Decoder_tb
+# End time: 17:52:09 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/KeyFilter.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:52:09 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/KeyFilter.sv 
+# -- Compiling module KeyFilter
+# 
+# Top level modules:
+# 	KeyFilter
+# End time: 17:52:09 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/PC.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:52:09 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/PC.sv 
+# -- Compiling module PC
+# -- Compiling module PC_tb
+# 
+# Top level modules:
+# 	PC_tb
+# End time: 17:52:10 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/IR.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:52:10 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/IR.sv 
+# -- Compiling module IR
+# -- Compiling module IR_tb
+# 
+# Top level modules:
+# 	IR_tb
+# End time: 17:52:10 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/FSM.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:52:10 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 17:52:10 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/Control_Unit.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:52:10 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/Control_Unit.sv 
+# -- Compiling module Control_Unit
+# -- Compiling module Control_Unit_tb
+# 
+# Top level modules:
+# 	Control_Unit_tb
+# End time: 17:52:10 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Datapath/Datapath.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:52:10 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Datapath/Datapath.sv 
+# -- Compiling module RegFile
+# -- Compiling module ALU
+# -- Compiling module mux16w_2to1
+# -- Compiling module RAM
+# -- Compiling module Datapath
+# 
+# Top level modules:
+# 	Datapath
+# End time: 17:52:10 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Processor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:52:10 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Processor.sv 
+# -- Compiling module Processor
+# -- Compiling module Processor_tb
+# 
+# Top level modules:
+# 	Processor_tb
+# End time: 17:52:11 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/testProcessor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 17:52:11 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/testProcessor.sv 
+# -- Compiling module testProcessor
+# 
+# Top level modules:
+# 	testProcessor
+# End time: 17:52:11 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# vsim -t 1ps \
+#     -L altera_ver \
+#     -L lpm_ver \
+#     -L sgate_ver \
+#     -L altera_mf_ver \
+#     -L altera_lnsim_ver \
+#     -L cyclonev_ver \
+#     -L work \
+#     -voptargs="+acc" \
+#     work.testProcessor
+# End time: 17:52:12 on Aug 06,2026, Elapsed time: 0:00:53
+# Errors: 0, Warnings: 2
+# vsim -t 1ps -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L cyclonev_ver -L work -voptargs=""+acc"" work.testProcessor 
+# Start time: 17:52:12 on Aug 06,2026
+# Loading sv_std.std
+# Loading work.testProcessor
+# Loading work.Processor
+# Loading work.Control_Unit
+# Loading work.FSM
+# Loading work.IR
+# Loading work.myROM
+# Loading altera_mf_ver.altsyncram
+# Loading work.Datapath
+# Loading work.RegFile
+# Loading work.ALU
+# Loading work.mux16w_2to1
+# Loading work.RAM
+# Loading work.myRAM
+# Loading altera_mf_ver.altsyncram_body
+# Loading altera_mf_ver.ALTERA_DEVICE_FAMILIES
+# Loading altera_mf_ver.ALTERA_MF_MEMORY_INITIALIZATION
+# 
+# do wave.do
+# 
+# run -all
+# 
+# Begin Simulation.
+# Time is 0 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = x  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 10000 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 40000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 50000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 0  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+do runlab.do
+# onbreak {resume}
+# 
+# if {[file exists work]} {
+#     vdel -lib work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/work".
+# 
+# vlib work
+# vmap work work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying modelsim.ini
+# 
+# compile project source files
+# vlog -sv -work work +acc "./Project/Project.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:07:10 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Project.sv 
+# -- Compiling module Project
+# 
+# Top level modules:
+# 	Project
+# End time: 18:07:11 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./RAM/myRAM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:07:11 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./RAM/myRAM.v 
+# -- Compiling module myRAM
+# -- Compiling module myRAM_tb
+# 
+# Top level modules:
+# 	myRAM_tb
+# End time: 18:07:11 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./ROM/myROM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:07:11 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./ROM/myROM.v 
+# -- Compiling module myROM
+# 
+# Top level modules:
+# 	myROM
+# End time: 18:07:11 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/Decoder.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:07:11 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/Decoder.sv 
+# -- Compiling module Decoder
+# -- Compiling module Decoder_tb
+# 
+# Top level modules:
+# 	Decoder_tb
+# End time: 18:07:11 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/KeyFilter.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:07:11 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/KeyFilter.sv 
+# -- Compiling module KeyFilter
+# 
+# Top level modules:
+# 	KeyFilter
+# End time: 18:07:12 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/PC.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:07:12 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/PC.sv 
+# -- Compiling module PC
+# -- Compiling module PC_tb
+# 
+# Top level modules:
+# 	PC_tb
+# End time: 18:07:12 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/IR.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:07:12 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/IR.sv 
+# -- Compiling module IR
+# -- Compiling module IR_tb
+# 
+# Top level modules:
+# 	IR_tb
+# End time: 18:07:12 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/FSM.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:07:12 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 18:07:12 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/Control_Unit.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:07:12 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/Control_Unit.sv 
+# -- Compiling module Control_Unit
+# -- Compiling module Control_Unit_tb
+# 
+# Top level modules:
+# 	Control_Unit_tb
+# End time: 18:07:12 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Datapath/Datapath.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:07:12 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Datapath/Datapath.sv 
+# -- Compiling module RegFile
+# -- Compiling module ALU
+# -- Compiling module mux16w_2to1
+# -- Compiling module RAM
+# -- Compiling module Datapath
+# 
+# Top level modules:
+# 	Datapath
+# End time: 18:07:13 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Processor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:07:13 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Processor.sv 
+# -- Compiling module Processor
+# -- Compiling module Processor_tb
+# 
+# Top level modules:
+# 	Processor_tb
+# End time: 18:07:13 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/testProcessor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:07:13 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/testProcessor.sv 
+# -- Compiling module testProcessor
+# 
+# Top level modules:
+# 	testProcessor
+# End time: 18:07:13 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# vsim -t 1ps \
+#     -L altera_ver \
+#     -L lpm_ver \
+#     -L sgate_ver \
+#     -L altera_mf_ver \
+#     -L altera_lnsim_ver \
+#     -L cyclonev_ver \
+#     -L work \
+#     -voptargs="+acc" \
+#     work.testProcessor
+# End time: 18:07:14 on Aug 06,2026, Elapsed time: 0:15:02
+# Errors: 0, Warnings: 0
+# vsim -t 1ps -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L cyclonev_ver -L work -voptargs=""+acc"" work.testProcessor 
+# Start time: 18:07:15 on Aug 06,2026
+# Loading sv_std.std
+# Loading work.testProcessor
+# Loading work.Processor
+# Loading work.Control_Unit
+# Loading work.FSM
+# Loading work.IR
+# Loading work.myROM
+# Loading altera_mf_ver.altsyncram
+# Loading work.Datapath
+# Loading work.RegFile
+# Loading work.ALU
+# Loading work.mux16w_2to1
+# Loading work.RAM
+# Loading work.myRAM
+# Loading altera_mf_ver.altsyncram_body
+# Loading altera_mf_ver.ALTERA_DEVICE_FAMILIES
+# Loading altera_mf_ver.ALTERA_MF_MEMORY_INITIALIZATION
+# 
+# do wave.do
+# onerror {resume}
+# quietly WaveActivateNextPane {} 0
+# add wave -noupdate /testProcessor/State
+# add wave -noupdate /testProcessor/NextState
+# add wave -noupdate /testProcessor/IR_Out
+# add wave -noupdate /testProcessor/PC_Out
+# add wave -noupdate /testProcessor/clk
+# ** UI-Msg: (vish-4014) No objects found matching '/testProcessor/clk'.
+# Executing ONERROR command at macro ./wave.do line 7
+# 
+# TreeUpdate [SetDefaultTree]
+# WaveRestoreCursors {{Cursor 1} {0 ps} 0}
+# quietly wave cursor active 0
+# configure wave -namecolwidth 150
+# configure wave -valuecolwidth 100
+# configure wave -justifyvalue left
+# configure wave -signalnamewidth 0
+# configure wave -snapdistance 10
+# configure wave -datasetprefix 0
+# configure wave -rowmargin 4
+# configure wave -childrowmargin 2
+# configure wave -gridoffset 0
+# configure wave -gridperiod 1
+# configure wave -griddelta 40
+# configure wave -timeline 0
+# configure wave -timelineunits ps
+# update
+# WaveRestoreZoom {0 ps} {1 ns}
+# 
+# run -all
+# 
+# Begin Simulation.
+# Time is 0 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = x  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 10000 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 40000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 50000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 0  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+do runlab.do
+# onbreak {resume}
+# 
+# if {[file exists work]} {
+#     vdel -lib work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/work".
+# 
+# vlib work
+# vmap work work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying modelsim.ini
+# 
+# compile project source files
+# vlog -sv -work work +acc "./Project/Project.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:11:48 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Project.sv 
+# -- Compiling module Project
+# 
+# Top level modules:
+# 	Project
+# End time: 18:11:48 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./RAM/myRAM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:11:48 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./RAM/myRAM.v 
+# -- Compiling module myRAM
+# -- Compiling module myRAM_tb
+# 
+# Top level modules:
+# 	myRAM_tb
+# End time: 18:11:48 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./ROM/myROM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:11:48 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./ROM/myROM.v 
+# -- Compiling module myROM
+# 
+# Top level modules:
+# 	myROM
+# End time: 18:11:48 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/Decoder.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:11:49 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/Decoder.sv 
+# -- Compiling module Decoder
+# -- Compiling module Decoder_tb
+# 
+# Top level modules:
+# 	Decoder_tb
+# End time: 18:11:49 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/KeyFilter.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:11:49 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/KeyFilter.sv 
+# -- Compiling module KeyFilter
+# 
+# Top level modules:
+# 	KeyFilter
+# End time: 18:11:49 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/PC.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:11:49 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/PC.sv 
+# -- Compiling module PC
+# -- Compiling module PC_tb
+# 
+# Top level modules:
+# 	PC_tb
+# End time: 18:11:49 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/IR.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:11:49 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/IR.sv 
+# -- Compiling module IR
+# -- Compiling module IR_tb
+# 
+# Top level modules:
+# 	IR_tb
+# End time: 18:11:49 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/FSM.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:11:49 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 18:11:50 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/Control_Unit.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:11:50 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/Control_Unit.sv 
+# -- Compiling module Control_Unit
+# -- Compiling module Control_Unit_tb
+# 
+# Top level modules:
+# 	Control_Unit_tb
+# End time: 18:11:50 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Datapath/Datapath.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:11:50 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Datapath/Datapath.sv 
+# -- Compiling module RegFile
+# -- Compiling module ALU
+# -- Compiling module mux16w_2to1
+# -- Compiling module RAM
+# -- Compiling module Datapath
+# 
+# Top level modules:
+# 	Datapath
+# End time: 18:11:50 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Processor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:11:50 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Processor.sv 
+# -- Compiling module Processor
+# -- Compiling module Processor_tb
+# 
+# Top level modules:
+# 	Processor_tb
+# End time: 18:11:50 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/testProcessor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:11:50 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/testProcessor.sv 
+# -- Compiling module testProcessor
+# 
+# Top level modules:
+# 	testProcessor
+# End time: 18:11:50 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# vsim -t 1ps \
+#     -L altera_ver \
+#     -L lpm_ver \
+#     -L sgate_ver \
+#     -L altera_mf_ver \
+#     -L altera_lnsim_ver \
+#     -L cyclonev_ver \
+#     -L work \
+#     -voptargs="+acc" \
+#     work.testProcessor
+# End time: 18:11:52 on Aug 06,2026, Elapsed time: 0:04:37
+# Errors: 0, Warnings: 0
+# vsim -t 1ps -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L cyclonev_ver -L work -voptargs=""+acc"" work.testProcessor 
+# Start time: 18:11:52 on Aug 06,2026
+# Loading sv_std.std
+# Loading work.testProcessor
+# Loading work.Processor
+# Loading work.Control_Unit
+# Loading work.FSM
+# Loading work.IR
+# Loading work.myROM
+# Loading altera_mf_ver.altsyncram
+# Loading work.Datapath
+# Loading work.RegFile
+# Loading work.ALU
+# Loading work.mux16w_2to1
+# Loading work.RAM
+# Loading work.myRAM
+# Loading altera_mf_ver.altsyncram_body
+# Loading altera_mf_ver.ALTERA_DEVICE_FAMILIES
+# Loading altera_mf_ver.ALTERA_MF_MEMORY_INITIALIZATION
+# 
+# do wave.do
+# onerror {resume}
+# quietly WaveActivateNextPane {} 0
+# add wave -noupdate /testProcessor/State
+# add wave -noupdate /testProcessor/NextState
+# add wave -noupdate /testProcessor/IR_Out
+# add wave -noupdate /testProcessor/PC_Out
+# add wave -noupdate /testProcessor/clk
+# ** UI-Msg: (vish-4014) No objects found matching '/testProcessor/clk'.
+# Executing ONERROR command at macro ./wave.do line 7
+# 
+# TreeUpdate [SetDefaultTree]
+# WaveRestoreCursors {{Cursor 1} {0 ps} 0}
+# quietly wave cursor active 0
+# configure wave -namecolwidth 150
+# configure wave -valuecolwidth 100
+# configure wave -justifyvalue left
+# configure wave -signalnamewidth 0
+# configure wave -snapdistance 10
+# configure wave -datasetprefix 0
+# configure wave -rowmargin 4
+# configure wave -childrowmargin 2
+# configure wave -gridoffset 0
+# configure wave -gridperiod 1
+# configure wave -griddelta 40
+# configure wave -timeline 0
+# configure wave -timelineunits ps
+# update
+# WaveRestoreZoom {0 ps} {1 ns}
+# 
+# run -all
+# 
+# Begin Simulation.
+# Time is 0 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = x  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 10000 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 40000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 50000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 0  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+do runlab.do
+# onbreak {resume}
+# 
+# if {[file exists work]} {
+#     vdel -lib work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/work".
+# 
+# vlib work
+# vmap work work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying modelsim.ini
+# 
+# compile project source files
+# vlog -sv -work work +acc "./Project/Project.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:23:06 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Project.sv 
+# -- Compiling module Project
+# 
+# Top level modules:
+# 	Project
+# End time: 18:23:06 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./RAM/myRAM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:23:06 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./RAM/myRAM.v 
+# -- Compiling module myRAM
+# -- Compiling module myRAM_tb
+# 
+# Top level modules:
+# 	myRAM_tb
+# End time: 18:23:06 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./ROM/myROM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:23:06 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./ROM/myROM.v 
+# -- Compiling module myROM
+# 
+# Top level modules:
+# 	myROM
+# End time: 18:23:07 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/Decoder.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:23:07 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/Decoder.sv 
+# -- Compiling module Decoder
+# -- Compiling module Decoder_tb
+# 
+# Top level modules:
+# 	Decoder_tb
+# End time: 18:23:07 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/KeyFilter.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:23:07 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/KeyFilter.sv 
+# -- Compiling module KeyFilter
+# 
+# Top level modules:
+# 	KeyFilter
+# End time: 18:23:07 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/PC.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:23:07 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/PC.sv 
+# -- Compiling module PC
+# -- Compiling module PC_tb
+# 
+# Top level modules:
+# 	PC_tb
+# End time: 18:23:07 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/IR.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:23:07 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/IR.sv 
+# -- Compiling module IR
+# -- Compiling module IR_tb
+# 
+# Top level modules:
+# 	IR_tb
+# End time: 18:23:07 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/FSM.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:23:07 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 18:23:08 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/Control_Unit.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:23:08 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/Control_Unit.sv 
+# -- Compiling module Control_Unit
+# -- Compiling module Control_Unit_tb
+# 
+# Top level modules:
+# 	Control_Unit_tb
+# End time: 18:23:08 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Datapath/Datapath.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:23:08 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Datapath/Datapath.sv 
+# -- Compiling module RegFile
+# -- Compiling module ALU
+# -- Compiling module mux16w_2to1
+# -- Compiling module RAM
+# -- Compiling module Datapath
+# 
+# Top level modules:
+# 	Datapath
+# End time: 18:23:08 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Processor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:23:08 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Processor.sv 
+# -- Compiling module Processor
+# -- Compiling module Processor_tb
+# 
+# Top level modules:
+# 	Processor_tb
+# End time: 18:23:08 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/testProcessor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:23:08 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/testProcessor.sv 
+# -- Compiling module testProcessor
+# 
+# Top level modules:
+# 	testProcessor
+# End time: 18:23:08 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# vsim -t 1ps \
+#     -L altera_ver \
+#     -L lpm_ver \
+#     -L sgate_ver \
+#     -L altera_mf_ver \
+#     -L altera_lnsim_ver \
+#     -L cyclonev_ver \
+#     -L work \
+#     -voptargs="+acc" \
+#     work.testProcessor
+# End time: 18:23:10 on Aug 06,2026, Elapsed time: 0:11:18
+# Errors: 0, Warnings: 0
+# vsim -t 1ps -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L cyclonev_ver -L work -voptargs=""+acc"" work.testProcessor 
+# Start time: 18:23:10 on Aug 06,2026
+# Loading sv_std.std
+# Loading work.testProcessor
+# Loading work.Processor
+# Loading work.Control_Unit
+# Loading work.FSM
+# Loading work.IR
+# Loading work.myROM
+# Loading altera_mf_ver.altsyncram
+# Loading work.Datapath
+# Loading work.RegFile
+# Loading work.ALU
+# Loading work.mux16w_2to1
+# Loading work.RAM
+# Loading work.myRAM
+# Loading altera_mf_ver.altsyncram_body
+# Loading altera_mf_ver.ALTERA_DEVICE_FAMILIES
+# Loading altera_mf_ver.ALTERA_MF_MEMORY_INITIALIZATION
+# 
+# do wave.do
+# onerror {resume}
+# quietly WaveActivateNextPane {} 0
+# add wave -noupdate /testProcessor/State
+# add wave -noupdate /testProcessor/NextState
+# add wave -noupdate /testProcessor/IR_Out
+# add wave -noupdate /testProcessor/PC_Out
+# add wave -noupdate /testProcessor/Clk
+# 
+# TreeUpdate [SetDefaultTree]
+# WaveRestoreCursors {{Cursor 1} {0 ps} 0}
+# quietly wave cursor active 0
+# configure wave -namecolwidth 150
+# configure wave -valuecolwidth 100
+# configure wave -justifyvalue left
+# configure wave -signalnamewidth 0
+# configure wave -snapdistance 10
+# configure wave -datasetprefix 0
+# configure wave -rowmargin 4
+# configure wave -childrowmargin 2
+# configure wave -gridoffset 0
+# configure wave -gridperiod 1
+# configure wave -griddelta 40
+# configure wave -timeline 0
+# configure wave -timelineunits ps
+# update
+# WaveRestoreZoom {0 ps} {1 ns}
+# 
+# run -all
+# 
+# Begin Simulation.
+# Time is 0 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = x  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 10000 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 40000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 50000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 0  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+do runlab.do
+# onbreak {resume}
+# 
+# if {[file exists work]} {
+#     vdel -lib work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/work".
+# 
+# vlib work
+# vmap work work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying modelsim.ini
+# 
+# compile project source files
+# vlog -sv -work work +acc "./Project/testProcessor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:24:04 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/testProcessor.sv 
+# -- Compiling module testProcessor
+# 
+# Top level modules:
+# 	testProcessor
+# End time: 18:24:04 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Project.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:24:04 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Project.sv 
+# -- Compiling module Project
+# 
+# Top level modules:
+# 	Project
+# End time: 18:24:04 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./RAM/myRAM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:24:04 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./RAM/myRAM.v 
+# -- Compiling module myRAM
+# -- Compiling module myRAM_tb
+# 
+# Top level modules:
+# 	myRAM_tb
+# End time: 18:24:04 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./ROM/myROM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:24:04 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./ROM/myROM.v 
+# -- Compiling module myROM
+# 
+# Top level modules:
+# 	myROM
+# End time: 18:24:04 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/Decoder.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:24:04 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/Decoder.sv 
+# -- Compiling module Decoder
+# -- Compiling module Decoder_tb
+# 
+# Top level modules:
+# 	Decoder_tb
+# End time: 18:24:05 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/KeyFilter.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:24:05 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/KeyFilter.sv 
+# -- Compiling module KeyFilter
+# 
+# Top level modules:
+# 	KeyFilter
+# End time: 18:24:05 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/PC.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:24:05 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/PC.sv 
+# -- Compiling module PC
+# -- Compiling module PC_tb
+# 
+# Top level modules:
+# 	PC_tb
+# End time: 18:24:05 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/IR.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:24:05 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/IR.sv 
+# -- Compiling module IR
+# -- Compiling module IR_tb
+# 
+# Top level modules:
+# 	IR_tb
+# End time: 18:24:05 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/FSM.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:24:05 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 18:24:05 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/Control_Unit.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:24:05 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/Control_Unit.sv 
+# -- Compiling module Control_Unit
+# -- Compiling module Control_Unit_tb
+# 
+# Top level modules:
+# 	Control_Unit_tb
+# End time: 18:24:06 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Datapath/Datapath.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:24:06 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Datapath/Datapath.sv 
+# -- Compiling module RegFile
+# -- Compiling module ALU
+# -- Compiling module mux16w_2to1
+# -- Compiling module RAM
+# -- Compiling module Datapath
+# 
+# Top level modules:
+# 	Datapath
+# End time: 18:24:06 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Processor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:24:06 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Processor.sv 
+# -- Compiling module Processor
+# -- Compiling module Processor_tb
+# 
+# Top level modules:
+# 	Processor_tb
+# End time: 18:24:06 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# 
+# vsim -t 1ps \
+#     -L altera_ver \
+#     -L lpm_ver \
+#     -L sgate_ver \
+#     -L altera_mf_ver \
+#     -L altera_lnsim_ver \
+#     -L cyclonev_ver \
+#     -L work \
+#     -voptargs="+acc" \
+#     work.testProcessor
+# End time: 18:24:07 on Aug 06,2026, Elapsed time: 0:00:57
+# Errors: 0, Warnings: 0
+# vsim -t 1ps -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L cyclonev_ver -L work -voptargs=""+acc"" work.testProcessor 
+# Start time: 18:24:07 on Aug 06,2026
+# Loading sv_std.std
+# Loading work.testProcessor
+# Loading work.Processor
+# Loading work.Control_Unit
+# Loading work.FSM
+# Loading work.IR
+# Loading work.myROM
+# Loading altera_mf_ver.altsyncram
+# Loading work.Datapath
+# Loading work.RegFile
+# Loading work.ALU
+# Loading work.mux16w_2to1
+# Loading work.RAM
+# Loading work.myRAM
+# Loading altera_mf_ver.altsyncram_body
+# Loading altera_mf_ver.ALTERA_DEVICE_FAMILIES
+# Loading altera_mf_ver.ALTERA_MF_MEMORY_INITIALIZATION
+# 
+# do wave.do
+# onerror {resume}
+# quietly WaveActivateNextPane {} 0
+# add wave -noupdate /testProcessor/State
+# add wave -noupdate /testProcessor/NextState
+# add wave -noupdate /testProcessor/IR_Out
+# add wave -noupdate /testProcessor/PC_Out
+# add wave -noupdate /testProcessor/Clk
+# 
+# TreeUpdate [SetDefaultTree]
+# WaveRestoreCursors {{Cursor 1} {0 ps} 0}
+# quietly wave cursor active 0
+# configure wave -namecolwidth 150
+# configure wave -valuecolwidth 100
+# configure wave -justifyvalue left
+# configure wave -signalnamewidth 0
+# configure wave -snapdistance 10
+# configure wave -datasetprefix 0
+# configure wave -rowmargin 4
+# configure wave -childrowmargin 2
+# configure wave -gridoffset 0
+# configure wave -gridperiod 1
+# configure wave -griddelta 40
+# configure wave -timeline 0
+# configure wave -timelineunits ps
+# update
+# WaveRestoreZoom {0 ps} {1 ns}
+# 
+# run -all
+# 
+# Begin Simulation.
+# Time is 0 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = x  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 10000 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 40000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 50000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 0  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+do runlab.do
+# onbreak {resume}
+# 
+# if {[file exists work]} {
+#     vdel -lib work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/work".
+# 
+# vlib work
+# vmap work work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying modelsim.ini
+# 
+# compile project source files
+# vlog -sv -work work +acc "./Project/testProcessor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:09 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/testProcessor.sv 
+# -- Compiling module testProcessor
+# 
+# Top level modules:
+# 	testProcessor
+# End time: 18:34:09 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Project.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:09 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Project.sv 
+# -- Compiling module Project
+# 
+# Top level modules:
+# 	Project
+# End time: 18:34:09 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./RAM/myRAM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:09 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./RAM/myRAM.v 
+# -- Compiling module myRAM
+# -- Compiling module myRAM_tb
+# 
+# Top level modules:
+# 	myRAM_tb
+# End time: 18:34:09 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./ROM/myROM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:09 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./ROM/myROM.v 
+# -- Compiling module myROM
+# 
+# Top level modules:
+# 	myROM
+# End time: 18:34:09 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/Decoder.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:09 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/Decoder.sv 
+# -- Compiling module Decoder
+# -- Compiling module Decoder_tb
+# 
+# Top level modules:
+# 	Decoder_tb
+# End time: 18:34:09 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/KeyFilter.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:09 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/KeyFilter.sv 
+# -- Compiling module KeyFilter
+# 
+# Top level modules:
+# 	KeyFilter
+# End time: 18:34:10 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/PC.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:10 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/PC.sv 
+# -- Compiling module PC
+# -- Compiling module PC_tb
+# 
+# Top level modules:
+# 	PC_tb
+# End time: 18:34:10 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/IR.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:10 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/IR.sv 
+# -- Compiling module IR
+# -- Compiling module IR_tb
+# 
+# Top level modules:
+# 	IR_tb
+# End time: 18:34:10 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/FSM.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:10 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 18:34:10 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/Control_Unit.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:10 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/Control_Unit.sv 
+# -- Compiling module Control_Unit
+# -- Compiling module Control_Unit_tb
+# 
+# Top level modules:
+# 	Control_Unit_tb
+# End time: 18:34:10 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Datapath/Datapath.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:10 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Datapath/Datapath.sv 
+# -- Compiling module RegFile
+# -- Compiling module ALU
+# -- Compiling module mux16w_2to1
+# -- Compiling module RAM
+# -- Compiling module Datapath
+# 
+# Top level modules:
+# 	Datapath
+# End time: 18:34:11 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Processor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:11 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Processor.sv 
+# -- Compiling module Processor
+# ** Error (suppressible): ./Project/Processor.sv(36): (vlog-2388) 'PC_Out' already declared in this scope (Processor) at ./Project/Processor.sv(15).
+# -- Compiling module Processor_tb
+# End time: 18:34:11 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 1, Warnings: 0
+# ** Error: C:/intelFPGA/20.1/modelsim_ase/win32aloem/vlog failed.
+# Error in macro ./runlab.do line 23
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vlog failed.
+#     while executing
+# "vlog -sv -work work +acc "./Project/Processor.sv""
+do runlab.do
+# onbreak {resume}
+# 
+# if {[file exists work]} {
+#     vdel -lib work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/work".
+# 
+# vlib work
+# vmap work work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying modelsim.ini
+# 
+# compile project source files
+# vlog -sv -work work +acc "./Project/testProcessor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:46 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/testProcessor.sv 
+# -- Compiling module testProcessor
+# 
+# Top level modules:
+# 	testProcessor
+# End time: 18:34:46 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Project.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:46 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Project.sv 
+# -- Compiling module Project
+# 
+# Top level modules:
+# 	Project
+# End time: 18:34:46 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./RAM/myRAM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:46 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./RAM/myRAM.v 
+# -- Compiling module myRAM
+# -- Compiling module myRAM_tb
+# 
+# Top level modules:
+# 	myRAM_tb
+# End time: 18:34:46 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./ROM/myROM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:46 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./ROM/myROM.v 
+# -- Compiling module myROM
+# 
+# Top level modules:
+# 	myROM
+# End time: 18:34:46 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/Decoder.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:46 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/Decoder.sv 
+# -- Compiling module Decoder
+# -- Compiling module Decoder_tb
+# 
+# Top level modules:
+# 	Decoder_tb
+# End time: 18:34:46 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/KeyFilter.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:47 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/KeyFilter.sv 
+# -- Compiling module KeyFilter
+# 
+# Top level modules:
+# 	KeyFilter
+# End time: 18:34:47 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/PC.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:47 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/PC.sv 
+# -- Compiling module PC
+# -- Compiling module PC_tb
+# 
+# Top level modules:
+# 	PC_tb
+# End time: 18:34:47 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/IR.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:47 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/IR.sv 
+# -- Compiling module IR
+# -- Compiling module IR_tb
+# 
+# Top level modules:
+# 	IR_tb
+# End time: 18:34:47 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/FSM.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:47 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 18:34:47 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/Control_Unit.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:47 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/Control_Unit.sv 
+# -- Compiling module Control_Unit
+# -- Compiling module Control_Unit_tb
+# 
+# Top level modules:
+# 	Control_Unit_tb
+# End time: 18:34:47 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Datapath/Datapath.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:47 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Datapath/Datapath.sv 
+# -- Compiling module RegFile
+# -- Compiling module ALU
+# -- Compiling module mux16w_2to1
+# -- Compiling module RAM
+# -- Compiling module Datapath
+# 
+# Top level modules:
+# 	Datapath
+# End time: 18:34:48 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Processor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:34:48 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Processor.sv 
+# -- Compiling module Processor
+# -- Compiling module Processor_tb
+# 
+# Top level modules:
+# 	Processor_tb
+# End time: 18:34:48 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# 
+# vsim -t 1ps \
+#     -L altera_ver \
+#     -L lpm_ver \
+#     -L sgate_ver \
+#     -L altera_mf_ver \
+#     -L altera_lnsim_ver \
+#     -L cyclonev_ver \
+#     -L work \
+#     -voptargs="+acc" \
+#     work.testProcessor
+# End time: 18:34:49 on Aug 06,2026, Elapsed time: 0:10:42
+# Errors: 1, Warnings: 0
+# vsim -t 1ps -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L cyclonev_ver -L work -voptargs=""+acc"" work.testProcessor 
+# Start time: 18:34:49 on Aug 06,2026
+# Loading sv_std.std
+# Loading work.testProcessor
+# Loading work.Processor
+# Loading work.Control_Unit
+# Loading work.FSM
+# Loading work.IR
+# Loading work.myROM
+# Loading altera_mf_ver.altsyncram
+# Loading work.Datapath
+# Loading work.RegFile
+# Loading work.ALU
+# Loading work.mux16w_2to1
+# Loading work.RAM
+# Loading work.myRAM
+# Loading altera_mf_ver.altsyncram_body
+# Loading altera_mf_ver.ALTERA_DEVICE_FAMILIES
+# Loading altera_mf_ver.ALTERA_MF_MEMORY_INITIALIZATION
+# 
+# do wave.do
+# onerror {resume}
+# quietly WaveActivateNextPane {} 0
+# add wave -noupdate /testProcessor/State
+# add wave -noupdate /testProcessor/NextState
+# add wave -noupdate /testProcessor/IR_Out
+# add wave -noupdate /testProcessor/PC_Out
+# add wave -noupdate /testProcessor/Clk
+# add wave -noupdate /testProcessor/ResetN
+# 
+# TreeUpdate [SetDefaultTree]
+# WaveRestoreCursors {{Cursor 1} {0 ps} 0}
+# quietly wave cursor active 0
+# configure wave -namecolwidth 150
+# configure wave -valuecolwidth 100
+# configure wave -justifyvalue left
+# configure wave -signalnamewidth 0
+# configure wave -snapdistance 10
+# configure wave -datasetprefix 0
+# configure wave -rowmargin 4
+# configure wave -childrowmargin 2
+# configure wave -gridoffset 0
+# configure wave -gridperiod 1
+# configure wave -griddelta 40
+# configure wave -timeline 0
+# configure wave -timelineunits ps
+# update
+# WaveRestoreZoom {0 ps} {1 ns}
+# 
+# run -all
+# 
+# Begin Simulation.
+# Time is 0 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = x  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 10000 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 40000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 50000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 0  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+do runlab.do
+# onbreak {resume}
+# 
+# if {[file exists work]} {
+#     vdel -lib work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/work".
+# 
+# vlib work
+# vmap work work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work 
+# Modifying modelsim.ini
+# 
+# compile project source files
+# vlog -sv -work work +acc "./Project/testProcessor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:41:25 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/testProcessor.sv 
+# -- Compiling module testProcessor
+# 
+# Top level modules:
+# 	testProcessor
+# End time: 18:41:25 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Project.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:41:25 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Project.sv 
+# -- Compiling module Project
+# 
+# Top level modules:
+# 	Project
+# End time: 18:41:25 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./RAM/myRAM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:41:25 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./RAM/myRAM.v 
+# -- Compiling module myRAM
+# -- Compiling module myRAM_tb
+# 
+# Top level modules:
+# 	myRAM_tb
+# End time: 18:41:25 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./ROM/myROM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:41:25 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./ROM/myROM.v 
+# -- Compiling module myROM
+# 
+# Top level modules:
+# 	myROM
+# End time: 18:41:25 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/Decoder.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:41:25 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/Decoder.sv 
+# -- Compiling module Decoder
+# -- Compiling module Decoder_tb
+# 
+# Top level modules:
+# 	Decoder_tb
+# End time: 18:41:25 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/KeyFilter.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:41:25 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Board/KeyFilter.sv 
+# -- Compiling module KeyFilter
+# 
+# Top level modules:
+# 	KeyFilter
+# End time: 18:41:26 on Aug 06,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/PC.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:41:26 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/PC.sv 
+# -- Compiling module PC
+# -- Compiling module PC_tb
+# 
+# Top level modules:
+# 	PC_tb
+# End time: 18:41:26 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/IR.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:41:26 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/IR.sv 
+# -- Compiling module IR
+# -- Compiling module IR_tb
+# 
+# Top level modules:
+# 	IR_tb
+# End time: 18:41:26 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/FSM.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:41:26 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 18:41:26 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/Control_Unit.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:41:26 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Control_Unit/Control_Unit.sv 
+# -- Compiling module Control_Unit
+# -- Compiling module Control_Unit_tb
+# 
+# Top level modules:
+# 	Control_Unit_tb
+# End time: 18:41:26 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Datapath/Datapath.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:41:27 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Datapath/Datapath.sv 
+# -- Compiling module RegFile
+# -- Compiling module ALU
+# -- Compiling module mux16w_2to1
+# -- Compiling module RAM
+# -- Compiling module Datapath
+# 
+# Top level modules:
+# 	Datapath
+# End time: 18:41:27 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Processor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 18:41:27 on Aug 06,2026
+# vlog -reportprogress 300 -sv -work work "+acc" ./Project/Processor.sv 
+# -- Compiling module Processor
+# -- Compiling module Processor_tb
+# 
+# Top level modules:
+# 	Processor_tb
+# End time: 18:41:27 on Aug 06,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# 
+# vsim -t 1ps \
+#     -L altera_ver \
+#     -L lpm_ver \
+#     -L sgate_ver \
+#     -L altera_mf_ver \
+#     -L altera_lnsim_ver \
+#     -L cyclonev_ver \
+#     -L work \
+#     -voptargs="+acc" \
+#     work.testProcessor
+# End time: 18:41:28 on Aug 06,2026, Elapsed time: 0:06:39
+# Errors: 0, Warnings: 0
+# vsim -t 1ps -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L cyclonev_ver -L work -voptargs=""+acc"" work.testProcessor 
+# Start time: 18:41:28 on Aug 06,2026
+# Loading sv_std.std
+# Loading work.testProcessor
+# Loading work.Processor
+# Loading work.Control_Unit
+# Loading work.FSM
+# Loading work.IR
+# Loading work.myROM
+# Loading altera_mf_ver.altsyncram
+# Loading work.Datapath
+# Loading work.RegFile
+# Loading work.ALU
+# Loading work.mux16w_2to1
+# Loading work.RAM
+# Loading work.myRAM
+# Loading altera_mf_ver.altsyncram_body
+# Loading altera_mf_ver.ALTERA_DEVICE_FAMILIES
+# Loading altera_mf_ver.ALTERA_MF_MEMORY_INITIALIZATION
+# 
+# do wave.do
+# onerror {resume}
+# quietly WaveActivateNextPane {} 0
+# add wave -noupdate /testProcessor/State
+# add wave -noupdate /testProcessor/NextState
+# add wave -noupdate /testProcessor/IR_Out
+# add wave -noupdate /testProcessor/PC_Out
+# add wave -noupdate /testProcessor/Clk
+# add wave -noupdate /testProcessor/ResetN
+# 
+# TreeUpdate [SetDefaultTree]
+# WaveRestoreCursors {{Cursor 1} {0 ps} 0}
+# quietly wave cursor active 0
+# configure wave -namecolwidth 150
+# configure wave -valuecolwidth 100
+# configure wave -justifyvalue left
+# configure wave -signalnamewidth 0
+# configure wave -snapdistance 10
+# configure wave -datasetprefix 0
+# configure wave -rowmargin 4
+# configure wave -childrowmargin 2
+# configure wave -gridoffset 0
+# configure wave -gridperiod 1
+# configure wave -griddelta 40
+# configure wave -timeline 0
+# configure wave -timelineunits ps
+# update
+# WaveRestoreZoom {0 ps} {1 ns}
+# 
+# run -all
+# 
+# Begin Simulation.
+# Time is 0 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = x  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 10000 : ResetN = 0   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 40000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 9  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 50000 : ResetN = 1   PC_Out = xxxx   IR_Out = xxxx  State = 0  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000
+# Time is 70000 : ResetN = 1   PC_Out = 0000   IR_Out = xxxx  State = 0  ALU A = xxxx  ALU B = xxxx ALU Out = xxxx  RA Address = 0000

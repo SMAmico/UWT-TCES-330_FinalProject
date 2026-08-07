@@ -1,0 +1,24 @@
+WIDTH=16;
+DEPTH=65536;
+
+ADDRESS_RADIX=HEX;
+DATA_RADIX=HEX;
+
+CONTENT BEGIN
+    00 : 8000;
+    01 : 3123;
+    02 : D345;
+    03 : B124;
+    04 : 3556;
+    05 : 8F56;
+    06 : CFF1;
+    07 : 455F;
+    08 : C578;
+    09 : A570;
+    0A : A57F;
+    0B : 9001;
+    0C : 5000;
+    0D : 5000;
+
+    [0E..FFFF] : 0000;
+END;

@@ -13,7 +13,7 @@ module Control_Unit(
     /*
     PC_in is the live program counter value read from register 16 in the datapath register file.
     */
-    input [7:0] PC_in,
+    input [15:0] PC_in,
 
     // Live register-file B-port read value from datapath (selected by RF_Rb_addr).
     input [15:0] RF_Rb_data_in,
@@ -46,14 +46,14 @@ module Control_Unit(
     output PC_clr_out,
     output PC_up_out,
     output PC_w_en_out,
-    output [7:0] PC_set_out,
+    output [15:0] PC_set_out,
     
     /*
     Debug outputs passed up to Processor.sv. The provided processor testbench expects the 
     processor to expose the instruction register, program counter, current state, and next state.
     */
     output [15:0] IR_Out,
-    output [7:0] PC_Out,
+    output [15:0] PC_Out,
     output [3:0] StateOut,
     output [3:0] NextStateOut
 );
@@ -61,7 +61,7 @@ module Control_Unit(
     wire PC_clr;
     wire PC_up;
     wire PC_w_en;
-    wire [7:0] PC_set;
+    wire [15:0] PC_set;
 	    
     /*
     Internal instruction-register control and data wires. IR_in is the raw instruction coming from 
@@ -72,7 +72,7 @@ module Control_Unit(
     wire [15:0] IR_data;
 
     // PC is read from the datapath register file (register 16).
-    wire [7:0] PC;
+    wire [15:0] PC;
 
     assign PC = PC_in;
     assign PC_Out = PC;
@@ -144,7 +144,7 @@ module Control_Unit(
     counter are used as the ROM address.
     */
     myROM rom0(
-        .address(PC[6:0]),
+        .address(PC[15:0]),
 		.clock(Clk),
         .q(IR_in)
     );
@@ -157,7 +157,7 @@ module Control_Unit_tb();
 
     logic Clk;
     logic rst;
-    logic [7:0] PC_in;
+    logic [15:0] PC_in;
     logic [15:0] RF_Rb_data_in;
 
     logic Alu_Z;
@@ -182,10 +182,10 @@ module Control_Unit_tb();
     logic PC_clr_out;
     logic PC_up_out;
     logic PC_w_en_out;
-    logic [7:0] PC_set_out;
+    logic [15:0] PC_set_out;
 
     logic [15:0] IR_Out;
-    logic [7:0] PC_Out;
+    logic [15:0] PC_Out;
     logic [3:0] StateOut;
     logic [3:0] NextStateOut;
 
@@ -244,11 +244,11 @@ module Control_Unit_tb();
     // Minimal PC model for this standalone testbench. It mirrors the old PC module behavior.
     always_ff @(posedge Clk) begin
         if (PC_clr_out)
-            PC_in <= 8'h00;
+            PC_in <= 16'h00;
         else if (PC_w_en_out)
             PC_in <= PC_set_out;
         else if (PC_up_out)
-            PC_in <= PC_in + 8'h01;
+            PC_in <= PC_in + 16'h01;
     end
 
     /*
@@ -298,7 +298,7 @@ module Control_Unit_tb();
 
         passes = 0;
         failures = 0;
-        PC_in = 8'h00;
+        //PC_in = 8'h00;
         RF_Rb_data_in = 16'h0000;
 
         /*
@@ -344,7 +344,7 @@ module Control_Unit_tb();
 	instruction and remained in the HALT state. The PC should be sitting at 09 because FETCH
 	increments the PC after reading the HALT instruction at ROM address 08.
         */
-        check_value("final PC_Out", PC_Out, 8'h09);
+        check_value("final PC_Out", PC_Out, 16'h09);
         check_value("final IR_Out should be HALT instruction", IR_Out, 16'h5000);
         check_value("final StateOut should be S_HLT", StateOut, S_HLT);
         check_value("final D_wr should be inactive", D_wr, 1'b0);

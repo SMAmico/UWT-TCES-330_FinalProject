@@ -1,6 +1,6 @@
 // TCES 330, Spring 2026
 // Testbench  for the programmable processor
-// Provided for by Prof Sheng, UW Tacoma
+// Provided by Prof Sheng, UW Tacoma
 
 `timescale 1 ns / 1 ps
 module testProcessor;
@@ -8,7 +8,7 @@ module testProcessor;
   logic Clk;             // system clock
   logic ResetN;           // system ResetN
   logic [15:0] IR_Out;   // instruction register
-  logic [6:0] PC_Out;    // program counter
+  logic [15:0] PC_Out;    // program counter
   logic [3:0] State, NextState;        // state machine state, next state
   logic [15:0] ALU_A, ALU_B, ALU_Out;  // ALU inputs and output 
  

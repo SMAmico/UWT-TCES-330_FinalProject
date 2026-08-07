@@ -1,17 +1,18 @@
 ; Sample assembly for assembler-EX_ISA
-; Demonstrates register ALU ops, MULT, and control flow.
+; Simple check program for .mif init
 
 START:
     NOP
-    ADD R1, R2, R3    ; R3 = R1 + R2
-    MULT R3, R4, R5   ; R5 = R3 * R4
-    JLT R1, R2, SKIP  ; branch forward if R1 < R2
-    XOR R5, R5, R6    ; execute when no branch
-SKIP:
-    SHL R5, R7, R8    ; R8 = R5 << R7
-    JNZ R5, R7        ; if R5 != 0, jump to address in R7 (offset defaults to 0)
-    JNZ R5, R7, -1    ; optional signed 4-bit offset form
-    JMP DONE
+    MOVI    R1, 0x0001      ; R1 = 1
+    MOVI    R2, 0x0002      ; R2 = 2
+    ADD     R3, R1, R2      ; R3 = R1 + R2
+    JLT     R3, R2, LESS    ;
+    JMP ERROR               ;
+LESS:
+    MOVI    R4, 0xFFFF      ; R4 = -1 to show we finished the program correctly
+    STR     R4, 0x0000      ; store R4 to 0x0000
     HLT
-DONE:
+ERROR:
+    MOVI    R4, 0x0000      ; R4 = 0 to show we finished the program incorrectly
+    STR     R4, 0x0000      ; Store R4 to memory address 0x0000
     HLT

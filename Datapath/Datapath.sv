@@ -20,7 +20,7 @@ module RegFile (
     input PC_clr,
     input PC_up,
     input PC_w_en,
-    input [7:0] PC_set,
+    input [15:0] PC_set,
 
     input [3:0] wrAddr,
     input [15:0] wrData,
@@ -37,7 +37,7 @@ module RegFile (
     input [3:0] DDataReg,
     output [15:0] DDataDat,
 
-    output [7:0] PC_out
+    output [15:0] PC_out
 );
 
     logic [15:0] regfile [0:15];
@@ -51,7 +51,7 @@ module RegFile (
     */
     assign rdDataA = regfile[rdAddrA];
     assign rdDataB = regfile[rdAddrB];
-    assign PC_out  = regfile[4'hF][7:0];
+    assign PC_out  = regfile[4'hF][15:0];
 
     /*
     The memory is accessed by reading the register at DAddrReg and sending it to DAddrDat
@@ -78,7 +78,7 @@ module RegFile (
         if (PC_clr)
             regfile[4'hF] <= 16'h0000;
         else if (PC_w_en)
-            regfile[4'hF] <= {8'h00, PC_set};
+            regfile[4'hF] <= PC_set;
         else if (PC_up)
             regfile[4'hF] <= regfile[4'hF] + 16'h0001;
         else if (write)
@@ -200,7 +200,7 @@ endmodule
 
 
 module RAM (
-    input [7:0] D_Addr,
+    input [15:0] D_Addr,
     input D_wr,
     input Clk,
     input [15:0] W_data,
@@ -239,7 +239,7 @@ module Datapath (
     input PC_clr,
     input PC_up,
     input PC_w_en,
-    input [7:0] PC_set,
+    input [15:0] PC_set,
 
     /*
     change: the datapath block now has a D_wr line to allow the control module to tell the
@@ -264,7 +264,7 @@ module Datapath (
     output [15:0] ALU_B,
     output [15:0] ALU_Out,
 
-    output [7:0] PC_Out,
+    output [15:0] PC_Out,
 
     output Alu_Z,
     output Alu_N,
@@ -288,7 +288,7 @@ module Datapath (
     wire [15:0] W_data;
     wire [15:0] D_Addr;
     wire [15:0] D_Data;
-    wire [7:0] PC_reg;
+    wire [15:0] PC_reg;
 
     assign ALU_A   = Ra_data;
     assign ALU_B   = Rb_data;

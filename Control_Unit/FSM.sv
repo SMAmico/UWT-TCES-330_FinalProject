@@ -11,12 +11,12 @@ module FSM(
     input Clk,                         // system clock
     input ResetN,                      // synchronous reset low for the FSM state register
 
-    input [7:0] PC,                    // current PC value, used for PC-relative JLT
+    input [15:0] PC,                    // current PC value, used for PC-relative JLT
 
     output logic PC_clr,               // clears the program counter during INIT
     output logic PC_up,                // increments the program counter during FETCH
     output logic PC_w_en,              // enables loading PC_set into the PC for jump instructions
-    output logic [7:0] PC_set,         // value loaded into the PC during jump instructions
+    output logic [15:0] PC_set,         // value loaded into the PC during jump instructions
 
     input [15:0] IR_data,              // current instruction stored in the instruction register
     output logic IR_ld,                // loads the instruction register during FETCH
@@ -130,16 +130,23 @@ module FSM(
     JMP uses a signed 12-bit PC-relative offset and wraps to 8-bit PC space.
     JNZ and JLT use signed 4-bit offsets.
     */
-    logic signed [12:0] JMP_offset;
-    logic [12:0] JMP_target;
+    logic signed [15:0] JMP_offset;
+    logic [15:0] JMP_target;
     logic signed [7:0] JNZ_offset;
     logic [7:0] JLT_offset;
     logic JNZ_not_zero;
 
+	/*
+	JMP_offset takes the immediate offset data from the IR and sign-extends it out to the PC width.
+	
+	JMP_target sums the PC as a signed value and the signed jump offset, then converts both back to unsigned values.
+	
+	JNZ_offset and JLT offset both sign extend the immediate offset information in the IR out to the PC length.
+	*/
     assign JMP_offset = {{1{IR_data[11]}}, IR_data[11:0]};
-    assign JMP_target = $unsigned($signed({5'b0, PC}) + JMP_offset);
-    assign JNZ_offset = {{4{IR_data[3]}}, IR_data[3:0]};
-    assign JLT_offset = {{4{IR_data[3]}}, IR_data[3:0]};
+    assign JMP_target = $unsigned($signed(PC) + JMP_offset);
+    assign JNZ_offset = {{12{IR_data[3]}}, IR_data[3:0]};
+    assign JLT_offset = {{12{IR_data[3]}}, IR_data[3:0]};
 
     assign StateOut = State;
     assign NextStateOut = NextState;
@@ -153,7 +160,7 @@ module FSM(
         PC_clr     = 1'b0;
         PC_up      = 1'b0;
         PC_w_en    = 1'b0;
-        PC_set     = 8'b0;
+        PC_set     = 16'b0;
 
         IR_ld      = 1'b0;
 
@@ -291,7 +298,7 @@ module FSM(
 
             // JMP instruction: 1001 bbbb bbbb bbbb. PC-relative jump by signed 12-bit offset.
             S_JMP: begin
-                PC_set     = JMP_target[7:0];
+                PC_set     = JMP_target;
                 PC_w_en    = 1'b1;
 
                 NextState  = S_FETCH;
@@ -318,7 +325,7 @@ module FSM(
                 RF_Rb_addr = IR_data[7:4];
 
                 if (JNZ_not_zero) begin
-                    PC_set  = RF_Rb_data[7:0] + JNZ_offset;
+                    PC_set  = RF_Rb_data[15:0] + JNZ_offset;
                     PC_w_en = 1'b1;
                 end
 
