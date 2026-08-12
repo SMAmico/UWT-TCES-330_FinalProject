@@ -682,12 +682,12 @@ int main(int argc, char** argv) {
                     // first, load upper half into tmp
                     push_word((ins_movi<<12) | (TMP<<8) | (upper & 0xFF));
                     // then, shift tmp left by 8 bits
-                    push_word((ins_shl<<12) | (TMP<<8) | (TMP<<4) | 0x1);
+                    push_word((ins_shl<<12) | (TMP<<8) | (TMP<<4) | 0x8);
                     // then, load lower half into tmp
                     push_word((ins_movi<<12) | (TMP<<8) | (lower & 0xFF));
                     addr += 3;
-                    // finally, OR tmp into the target register
-                    instr = (ins_or<<12) | (r<<8) | (TMP<<4) | r;
+                    // finally, AND tmp into the target register
+                    instr = (ins_and<<12) | (r<<8) | (TMP<<4) | (0xF & TMP);
                 } else {
                     // simple case: just OR the immediate into the lower half of the register
                     instr = (ins_movi<<12) | (r<<8) | (a & 0xFF);
@@ -702,7 +702,7 @@ int main(int argc, char** argv) {
                 int ra=parse_reg(tokens[1]);
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
-                instr = (ins_add<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = (ins_add<<12) | (rb<<8) | (rc<<4) | ra;
 
 
             //SUB: subtract two registers into a third

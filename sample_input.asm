@@ -10,9 +10,9 @@ START:
     JMP ERROR               ;
 LESS:
     MOVI    R4, 0xFFFF      ; R4 = -1 to show we finished the program correctly
-    STR     R4, 0x0000      ; store R4 to 0x0000
+    STR     R4, R0      ; store R4 to 0x0000
     HLT
 ERROR:
-    MOVI    R4, 0x0000      ; R4 = 0 to show we finished the program incorrectly
-    STR     R4, 0x0000      ; Store R4 to memory address 0x0000
+    MOVI    R4, 0x0001      ; R4 = 1 to show we finished the program incorrectly
+    STR     R4, R0      ; Store R4 to memory address 0x0000
     HLT

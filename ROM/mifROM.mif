@@ -12,13 +12,13 @@ CONTENT BEGIN
     04 : B321; -- JLT     R3, R2, LESS
     05 : 9006; -- JMP ERROR
     06 : 6EFF; -- MOVI    R4, 0xFFFF
-    07 : CEE1; -- MOVI    R4, 0xFFFF
+    07 : CEE8; -- MOVI    R4, 0xFFFF
     08 : 6EFF; -- MOVI    R4, 0xFFFF
-    09 : 74E4; -- MOVI    R4, 0xFFFF
-    0A : 1400; -- STR     R4, 0x0000
+    09 : 84EE; -- MOVI    R4, 0xFFFF
+    0A : 1400; -- STR     R4, R0
     0B : 5000; -- HLT
-    0C : 6400; -- MOVI    R4, 0x0000
-    0D : 1400; -- STR     R4, 0x0000
+    0C : 6401; -- MOVI    R4, 0x0001
+    0D : 1400; -- STR     R4, R0
     0E : 5000; -- HLT
 
     [0F..FFFF] : 0000;

@@ -40,7 +40,7 @@ module RegFile (
     output [15:0] PC_out
 );
 
-    logic [15:0] regfile [0:15];
+    logic [15:0] regfile [0:15] = '{default:16'h0000};
 
     /*
     The register file has two combinational read ports. When rdAddrA or rdAddrB changes, the selected
