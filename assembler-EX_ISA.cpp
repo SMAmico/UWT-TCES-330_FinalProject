@@ -107,6 +107,11 @@
 #include <vector>
 using namespace std;
 
+// The FSM encodes ALU operations as source A, source B, destination.
+static uint16_t encode_alu(int opcode, int source_a, int source_b, int destination) {
+    return (uint16_t)((opcode << 12) | (source_a << 8) | (source_b << 4) | destination);
+}
+
 //function cleans each line so its just the instruction
 static inline string trim(const string &s) {
 
@@ -310,7 +315,7 @@ static int estimate_instr_words(const vector<string> &tokens,
                                 const unordered_map<string,int> &data_labels) {
     if (tokens.empty()) return 0;
     string op = upper_copy(tokens[0]);
-    if (op == "XOR") return 4;
+    if (op == "XOR") return 5;
     if (op == "MOVI" && tokens.size() >= 3) {
         int value = 0;
         bool known = false;
@@ -702,7 +707,7 @@ int main(int argc, char** argv) {
                 int ra=parse_reg(tokens[1]);
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
-                instr = (ins_add<<12) | (rb<<8) | (rc<<4) | ra;
+                instr = encode_alu(ins_add, rb, rc, ra);
 
 
             //SUB: subtract two registers into a third
@@ -713,12 +718,22 @@ int main(int argc, char** argv) {
                 int ra=parse_reg(tokens[1]);
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
-                instr = (ins_sub<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = encode_alu(ins_sub, rb, rc, ra);
 
 
             //HLT: stop the processor
             } else if (op=="HLT" || op=="HALT") {
                 instr = (ins_hlt<<12);
+
+
+            //MOV: copy the source register into the destination via AND.
+            } else if (op=="MOV") {
+
+                if (tokens.size()<3) throw runtime_error("MOV expects DEST,SOURCE");
+
+                int destination = parse_reg(tokens[1]);
+                int source = parse_reg(tokens[2]);
+                instr = encode_alu(ins_and, source, source, destination);
 
 
             //XOR: perform exclusive OR operation on two registers into a third
@@ -730,12 +745,14 @@ int main(int argc, char** argv) {
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
 
-                //pseudoinstruction for XOR
-                push_word((ins_add<<12) | (ra << 8) | (rb << 4) | rc);
-                push_word((ins_and<<12) | (0xF<<8) | (rb << 4) | rc);
-                push_word((ins_shl<<12) | (0xF<<8) | (0xF<<4) | 0x1);
-                addr += 3;
-                instr = (ins_sub<<12) | (ra<<8) | (ra << 4) | 0xF;
+                // XOR = (A + B) - 2 * (A & B).
+                // TMP holds the intersection; the destination holds the shift count temporarily.
+                push_word(encode_alu(ins_and, ra, rb, TMP));
+                push_word((ins_movi<<12) | (rc<<8) | 0x01);
+                push_word(encode_alu(ins_shl, TMP, rc, TMP));
+                push_word(encode_alu(ins_add, ra, rb, rc));
+                addr += 4;
+                instr = encode_alu(ins_sub, rc, TMP, rc);
 
 
             //OR: perform OR operation on two registers into a third
@@ -746,7 +763,7 @@ int main(int argc, char** argv) {
                 int ra=parse_reg(tokens[1]);
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
-                instr = (ins_or<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = encode_alu(ins_or, rb, rc, ra);
 
 
             //AND: perform AND operation on two registers into a third
@@ -758,7 +775,7 @@ int main(int argc, char** argv) {
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
 
-                instr = (ins_and<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = encode_alu(ins_and, rb, rc, ra);
 
 
             //JMP: signed PC-relative jump using 12-bit immediate/label offset
@@ -783,7 +800,7 @@ int main(int argc, char** argv) {
                         int reg = parse_reg(tokens[1]);
                         // Pseudo-jump via ALU writeback format: RF[rc] = RF[ra] & RF[rb].
                         // Set ra=reg, rb=reg, rc=PC so PC receives reg's value.
-                        instr = (ins_and<<12) | (reg<<8) | (reg<<4) | PC;
+                        instr = encode_alu(ins_and, reg, reg, PC);
                     }
                 }
 
@@ -830,7 +847,7 @@ int main(int argc, char** argv) {
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
 
-                instr = (ins_shl<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = encode_alu(ins_shl, rb, rc, ra);
 
             // SHR: shifts ra right by b into rc
             } else if (op=="SHR") {
@@ -840,7 +857,7 @@ int main(int argc, char** argv) {
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
 
-                instr = (ins_shr<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = encode_alu(ins_shr, rb, rc, ra);
 
             //MULT: the heaviest ALU operation. multiplies two registers and puts result into a third register.
             } else if (op=="MULT") {
@@ -848,7 +865,7 @@ int main(int argc, char** argv) {
                 if (tokens.size()<4) throw runtime_error("MULT expects RA,RB,RC");
 
                 int ra=parse_reg(tokens[1]); int rb=parse_reg(tokens[2]); int rc=parse_reg(tokens[3]);
-                instr = (ins_mult<<12) | (ra<<8) | (rb<<4) | rc;
+                instr = encode_alu(ins_mult, rb, rc, ra);
             } else {
                 throw runtime_error(string("Unknown opcode: ")+op);
             }
