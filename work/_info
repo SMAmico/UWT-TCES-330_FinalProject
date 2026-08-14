@@ -11,7 +11,7 @@ cModel Technology
 Z0 dD:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject
 vALU
 Z1 DXx6 sv_std 3 std 0 22 VYECXdT12H8WgbUP_5Y6:3
-Z2 !s110 1786672110
+Z2 !s110 1786674619
 !i10b 1
 !s100 iJcEQkDfCYB9B3ochg8EB0
 Z3 !s11b Dg1SIo80bB@j0V0VzS_@n1
@@ -28,7 +28,7 @@ Z8 OV;L;2020.1;71
 r1
 !s85 0
 31
-Z9 !s108 1786672110.000000
+Z9 !s108 1786674619.000000
 Z10 !s107 ./Datapath/Datapath.sv|
 Z11 !s90 -reportprogress|300|-sv|-work|work|+acc|./Datapath/Datapath.sv|
 !i113 1
@@ -115,7 +115,7 @@ R13
 n@datapath
 vDecoder
 R1
-Z19 !s110 1786672109
+Z19 !s110 1786674618
 !i10b 1
 !s100 BKfZ9Ke@7m4O`b:V`bHIK3
 R3
@@ -132,7 +132,7 @@ R8
 r1
 !s85 0
 31
-Z23 !s108 1786672109.000000
+Z23 !s108 1786674618.000000
 Z24 !s107 ./Board/Decoder.sv|
 Z25 !s90 -reportprogress|300|-sv|-work|work|+acc|./Board/Decoder.sv|
 !i113 1
@@ -175,7 +175,7 @@ IdBRlbb[`J3kPBfYV`>WEX0
 R4
 S1
 R0
-w1786671830
+w1786673814
 8./Control_Unit/FSM.sv
 F./Control_Unit/FSM.sv
 !i122 7
@@ -210,7 +210,7 @@ R8
 r1
 !s85 0
 31
-R23
+R9
 Z28 !s107 ./Control_Unit/IR.sv|
 Z29 !s90 -reportprogress|300|-sv|-work|work|+acc|./Control_Unit/IR.sv|
 !i113 1
@@ -236,7 +236,7 @@ R8
 r1
 !s85 0
 31
-R23
+R9
 R28
 R29
 !i113 1
@@ -245,7 +245,7 @@ R13
 n@i@r_tb
 vKeyFilter
 R1
-R19
+R2
 !i10b 1
 !s100 WzeBAD6>m;cTXcJYF[=mR2
 R3
@@ -374,7 +374,7 @@ R13
 nmy@r@o@m
 vProcessor
 R1
-R2
+Z35 !s110 1786674620
 !i10b 1
 !s100 l3fMV@K94bG3MVOLRZ5=G1
 R3
@@ -382,9 +382,9 @@ Ij=R?hYLh4XD;Rf@`VTIE<2
 R4
 S1
 R0
-Z35 w1786666946
-Z36 8./Project/Processor.sv
-Z37 F./Project/Processor.sv
+Z36 w1786666946
+Z37 8./Project/Processor.sv
+Z38 F./Project/Processor.sv
 !i122 10
 L0 10 133
 R8
@@ -393,14 +393,14 @@ r1
 31
 R9
 !s107 ./Project/Processor.sv|
-Z38 !s90 -reportprogress|300|-sv|-work|work|+acc|./Project/Processor.sv|
+Z39 !s90 -reportprogress|300|-sv|-work|work|+acc|./Project/Processor.sv|
 !i113 1
 R12
 R13
 n@processor
 vProcessor_tb
 R1
-R2
+R35
 !i10b 1
 !s100 F@lS7^=mh_F7WCK46H1H03
 R3
@@ -408,9 +408,9 @@ IiFjF5i@4T=QnNQ_G;697W2
 R4
 S1
 R0
-R35
 R36
 R37
+R38
 !i122 10
 L0 144 142
 R8
@@ -418,8 +418,8 @@ r1
 !s85 0
 31
 R9
-Z39 !s107 ./Project/Processor.sv|
-R38
+Z40 !s107 ./Project/Processor.sv|
+R39
 !i113 1
 R12
 R13
@@ -443,7 +443,7 @@ R8
 r1
 !s85 0
 31
-Z40 !s108 1786672108.000000
+Z41 !s108 1786674617.000000
 !s107 ./Project/Project.sv|
 !s90 -reportprogress|300|-sv|-work|work|+acc|./Project/Project.sv|
 !i113 1
@@ -530,7 +530,7 @@ R13
 n@r@o@m@address@mux
 vtestProcessor
 R1
-!s110 1786672108
+!s110 1786674617
 !i10b 1
 !s100 `^PaS2F@PMbeCC9YOXdz?1
 R3
@@ -547,7 +547,7 @@ R8
 r1
 !s85 0
 31
-R40
+R41
 !s107 ./Project/testProcessor.sv|
 !s90 -reportprogress|300|-sv|-work|work|+acc|./Project/testProcessor.sv|
 !i113 1

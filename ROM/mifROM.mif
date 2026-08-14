@@ -15,7 +15,7 @@ CONTENT BEGIN
     07 : 6EFF; -- MOVI    R4, 0xFFFF
     08 : CE8E; -- MOVI    R4, 0xFFFF
     09 : 6EFF; -- MOVI    R4, 0xFFFF
-    0A : 34EE; -- MOVI    R4, 0xFFFF
+    0A : 8EE4; -- MOVI    R4, 0xFFFF
     0B : 1400; -- STR     R4, R0
     0C : 8000; -- NOP
     0D : 8000; -- NOP

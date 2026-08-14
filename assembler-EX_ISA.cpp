@@ -691,8 +691,8 @@ int main(int argc, char** argv) {
                     // then, load lower half into tmp
                     push_word((ins_movi<<12) | (TMP<<8) | (lower & 0xFF));
                     addr += 3;
-                    // finally, AND tmp into the target register
-                    instr = (ins_add<<12) | (r<<8) | (TMP<<4) | (0xF & TMP);
+                    // finally, copy the completed value from tmp into the target register
+                    instr = encode_alu(ins_and, TMP, TMP, r);
                 } else {
                     // simple case: just OR the immediate into the lower half of the register
                     instr = (ins_movi<<12) | (r<<8) | (a & 0xFF);
