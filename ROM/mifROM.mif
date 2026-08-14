@@ -8,18 +8,23 @@ CONTENT BEGIN
     00 : 8000; -- NOP
     01 : 6101; -- MOVI    R1, 0x0001
     02 : 6202; -- MOVI    R2, 0x0002
-    03 : 3312; -- ADD     R3, R1, R2
-    04 : B321; -- JLT     R3, R2, LESS
-    05 : 9006; -- JMP ERROR
-    06 : 6EFF; -- MOVI    R4, 0xFFFF
-    07 : CEE8; -- MOVI    R4, 0xFFFF
-    08 : 6EFF; -- MOVI    R4, 0xFFFF
-    09 : 84EE; -- MOVI    R4, 0xFFFF
-    0A : 1400; -- STR     R4, R0
-    0B : 5000; -- HLT
-    0C : 6401; -- MOVI    R4, 0x0001
-    0D : 1400; -- STR     R4, R0
+    03 : 3123; -- ADD     R3, R1, R2
+    04 : B232; -- JLT     R2, R3, LESS
+    05 : B321; -- JLT     R3, R2, LESS
+    06 : 5000; -- HLT
+    07 : 6EFF; -- MOVI    R4, 0xFFFF
+    08 : CE8E; -- MOVI    R4, 0xFFFF
+    09 : 6EFF; -- MOVI    R4, 0xFFFF
+    0A : 34EE; -- MOVI    R4, 0xFFFF
+    0B : 1400; -- STR     R4, R0
+    0C : 8000; -- NOP
+    0D : 8000; -- NOP
     0E : 5000; -- HLT
+    0F : 6401; -- MOVI    R4, 0x0001
+    10 : 1400; -- STR     R4, R0
+    11 : 8000; -- NOP
+    12 : 8000; -- NOP
+    13 : 5000; -- HLT
 
-    [0F..FFFF] : 0000;
+    [14..FFFF] : 0000;
 END;

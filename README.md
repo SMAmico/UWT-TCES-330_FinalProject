@@ -26,16 +26,13 @@ Processor.sv
 Top-level processor module. It connects the Control Unit and Datapath together.
 
 Control_Unit.sv  
-Contains the program counter, instruction register, ROM interface, and FSM control logic.
+Contains the instruction register, ROM interface, and FSM control logic. The ROM is addressed directly by the PC register in the datapath register file.
 
 FSM.sv  
 Finite state machine that decodes instructions and generates control signals for the datapath.
 
 Datapath.sv  
-Contains the register file, ALU, RAM wrapper, mux logic, and datapath testbench.
-
-PC.sv  
-Program counter module. Supports clear, increment, and jump-load behavior.
+Contains the register file, including the dedicated PC register at R15, ALU, RAM wrapper, mux logic, and datapath testbench.
 
 IR.sv  
 Instruction register module. Loads a 16-bit instruction when IR_ld is active.

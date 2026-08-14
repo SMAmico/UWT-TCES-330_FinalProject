@@ -32,8 +32,8 @@ start:
     SUB R6, R5, R1
     OR R9, R1, R2
     AND R10, R1, R2
-    SHL R11, R1, R2
-    SHR R12, R2, R1
+    SHL R11, R1, 2
+    SHR R12, R2, 1
     MULT R13, R1, R2
     XOR R4, R1, R2
 

@@ -75,14 +75,14 @@ module FSM(
     */
     /*
     ALU operation select:
-        S = 000: Q = A >> B
+        S = 000: Q = A >> shift immediate
         S = 001: Q = A + B
         S = 010: Q = A - B
         S = 011: Q = A * B
         S = 100: Q = IMM[7:0] 
         S = 101: Q = A | B
         S = 110: Q = A & B
-        S = 111: Q = A << B
+        S = 111: Q = A << shift immediate
 
     Alu_Z is high when Q is zero.
     Alu_N is the sign bit of Q.
@@ -286,8 +286,16 @@ module FSM(
 								RF_Ra_addr = IR_data[11:8];
 								RF_W_addr  = IR_data[11:8];
                     end
-                    INS_SHL: Alu_s0 = ALU_SHL;
-                    INS_SHR: Alu_s0 = ALU_SHR;
+                    INS_SHL: begin
+                        Alu_s0 = ALU_SHL;
+                        RF_Rb_addr = 4'b0;
+                        MOVI_d = {4'b0, IR_data[7:4]};
+                    end
+                    INS_SHR: begin
+                        Alu_s0 = ALU_SHR;
+                        RF_Rb_addr = 4'b0;
+                        MOVI_d = {4'b0, IR_data[7:4]};
+                    end
                     INS_MULT:Alu_s0 = ALU_MULT;
                     default: Alu_s0 = ALU_ADD;
                 endcase
@@ -350,6 +358,10 @@ module FSM(
 			because FETCH incremented it before decode.
             */
             S_JLT_JUMP: begin
+                RF_Ra_addr = IR_data[11:8];
+                RF_Rb_addr = IR_data[7:4];
+                Alu_s0     = ALU_SUB;
+
                 if (Alu_N ^ Alu_V) begin
                     PC_set  = PC + JLT_offset;
                     PC_w_en = 1'b1;

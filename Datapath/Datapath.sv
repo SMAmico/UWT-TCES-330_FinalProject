@@ -103,14 +103,14 @@ module ALU (
 
     /*
     ALU operation select:
-        S = 000: Q = A >> B     (Don't ask why it's up here. You know it's from not wanting to
+        S = 000: Q = A >> shift immediate     (Don't ask why it's up here. You know it's from not wanting to
         S = 001: Q = A + B       realign everything in the ISA.)
         S = 010: Q = A - B
         S = 011: Q = A * B
         S = 100: Q = A ^ B
         S = 101: Q = A | B
         S = 110: Q = A & B
-        S = 111: Q = A << B
+        S = 111: Q = A << shift immediate
 
     Alu_Z is high when Q is zero.
     Alu_N is the sign bit of Q.
@@ -131,7 +131,7 @@ module ALU (
 
         case (S)
             ALU_SHR: begin
-                Q = A >> B;
+                Q = A >> MOVI_d[3:0];
                 Alu_V = 1'b0;
             end
 
@@ -165,7 +165,7 @@ module ALU (
             end
 
             ALU_SHL: begin
-                Q = A << B;
+                Q = A << MOVI_d[3:0];
                 Alu_V = 1'b0;
             end
 
@@ -288,12 +288,12 @@ module Datapath (
     wire [15:0] W_data;
     wire [15:0] D_Addr;
     wire [15:0] D_Data;
-    wire [15:0] PC_reg;
+    wire [15:0] RF_PC_out;
 
     assign ALU_A   = Ra_data;
     assign ALU_B   = Rb_data;
     assign ALU_Out = Q_Data;
-    assign PC_Out  = PC_reg;
+    assign PC_Out  = RF_PC_out;
 
     /*
     Register file instance.
@@ -322,7 +322,7 @@ module Datapath (
         .DAddrDat(D_Addr),
         .DDataReg(D_Data_reg),
         .DDataDat(D_Data),
-        .PC_out(PC_reg)
+        .PC_out(RF_PC_out)
     );
 
     /*

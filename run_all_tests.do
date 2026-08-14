@@ -17,7 +17,6 @@ vlog -sv -work work +acc ./myRAM.v
 vlog -sv -work work +acc ./myROM.v
 vlog -sv -work work +acc ./Decoder.sv
 vlog -sv -work work +acc ./KeyFilter.sv
-vlog -sv -work work +acc ./PC.sv
 vlog -sv -work work +acc ./IR.sv
 vlog -sv -work work +acc ./FSM.sv
 vlog -sv -work work +acc ./Control_Unit.sv

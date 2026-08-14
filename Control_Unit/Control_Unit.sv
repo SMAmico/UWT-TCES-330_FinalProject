@@ -11,9 +11,9 @@ module Control_Unit(
     input Rst,
 
     /*
-    PC_in is the live program counter value read from register 16 in the datapath register file.
+    RF_PC_out is the live program counter value read from register 16 in the datapath register file.
     */
-    input [15:0] PC_in,
+    input [15:0] RF_PC_out,
 
     // Live register-file B-port read value from datapath (selected by RF_Rb_addr).
     input [15:0] RF_Rb_data_in,
@@ -70,12 +70,9 @@ module Control_Unit(
     wire IR_ld;
     wire [15:0] IR_in;
     wire [15:0] IR_data;
+    wire [15:0] ROM_addr;
 
-    // PC is read from the datapath register file (register 16).
-    wire [15:0] PC;
-
-    assign PC = PC_in;
-    assign PC_Out = PC;
+    assign PC_Out = RF_PC_out;
     assign IR_Out = IR_data;
     assign PC_clr_out = PC_clr;
     assign PC_up_out = PC_up;
@@ -91,7 +88,7 @@ module Control_Unit(
         // FSM expects active-low ResetN, while Control_Unit input Rst is active-high.
         .ResetN(~Rst),
 
-        .PC(PC),
+        .PC(RF_PC_out),
         .PC_clr(PC_clr),
         .PC_up(PC_up),
         .PC_w_en(PC_w_en),
@@ -141,14 +138,37 @@ module Control_Unit(
     );
 		 
     /*
-    Instruction ROM. The instruction memory is 128 x 16, so only the lower 7 bits of the program 
-    counter are used as the ROM address.
+    During a PC write, the synchronous ROM samples the jump target directly. Otherwise it samples
+    the current PC register value, preserving the normal FETCH/increment timing.
     */
+    ROMAddressMux rom_address0(
+        .PC(RF_PC_out),
+        .Target(PC_set),
+        .PC_w_en(PC_w_en),
+        .Q(ROM_addr)
+    );
+
+    // Instruction ROM addressed by the register-file PC or the active jump target.
     myROM rom0(
-        .address(PC[15:0]),
+        .address(ROM_addr),
 		.clock(Clk),
         .q(IR_in)
     );
+
+endmodule
+
+module ROMAddressMux (
+    input [15:0] PC,
+    input [15:0] Target,
+    input PC_w_en,
+    output [15:0] Q
+    );
+
+    /*
+    PC_w_en selects the new jump target so the synchronous ROM can sample it on the PC update edge.
+    Normal FETCH cycles select the current register-file PC value.
+    */
+    assign Q = PC_w_en ? Target : PC;
 
 endmodule
 
@@ -158,7 +178,7 @@ module Control_Unit_tb();
 
     logic Clk;
     logic rst;
-    logic [15:0] PC_in;
+    logic [15:0] RF_PC_out;
     logic [15:0] RF_Rb_data_in;
 
     logic Alu_Z;
@@ -209,7 +229,7 @@ module Control_Unit_tb();
     Control_Unit dut(
         .Clk(Clk),
         .Rst(rst),
-        .PC_in(PC_in),
+        .RF_PC_out(RF_PC_out),
         .RF_Rb_data_in(RF_Rb_data_in),
 
         .Alu_Z(Alu_Z),
@@ -245,11 +265,11 @@ module Control_Unit_tb();
     // Minimal PC model for this standalone testbench. It mirrors the old PC module behavior.
     always_ff @(posedge Clk) begin
         if (PC_clr_out)
-            PC_in <= 16'h00;
+            RF_PC_out <= 16'h00;
         else if (PC_w_en_out)
-            PC_in <= PC_set_out;
+            RF_PC_out <= PC_set_out;
         else if (PC_up_out)
-            PC_in <= PC_in + 16'h01;
+            RF_PC_out <= RF_PC_out + 16'h01;
     end
 
     /*

@@ -49,11 +49,11 @@
       JLT rA, rB, offset (PC = PC + offset if rA < rB)
           -> 1011 raaa rbbb bbbb    (4-bit signed offset relative to next instr)
 
-      SHL rA, rB, rC   (rA = rB << rC)
-          -> 1100 raaa shft rccc     (added instructions for extra ALU ops)
+      SHL rA, rB, shft (rA = rB << shft)
+          -> 1100 raaa shft rccc     (shft is an unsigned 4-bit immediate)
       MULT rA, rB, rC  (rA = rB * rC)
           -> 1101 raaa rbbb rccc    
-      SHR rA, rB, rC   (rA = rB >> rC)
+      SHR rA, rB, shft (rA = rB >> shft)
           -> 0000 raaa shft rccc
 
       NOP                         
@@ -220,7 +220,7 @@ static void emit_load_imm(vector<uint16_t> &words,
         int lower = value & 0xFF;
         words.push_back((ins_movi<<12) | (TMP << 8) | (upper & 0xFF));
         if (comments) comments->push_back(comment);
-        words.push_back((ins_shl<<12) | (TMP << 8) | (TMP << 4) | 0x1);
+        words.push_back((ins_shl<<12) | (TMP << 8) | (0x8 << 4) | 0x1);
         if (comments) comments->push_back(comment);
         words.push_back((ins_movi<<12) | (TMP << 8) | (lower & 0xFF));
         if (comments) comments->push_back(comment);
@@ -687,12 +687,12 @@ int main(int argc, char** argv) {
                     // first, load upper half into tmp
                     push_word((ins_movi<<12) | (TMP<<8) | (upper & 0xFF));
                     // then, shift tmp left by 8 bits
-                    push_word((ins_shl<<12) | (TMP<<8) | (TMP<<4) | 0x8);
+                    push_word((ins_shl<<12) | (TMP<<8) | (0x8<<4) | TMP);
                     // then, load lower half into tmp
                     push_word((ins_movi<<12) | (TMP<<8) | (lower & 0xFF));
                     addr += 3;
                     // finally, AND tmp into the target register
-                    instr = (ins_and<<12) | (r<<8) | (TMP<<4) | (0xF & TMP);
+                    instr = (ins_add<<12) | (r<<8) | (TMP<<4) | (0xF & TMP);
                 } else {
                     // simple case: just OR the immediate into the lower half of the register
                     instr = (ins_movi<<12) | (r<<8) | (a & 0xFF);
@@ -749,7 +749,7 @@ int main(int argc, char** argv) {
                 // TMP holds the intersection; the destination holds the shift count temporarily.
                 push_word(encode_alu(ins_and, ra, rb, TMP));
                 push_word((ins_movi<<12) | (rc<<8) | 0x01);
-                push_word(encode_alu(ins_shl, TMP, rc, TMP));
+                push_word((ins_shl<<12) | (TMP<<8) | (0x1<<4) | TMP);
                 push_word(encode_alu(ins_add, ra, rb, rc));
                 addr += 4;
                 instr = encode_alu(ins_sub, rc, TMP, rc);
@@ -839,25 +839,27 @@ int main(int argc, char** argv) {
                 uint16_t ob = (uint16_t)(offset & 0xF);
                 instr = (ins_jlt<<12) | (ra<<8) | (rb<<4) | ob;
 
-            // SHL: shifts ra left by b into rc
+            // SHL: shifts rb left by a 4-bit immediate into ra
             } else if (op=="SHL") {
-                if (tokens.size()<4) throw runtime_error("SHL expects RA,RB,RC");
+                if (tokens.size()<4) throw runtime_error("SHL expects DEST,SOURCE,SHIFT");
 
                 int ra=parse_reg(tokens[1]);
                 int rb=parse_reg(tokens[2]);
-                int rc=parse_reg(tokens[3]);
+                int shift=parse_number(tokens[3]);
+                if (shift < 0 || shift > 15) throw runtime_error("SHL shift amount out of range (0..15)");
 
-                instr = encode_alu(ins_shl, rb, rc, ra);
+                instr = (ins_shl<<12) | (rb<<8) | (shift<<4) | ra;
 
-            // SHR: shifts ra right by b into rc
+            // SHR: shifts rb right by a 4-bit immediate into ra
             } else if (op=="SHR") {
-                if (tokens.size()<4) throw runtime_error("SHR expects RA,RB,RC");
+                if (tokens.size()<4) throw runtime_error("SHR expects DEST,SOURCE,SHIFT");
 
                 int ra=parse_reg(tokens[1]);
                 int rb=parse_reg(tokens[2]);
-                int rc=parse_reg(tokens[3]);
+                int shift=parse_number(tokens[3]);
+                if (shift < 0 || shift > 15) throw runtime_error("SHR shift amount out of range (0..15)");
 
-                instr = encode_alu(ins_shr, rb, rc, ra);
+                instr = (ins_shr<<12) | (rb<<8) | (shift<<4) | ra;
 
             //MULT: the heaviest ALU operation. multiplies two registers and puts result into a third register.
             } else if (op=="MULT") {

@@ -15,7 +15,6 @@ vlog -sv -work work +acc "./RAM/myRAM.v"
 vlog -sv -work work +acc "./ROM/myROM.v"
 vlog -sv -work work +acc "./Board/Decoder.sv"
 vlog -sv -work work +acc "./Board/KeyFilter.sv"
-vlog -sv -work work +acc "./Control_Unit/PC.sv"
 vlog -sv -work work +acc "./Control_Unit/IR.sv"
 vlog -sv -work work +acc "./Control_Unit/FSM.sv"
 vlog -sv -work work +acc "./Control_Unit/Control_Unit.sv"
@@ -58,3 +57,4 @@ add wave -noupdate -radix hexadecimal /testProcessor/DUT/datapath0/ram0/ram_lpm/
 update
 
 run -all
+exit
