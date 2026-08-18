@@ -1,0 +1,556 @@
+m255
+K4
+z2
+!s11f vlog 2020.1 2020.02, Feb 28 2020
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dD:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject.worktrees/verilog-test-all-instructions
+vALU
+Z1 DXx6 sv_std 3 std 0 22 VYECXdT12H8WgbUP_5Y6:3
+Z2 !s110 1787094992
+!i10b 1
+!s100 iJcEQkDfCYB9B3ochg8EB0
+Z3 !s11b Dg1SIo80bB@j0V0VzS_@n1
+I0?J`JWePF6I7@eH^`8>gi1
+Z4 VDg1SIo80bB@j0V0VzS_@n1
+S1
+R0
+Z5 w1787091373
+Z6 8./Datapath/Datapath.sv
+Z7 F./Datapath/Datapath.sv
+!i122 8
+L0 91 92
+Z8 OV;L;2020.1;71
+r1
+!s85 0
+31
+Z9 !s108 1787094992.000000
+Z10 !s107 ./Datapath/Datapath.sv|
+Z11 !s90 -sv|-work|work|+acc|./Datapath/Datapath.sv|
+!i113 1
+Z12 o-sv -work work +acc
+Z13 tCvgOpt 0
+n@a@l@u
+vControl_Unit
+R1
+R2
+!i10b 1
+!s100 En1zYUkEDn1G`0b@W]l>30
+R3
+I51=Y7BOhTh4KT3[MS=TZB2
+R4
+S1
+R0
+Z14 w1787091372
+Z15 8./Control_Unit/Control_Unit.sv
+Z16 F./Control_Unit/Control_Unit.sv
+!i122 7
+L0 9 150
+R8
+r1
+!s85 0
+31
+R9
+Z17 !s107 ./Control_Unit/Control_Unit.sv|
+Z18 !s90 -sv|-work|work|+acc|./Control_Unit/Control_Unit.sv|
+!i113 1
+R12
+R13
+n@control_@unit
+vControl_Unit_tb
+R1
+R2
+!i10b 1
+!s100 ^`e7:G69FlD0`CKZNH:]51
+R3
+If4=5l8zA9l:c>DPB1XgL;1
+R4
+S1
+R0
+R14
+R15
+R16
+!i122 7
+L0 177 213
+R8
+r1
+!s85 0
+31
+R9
+R17
+R18
+!i113 1
+R12
+R13
+n@control_@unit_tb
+vDatapath
+R1
+R2
+!i10b 1
+!s100 ES5_hC?Kog]Z_SP9jNQTP2
+R3
+Iz[dH@;Nd5mc1Hz7^7j=;o1
+R4
+S1
+R0
+R5
+R6
+R7
+!i122 8
+L0 233 143
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!i113 1
+R12
+R13
+n@datapath
+vDecoder
+R1
+Z19 !s110 1787094991
+!i10b 1
+!s100 BKfZ9Ke@7m4O`b:V`bHIK3
+R3
+ISQKk8[RRlMzQd]0RGAe832
+R4
+S1
+R0
+R14
+Z20 8./Board/Decoder.sv
+Z21 F./Board/Decoder.sv
+!i122 3
+L0 14 34
+R8
+r1
+!s85 0
+31
+Z22 !s108 1787094991.000000
+Z23 !s107 ./Board/Decoder.sv|
+Z24 !s90 -sv|-work|work|+acc|./Board/Decoder.sv|
+!i113 1
+R12
+R13
+n@decoder
+vDecoder_tb
+R1
+R19
+!i10b 1
+!s100 _?XW>z9Hb4A2JHMSh3dZ?0
+R3
+ITGQm;9YJho@b2cC5F84ND0
+R4
+S1
+R0
+R14
+R20
+R21
+!i122 3
+L0 49 80
+R8
+r1
+!s85 0
+31
+R22
+R23
+R24
+!i113 1
+R12
+R13
+n@decoder_tb
+vFSM
+R1
+R2
+!i10b 1
+!s100 NIG`RkM2Y<C`z7bb:RLMT1
+R3
+I7dbDgoXV`adZ;cYje2oo43
+R4
+S1
+R0
+w1787094079
+8./Control_Unit/FSM.sv
+F./Control_Unit/FSM.sv
+!i122 6
+L0 10 398
+R8
+r1
+!s85 0
+31
+R9
+!s107 ./Control_Unit/FSM.sv|
+!s90 -sv|-work|work|+acc|./Control_Unit/FSM.sv|
+!i113 1
+R12
+R13
+n@f@s@m
+vIR
+R1
+R2
+!i10b 1
+!s100 eQRPX<F]PoPDIXo5[=N^?3
+R3
+ILlm<RY:E@VM=1M9bNazio1
+R4
+S1
+R0
+R14
+Z25 8./Control_Unit/IR.sv
+Z26 F./Control_Unit/IR.sv
+!i122 5
+L0 10 19
+R8
+r1
+!s85 0
+31
+R22
+Z27 !s107 ./Control_Unit/IR.sv|
+Z28 !s90 -sv|-work|work|+acc|./Control_Unit/IR.sv|
+!i113 1
+R12
+R13
+n@i@r
+vIR_tb
+R1
+R2
+!i10b 1
+!s100 HZGj571Ib264nRHC:<7dl3
+R3
+IGlLd1J;]h4PGAQ6b50;^P3
+R4
+S1
+R0
+R14
+R25
+R26
+!i122 5
+L0 30 98
+R8
+r1
+!s85 0
+31
+R22
+R27
+R28
+!i113 1
+R12
+R13
+n@i@r_tb
+vKeyFilter
+R1
+R19
+!i10b 1
+!s100 WzeBAD6>m;cTXcJYF[=mR2
+R3
+IBIOM5JQ:FYzH`3R:Geg==3
+R4
+S1
+R0
+R14
+8./Board/KeyFilter.sv
+F./Board/KeyFilter.sv
+!i122 4
+L0 6 21
+R8
+r1
+!s85 0
+31
+R22
+!s107 ./Board/KeyFilter.sv|
+!s90 -sv|-work|work|+acc|./Board/KeyFilter.sv|
+!i113 1
+R12
+R13
+n@key@filter
+vmux16w_2to1
+R1
+R2
+!i10b 1
+!s100 0HTPHoY_7@l_>miBd6E[D3
+R3
+IRKK9Je7]z<Si8>U<7ic?`0
+R4
+S1
+R0
+R5
+R6
+R7
+!i122 8
+L0 185 15
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!i113 1
+R12
+R13
+vmyRAM
+R1
+R19
+!i10b 1
+!s100 jWE:=>=_DE^FBMFRoNHgQ2
+R3
+I6RgB<8EzS]>=`mmNckITW1
+R4
+S1
+R0
+R14
+Z29 8./RAM/myRAM.v
+Z30 F./RAM/myRAM.v
+!i122 1
+L0 40 66
+R8
+r1
+!s85 0
+31
+Z31 !s108 1787094990.000000
+Z32 !s107 ./RAM/myRAM.v|
+Z33 !s90 -sv|-work|work|+acc|./RAM/myRAM.v|
+!i113 1
+R12
+R13
+nmy@r@a@m
+vmyRAM_tb
+R1
+R19
+!i10b 1
+!s100 USmRS`;>]^8EaHe18A[iP0
+R3
+IdQCAbzUHa4AhNWo[EmmTl1
+R4
+S1
+R0
+R14
+R29
+R30
+!i122 1
+L0 179 120
+R8
+r1
+!s85 0
+31
+R31
+R32
+R33
+!i113 1
+R12
+R13
+nmy@r@a@m_tb
+vmyROM
+R1
+R19
+!i10b 1
+!s100 TA3@0gQTC1BOiK<gTS?Xn2
+R3
+I]ljS0G>IQ79EnI>8YGiaf0
+R4
+S1
+R0
+R5
+8./ROM/myROM.v
+F./ROM/myROM.v
+!i122 2
+L0 38 61
+R8
+r1
+!s85 0
+31
+R22
+!s107 ./ROM/myROM.v|
+!s90 -sv|-work|work|+acc|./ROM/myROM.v|
+!i113 1
+R12
+R13
+nmy@r@o@m
+vProcessor
+R1
+Z34 !s110 1787094993
+!i10b 1
+!s100 l3fMV@K94bG3MVOLRZ5=G1
+R3
+Ij=R?hYLh4XD;Rf@`VTIE<2
+R4
+S1
+R0
+R14
+Z35 8./Project/Processor.sv
+Z36 F./Project/Processor.sv
+!i122 9
+L0 10 133
+R8
+r1
+!s85 0
+31
+Z37 !s108 1787094993.000000
+Z38 !s107 ./Project/Processor.sv|
+Z39 !s90 -sv|-work|work|+acc|./Project/Processor.sv|
+!i113 1
+R12
+R13
+n@processor
+vProcessor_tb
+R1
+R34
+!i10b 1
+!s100 F@lS7^=mh_F7WCK46H1H03
+R3
+IiFjF5i@4T=QnNQ_G;697W2
+R4
+S1
+R0
+R14
+R35
+R36
+!i122 9
+L0 144 142
+R8
+r1
+!s85 0
+31
+R37
+R38
+R39
+!i113 1
+R12
+R13
+n@processor_tb
+vProject
+R1
+!s110 1787094990
+!i10b 1
+!s100 2z=5b5<f8L`;EZHiKCe>g3
+R3
+I;IEi94Dl4ZKC_d@<=16gi2
+R4
+S1
+R0
+R14
+8./Project/Project.sv
+F./Project/Project.sv
+!i122 0
+L0 9 139
+R8
+r1
+!s85 0
+31
+R31
+!s107 ./Project/Project.sv|
+!s90 -sv|-work|work|+acc|./Project/Project.sv|
+!i113 1
+R12
+R13
+n@project
+vRAM
+R1
+R2
+!i10b 1
+!s100 jkHRgVb22X;6WBSWSbYbI3
+R3
+I1aHR3i0?V_4Hh<`BOnUdB2
+R4
+S1
+R0
+R5
+R6
+R7
+!i122 8
+L0 202 29
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!i113 1
+R12
+R13
+n@r@a@m
+vRegFile
+R1
+R2
+!i10b 1
+!s100 mnPTm8@[^I142?`7_c^HG3
+R3
+IUR11S]nCTjK[_BAlXK7_D0
+R4
+S1
+R0
+R5
+R6
+R7
+!i122 8
+L0 16 73
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!i113 1
+R12
+R13
+n@reg@file
+vROMAddressMux
+R1
+R2
+!i10b 1
+!s100 ;cl_]4o?Zj;H?a`_NJNnE0
+R3
+I8^b4U[JSjbRl`bh6_D1FR3
+R4
+S1
+R0
+R14
+R15
+R16
+!i122 7
+L0 160 14
+R8
+r1
+!s85 0
+31
+R9
+R17
+R18
+!i113 1
+R12
+R13
+n@r@o@m@address@mux
+vtestProcessor
+R1
+R34
+!i10b 1
+!s100 `^PaS2F@PMbeCC9YOXdz?1
+R3
+IV4EXecG]__8dRL9no:mjM2
+R4
+S1
+R0
+R14
+8./Project/testProcessor.sv
+F./Project/testProcessor.sv
+!i122 10
+L0 6 37
+R8
+r1
+!s85 0
+31
+R37
+!s107 ./Project/testProcessor.sv|
+!s90 -sv|-work|work|+acc|./Project/testProcessor.sv|
+!i113 1
+R12
+R13
+ntest@processor

@@ -37,14 +37,12 @@ start:
     MULT R13, R1, R2
     XOR R4, R1, R2
 
-    JNZ branch_target, R1
-    NOP
-branch_target:
-    JLT R1, R2, branch_fallthrough
-    NOP
-branch_fallthrough:
-    JMP done
-done:
+    MOVI R1, 1
+    JNZ R1, R0, 2
+    HLT
+    MOVI R1, 0
+    MOVI R2, 1
+    JLT R1, R2, 1
     HLT
 
 .data

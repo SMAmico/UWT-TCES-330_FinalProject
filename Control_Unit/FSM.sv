@@ -333,7 +333,7 @@ module FSM(
                 RF_Rb_addr = IR_data[7:4];
 
                 if (JNZ_not_zero) begin
-                    PC_set  = RF_Rb_data[15:0] + JNZ_offset;
+                    PC_set  = PC + JNZ_offset;
                     PC_w_en = 1'b1;
                 end
 

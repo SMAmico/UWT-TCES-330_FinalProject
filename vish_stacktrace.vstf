@@ -13,3 +13,6 @@ Exception c0000005 has occurred at address 66da9e6f. Traceback:
 StackWalk failed 299
 # End of Stack Trace
 
+# transcript error: error writing "stdout": broken pipe
+    while executing
+"puts -nonewline stdout $s"
