@@ -6,25 +6,46 @@ DATA_RADIX=HEX;
 
 CONTENT BEGIN
     00 : 8000; -- NOP
-    01 : 6101; -- MOVI    R1, 0x0001
-    02 : 6202; -- MOVI    R2, 0x0002
-    03 : 3123; -- ADD     R3, R1, R2
-    04 : B232; -- JLT     R2, R3, LESS
-    05 : B321; -- JLT     R3, R2, LESS
-    06 : 5000; -- HLT
-    07 : 6EFF; -- MOVI    R4, 0xFFFF
-    08 : CE8E; -- MOVI    R4, 0xFFFF
-    09 : 6EFF; -- MOVI    R4, 0xFFFF
-    0A : 8EE4; -- MOVI    R4, 0xFFFF
-    0B : 1400; -- STR     R4, R0
-    0C : 8000; -- NOP
-    0D : 8000; -- NOP
-    0E : 5000; -- HLT
-    0F : 6401; -- MOVI    R4, 0x0001
-    10 : 1400; -- STR     R4, R0
-    11 : 8000; -- NOP
-    12 : 8000; -- NOP
-    13 : 5000; -- HLT
+    01 : 6101; -- MOVI R1, 1
+    02 : 6202; -- MOVI R2, 2
+    03 : 6E12; -- MOVI R7, 0x1234
+    04 : CE8E; -- MOVI R7, 0x1234
+    05 : 6E34; -- MOVI R7, 0x1234
+    06 : 8EE7; -- MOVI R7, 0x1234
+    07 : 6800; -- MOVI R8, data_ptr
+    08 : 1120; -- STR R1, R2
+    09 : 6E05; -- STR R1, R2, 3
+    0A : 11E0; -- STR R1, R2, 3
+    0B : 6E00; -- STR R1, data_ptr
+    0C : 11E0; -- STR R1, data_ptr
+    0D : 6E01; -- STR R1, data_ptr, 1
+    0E : 11E0; -- STR R1, data_ptr, 1
+    0F : 2340; -- LDR R3, R4
+    10 : 6E02; -- LDR R3, R4, -2
+    11 : 23E0; -- LDR R3, R4, -2
+    12 : 6E00; -- LDR R3, data_ptr
+    13 : 23E0; -- LDR R3, data_ptr
+    14 : 6E02; -- LDR R3, data_ptr, 2
+    15 : 23E0; -- LDR R3, data_ptr, 2
+    16 : 3125; -- ADD R5, R1, R2
+    17 : 4516; -- SUB R6, R5, R1
+    18 : 7129; -- OR R9, R1, R2
+    19 : 812A; -- AND R10, R1, R2
+    1A : C12B; -- SHL R11, R1, 2
+    1B : 021C; -- SHR R12, R2, 1
+    1C : D12D; -- MULT R13, R1, R2
+    1D : 841E; -- XOR R4, R1, R2
+    1E : 6201; -- XOR R4, R1, R2
+    1F : CE1E; -- XOR R4, R1, R2
+    20 : 3412; -- XOR R4, R1, R2
+    21 : 42E2; -- XOR R4, R1, R2
+    22 : 6101; -- MOVI R1, 1
+    23 : A102; -- JNZ R1, R0, 2
+    24 : 5000; -- HLT
+    25 : 6100; -- MOVI R1, 0
+    26 : 6201; -- MOVI R2, 1
+    27 : B121; -- JLT R1, R2, 1
+    28 : 5000; -- HLT
 
-    [14..FFFF] : 0000;
+    [29..FFFF] : 0000;
 END;

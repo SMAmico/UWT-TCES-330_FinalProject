@@ -37,8 +37,21 @@ view wave
 view structure
 view signals
 
-# run simulation
+# monitor loop/termination signals to diagnose runaway control flow
+when { /testProcessor/IR_Out == 16'h5000 } {
+    echo [format "HALT reached: t=%0t PC=%h IR=%h State=%h ALU_A=%h ALU_B=%h ALU_Out=%h" $now [examine /testProcessor/PC_Out] [examine /testProcessor/IR_Out] [examine /testProcessor/State] [examine /testProcessor/ALU_A] [examine /testProcessor/ALU_B] [examine /testProcessor/ALU_Out]]
+    stop
+}
+when { /testProcessor/PC_Out == 16'h0023 && /testProcessor/IR_Out == 16'ha1d1 } {
+    echo [format "Loop diagnosis trigger: t=%0t PC=%h IR=%h State=%h ALU_A=%h ALU_B=%h ALU_Out=%h" $now [examine /testProcessor/PC_Out] [examine /testProcessor/IR_Out] [examine /testProcessor/State] [examine /testProcessor/ALU_A] [examine /testProcessor/ALU_B] [examine /testProcessor/ALU_Out]]
+    stop
+}
+
+# run simulation and explicitly stop/exit so the terminal session does not remain open
 run -all
+puts "Simulation run complete; stopping ModelSim session."
+stop
+quit -sim -force
 
 # show full waveform
 wave zoomfull
