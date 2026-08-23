@@ -7,7 +7,7 @@
 
     Assembly syntax (whitespace and commas separate tokens):
 
-    - Registers: R0 .. R15 (case-insensitive) or numeric 0..15. R14 is TMP, R15 is PC, and R0 is zero.
+    - Registers: R0 .. R15 (case-insensitive) or numeric 0..15. R0 is fixed at zero, R14 is TMP, and R15 is PC.
       -- Assembly formatting instructions --
       - Use .text for instructions and instruction labels.
       - Use .data for data directives and data labels.
@@ -21,9 +21,9 @@
     Instruction formats implemented :
 
       STR rA, rB/LABEL, soff (store RF[rA] -> D[RF[rB] + soff])
-          -> 0001 raaa rbbb soff  pseudo-ins variant accepts -8..+7 word offset
+          -> 0001 raaa rbbb soff  pseudo-ins variant accepts 16-bit word offset using pseudoinstruction
       LDR rA, rB/LABEL, soff (load D[RF[rB] + soff] -> RF[rA])
-          -> 0010 raaa rbbb soff  pseudo-ins variant accepts -8..+7 word offset
+          -> 0010 raaa rbbb soff  pseudo-ins variant accepts 16-bit word offset using pseudoinstruction
 
       ADD rA, rB, rC (rA = rB + rC)
           -> 0011 raaa rbbb rccc
@@ -48,6 +48,16 @@
           -> 1010 raaa rbbb bbbb
       JLT rA, rB, offset (PC = PC + offset if rA < rB)
           -> 1011 raaa rbbb bbbb    (4-bit signed offset relative to next instr)
+
+      CMP rA, rB (capture Z, N, and V from signed rA - rB)
+          -> 1110 raaa rbbb 0000
+      SETLT rD (rD = 1 if the most recent CMP was signed less-than, else 0)
+      SETEQ rD (rD = 1 if the most recent CMP was equal, else 0)
+      SETNE rD (rD = 1 if the most recent CMP was not equal, else 0)
+      SETLE rD (rD = 1 if the most recent CMP was signed less-than or equal, else 0)
+      SETGT rD (rD = 1 if the most recent CMP was signed greater-than, else 0)
+      SETGE rD (rD = 1 if the most recent CMP was signed greater-than or equal, else 0)
+          -> 1110 rddd cccc 1111    (cc: 0=LT, 1=EQ, 2=NE, 3=LE, 4=GT, 5=GE)
 
       SHL rA, rB, shft (rA = rB << shft)
           -> 1100 raaa shft rccc     (shft is an unsigned 4-bit immediate)
@@ -85,6 +95,7 @@
 #define ins_jlt 0xB
 #define ins_shl 0xC
 #define ins_mult 0xD
+#define ins_cmp_set 0xE
 
 //REGISTER DEFINES: aliases for special registers in the ISA
 //zero reg is always left at 0
@@ -719,6 +730,33 @@ int main(int argc, char** argv) {
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
                 instr = encode_alu(ins_sub, rb, rc, ra);
+
+
+            //CMP: compare two registers and update the processor status flags.
+            } else if (op=="CMP") {
+
+                if (tokens.size()!=3) throw runtime_error("CMP expects RA,RB");
+
+                int ra=parse_reg(tokens[1]);
+                int rb=parse_reg(tokens[2]);
+                instr = (ins_cmp_set<<12) | (ra<<8) | (rb<<4);
+
+
+            //SETcc: write 0 or 1 to a register according to flags captured by CMP.
+            } else if (op=="SETLT" || op=="SETEQ" || op=="SETNE" ||
+                       op=="SETLE" || op=="SETGT" || op=="SETGE") {
+
+                if (tokens.size()!=2) throw runtime_error(op + " expects DEST");
+
+                int destination=parse_reg(tokens[1]);
+                int condition = 0;
+                if (op=="SETLT") condition = 0;
+                else if (op=="SETEQ") condition = 1;
+                else if (op=="SETNE") condition = 2;
+                else if (op=="SETLE") condition = 3;
+                else if (op=="SETGT") condition = 4;
+                else condition = 5;
+                instr = (ins_cmp_set<<12) | (destination<<8) | (condition<<4) | 0xF;
 
 
             //HLT: stop the processor

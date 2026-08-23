@@ -87,10 +87,30 @@ Extra-credit jump instructions implemented in the FSM:
     1001 = JMP
     1010 = JNZ
     1011 = JLT
+    1110 = CMP/SETcc
 
 JMP performs an absolute jump.  
 JNZ checks the ALU zero flag and jumps when the selected register is not zero.  
 JLT checks signed less-than using the ALU negative and overflow flags.
+
+### Compare and Conditional Set
+
+Opcode `1110` is a CMP/SETcc instruction family. `CMP RA, RB` is encoded as
+`1110 RA RB 0000`; it calculates signed `RA - RB`, discards the numeric result,
+and stores the zero, negative, and overflow flags. The following instructions
+consume those stored flags and write a full 16-bit Boolean (`0000` or `0001`)
+to their destination register:
+
+    SETLT RD    ; signed RA < RB from the most recent CMP
+    SETEQ RD    ; equal
+    SETNE RD    ; not equal
+    SETLE RD    ; signed less than or equal
+    SETGT RD    ; signed greater than
+    SETGE RD    ; signed greater than or equal
+
+The SETcc encoding is `1110 RD CC 1111`, with condition codes `0` through `5`
+corresponding to the mnemonics in the order above. Conditions `6` through `F`
+are reserved. A SETcc instruction does not alter the stored CMP flags.
 
 The FSM testbench verifies the control behavior for JMP, JNZ taken, JNZ not taken, JLT taken, and JLT not taken. The main ROM program demonstrates the base arithmetic/load/store/halt processor sequence.
 

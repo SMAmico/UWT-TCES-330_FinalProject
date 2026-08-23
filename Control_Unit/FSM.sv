@@ -36,9 +36,17 @@ module FSM(
     output logic [2:0] Alu_s0,         // ALU function select
     output logic [7:0] MOVI_d,         // ALU immediate data
 
+    output logic Flags_W_en,            // captures ALU flags for CMP
+    output logic SET_result_en,         // selects the full-word SET writeback value
+    output logic SET_result,            // Boolean value written by SETcc
+
     input Alu_Z,                       // ALU zero flag, used by JNZ
     input Alu_N,                       // ALU negative flag, used by JLT
     input Alu_V,                       // ALU overflow flag, used by JLT
+
+    input Status_Z,                    // flag captured by the most recent CMP
+    input Status_N,
+    input Status_V,
 
     output logic [3:0] StateOut,       // current FSM state for debug/display
     output logic [3:0] NextStateOut    // next FSM state for debug/display
@@ -66,6 +74,7 @@ module FSM(
 
                      INS_SHL = 4'hC,
                      INS_MULT= 4'hD,
+                     INS_CMP_SET = 4'hE,
                      INS_SHR = 4'h0;
                      
     /*
@@ -116,12 +125,14 @@ module FSM(
                      S_LDA      = 4'd5,
                      S_LDB      = 4'd6,
                      S_ALU      = 4'd7,//S_ALU contains all alu operations
+                     S_CMP      = 4'd8,
                      S_HLT      = 4'd9,
                      S_JMP      = 4'd10,
                      S_JNZ_TEST = 4'd11,
                      S_JNZ_JUMP = 4'd12,
                      S_JLT_TEST = 4'd13,
-                     S_JLT_JUMP = 4'd14;
+                     S_JLT_JUMP = 4'd14,
+                     S_SET      = 4'd15;
 
     logic [3:0] State, NextState;
     
@@ -177,6 +188,9 @@ module FSM(
 
         Alu_s0     = ALU_SHR;
         MOVI_d     = 8'b0;
+        Flags_W_en  = 1'b0;
+        SET_result_en = 1'b0;
+        SET_result  = 1'b0;
 
         NextState  = State;
 
@@ -220,6 +234,15 @@ module FSM(
                     INS_JMP: NextState = S_JMP;
                     INS_JNZ: NextState = S_JNZ_TEST;
                     INS_JLT: NextState = S_JLT_TEST;
+                    //to save instruction space, CMP and SET are combined into one instruction with a 4-bit sub-opcode field.
+                    INS_CMP_SET: begin
+                        if (IR_data[3:0] == 4'h0)
+                            NextState = S_CMP;
+                        else if (IR_data[3:0] == 4'hF && IR_data[7:4] <= 4'h5)
+                            NextState = S_SET;
+                        else
+                            NextState = S_HLT;
+                    end
                     default: NextState = S_HLT;
                 endcase
                 end
@@ -302,6 +325,38 @@ module FSM(
                 RF_s       = 1'b0;
 
                 NextState  = S_FETCH;
+            end
+
+            // CMP instruction: 1110 raaa rbbb 0000. Capture signed-subtraction flags only.
+            S_CMP: begin
+                RF_Ra_addr = IR_data[11:8];
+                RF_Rb_addr = IR_data[7:4];
+                Alu_s0     = ALU_SUB;
+                Flags_W_en = 1'b1;
+
+                NextState  = S_FETCH;
+            end
+
+            // SETcc instruction: 1110 rddd cccc 1111. Write a full-word Boolean from CMP flags.
+            S_SET: begin
+                RF_W_addr     = IR_data[11:8];
+                RF_W_en       = 1'b1;
+                SET_result_en = 1'b1;
+
+                case (IR_data[7:4])
+                    4'h0: SET_result = Status_N ^ Status_V;
+                    4'h1: SET_result = Status_Z;
+                    4'h2: SET_result = ~Status_Z;
+                    4'h3: SET_result = Status_Z | (Status_N ^ Status_V);
+                    4'h4: SET_result = ~Status_Z & ~(Status_N ^ Status_V);
+                    4'h5: SET_result = ~(Status_N ^ Status_V);
+                    default: begin
+                        RF_W_en       = 1'b0;
+                        SET_result_en = 1'b0;
+                    end
+                endcase
+
+                NextState = S_FETCH;
             end
 
             // JMP instruction: 1001 bbbb bbbb bbbb. PC-relative jump by signed 12-bit offset.

@@ -37,6 +37,14 @@ start:
     MULT R13, R1, R2
     XOR R4, R1, R2
 
+    CMP R1, R2
+    SETLT R3
+    SETEQ R4
+    SETNE R5
+    SETLE R6
+    SETGT R7
+    SETGE R8
+
     MOVI R1, 1
     JNZ R1, R0, 2
     HLT

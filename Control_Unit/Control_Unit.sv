@@ -42,11 +42,19 @@ module Control_Unit(
     output [2:0] Alu_s0,
     output [7:0] MOVI_d,
 
+    output Flags_W_en,
+    output SET_result_en,
+    output SET_result,
+
     // Exported PC control lines so the datapath can update register 16 as the PC.
     output PC_clr_out,
     output PC_up_out,
     output PC_w_en_out,
     output [15:0] PC_set_out,
+
+    input Status_Z,
+    input Status_N,
+    input Status_V,
     
     /*
     Debug outputs passed up to Processor.sv. The provided processor testbench expects the 
@@ -112,9 +120,16 @@ module Control_Unit(
         .Alu_s0(Alu_s0),
         .MOVI_d(MOVI_d),
 
+        .Flags_W_en(Flags_W_en),
+        .SET_result_en(SET_result_en),
+        .SET_result(SET_result),
+
         .Alu_Z(Alu_Z),
         .Alu_N(Alu_N),
         .Alu_V(Alu_V),
+        .Status_Z(Status_Z),
+        .Status_N(Status_N),
+        .Status_V(Status_V),
 
         .StateOut(StateOut),
         .NextStateOut(NextStateOut)

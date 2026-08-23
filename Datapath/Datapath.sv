@@ -46,11 +46,12 @@ module RegFile (
     The register file has two combinational read ports. When rdAddrA or rdAddrB changes, the selected
     register value appears on rdDataA or rdDataB without waiting for a clock edge.
 
-    Register 16 (address 4'hF) is reserved as the program counter register. Because it is part of the
-    register file, it can still be read through either read port like any other register.
+    Register 0 is a hard-wired zero register. Register 16 (address 4'hF) is reserved as the program
+    counter register. Because it is part of the register file, it can still be read through either read
+    port like any other register.
     */
-    assign rdDataA = regfile[rdAddrA];
-    assign rdDataB = regfile[rdAddrB];
+    assign rdDataA = (rdAddrA == 4'h0) ? 16'h0000 : regfile[rdAddrA];
+    assign rdDataB = (rdAddrB == 4'h0) ? 16'h0000 : regfile[rdAddrB];
     assign PC_out  = regfile[4'hF][15:0];
 
     /*
@@ -72,7 +73,7 @@ module RegFile (
     3) PC_up increments PC
     4) regular register-file write to wrAddr=4'hF
 
-    Regular writes to registers 0..14 are unchanged.
+    Regular writes to registers 1..14 are unchanged. Writes targeting R0 are ignored.
     */
     always_ff @(posedge Clk) begin
         if (PC_clr)
@@ -81,7 +82,7 @@ module RegFile (
             regfile[4'hF] <= PC_set;
         else if (PC_up)
             regfile[4'hF] <= regfile[4'hF] + 16'h0001;
-        else if (write)
+        else if (write && (wrAddr != 4'h0))
             regfile[wrAddr] <= wrData;
     end
 
@@ -260,6 +261,10 @@ module Datapath (
     input [2:0] Alu_s0,
     input [7:0] MOVI_d,
 
+    input Flags_W_en,
+    input SET_result_en,
+    input SET_result,
+
     output [15:0] ALU_A,
     output [15:0] ALU_B,
     output [15:0] ALU_Out,
@@ -268,7 +273,10 @@ module Datapath (
 
     output Alu_Z,
     output Alu_N,
-    output Alu_V
+    output Alu_V,
+    output logic Status_Z,
+    output logic Status_N,
+    output logic Status_V
 );
 
     /*
@@ -286,6 +294,7 @@ module Datapath (
     wire [15:0] Q_Data;
     wire [15:0] R_data;
     wire [15:0] W_data;
+    wire [15:0] W_data_alu_ram;
     wire [15:0] D_Addr;
     wire [15:0] D_Data;
     wire [15:0] RF_PC_out;
@@ -294,6 +303,19 @@ module Datapath (
     assign ALU_B   = Rb_data;
     assign ALU_Out = Q_Data;
     assign PC_Out  = RF_PC_out;
+
+    // CMP status is architectural state; JNZ and JLT continue to use live ALU flags.
+    always_ff @(posedge Clk) begin
+        if (PC_clr) begin
+            Status_Z <= 1'b0;
+            Status_N <= 1'b0;
+            Status_V <= 1'b0;
+        end else if (Flags_W_en) begin
+            Status_Z <= Alu_Z;
+            Status_N <= Alu_N;
+            Status_V <= Alu_V;
+        end
+    end
 
     /*
     Register file instance.
@@ -352,8 +374,10 @@ module Datapath (
         .RAM(R_data),
         .ALU(Q_Data),
         .RF_s(RF_s),
-        .Q(W_data)
+        .Q(W_data_alu_ram)
     );
+
+    assign W_data = SET_result_en ? {15'b0, SET_result} : W_data_alu_ram;
 
     /*
     RAM instance.
