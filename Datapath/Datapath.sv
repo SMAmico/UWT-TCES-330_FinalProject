@@ -230,6 +230,53 @@ module RAM (
 
 endmodule
 
+module MMIO (
+    input Clk,
+    input [15:0] D_Addr_in,
+    input D_wr_in,
+    input [15:0] W_data_in,
+    input [15:0] R_data_in,
+
+    output logic [15:0] D_Addr_out,
+    output logic D_wr_out,
+    output logic [15:0] W_data_out,
+    output logic [15:0] R_data_out
+);
+
+    /*
+    MMIO interconnect module.
+
+    The MMIO IC combinationally intercepts the Read and Write signals sent to the RAM, and diverts reads to specified addresses.
+    the diverted signals are then fed by the I/O, through decoder modules. This creates a system where the 
+    Datapath can write to and read from IO devices seamlessly, as if they were in memory.
+
+    The MMIO reads the D_Addr lines to determine whether to intercept a signal. 
+    If true, the D_Data (with D_wr) or R_data lines (as needed) are redirected to the specified
+    IO decoder module, Polling the IO on each clock edge. The MMIO is extendable 
+    to any number of virtual RAM addresses. 
+    */
+always_comb begin
+        // Default passthrough to RAM
+        D_Addr_out = D_Addr_in;
+        D_wr_out = D_wr_in;
+        W_data_out = W_data_in;
+        R_data_out = R_data_in;
+
+        /*
+         Template Write-Only MMIO address range: 0xFF00 - 0xFFFF
+         If we want to map 0xFF00-0xFFFF to an MMIO device,
+         we check if the Datapath is addressing in that range,
+         and the write enable line is high. if so, we send them to our 
+         mapped MMIO device's decoder module.
+        */
+        if (D_Addr_in >= 16'hFF00 && D_wr_in) begin
+            // Redirect to MMIO device (example)
+            //here the IO decoder devices reading the address space would be addressed
+        end
+    end
+
+endmodule
+
 
 module Datapath (
     input Clk,
@@ -271,9 +318,12 @@ module Datapath (
 
     output [15:0] PC_Out,
 
+    //status lines from the ALU, used for JNZ and JLT instructions.
     output Alu_Z,
     output Alu_N,
     output Alu_V,
+
+    //status flags from the ALU latch to the clock, providing values for cmp/set
     output logic Status_Z,
     output logic Status_N,
     output logic Status_V
@@ -288,16 +338,30 @@ module Datapath (
         W_data is the selected write-back value for the register file.
         D_Addr is the address sent from the register file to the ram.
         D_Data is the data from the data register to be written to memory.
+
+        D_Addr_mmio_ram is the address sent from the MMIO interconnect to the RAM.
+        D_wr_mmio_ram is the write enable line from the MMIO interconnect to the RAM.
+        D_Data_mmio_ram is the data from the MMIO interconnect to be written to memory.
+        R_data_mmio_ram is the RAM read output to the MMIO interconnect.
+
     */
     wire [15:0] Ra_data;
     wire [15:0] Rb_data;
+
     wire [15:0] Q_Data;
+
     wire [15:0] R_data;
     wire [15:0] W_data;
     wire [15:0] W_data_alu_ram;
     wire [15:0] D_Addr;
     wire [15:0] D_Data;
+
     wire [15:0] RF_PC_out;
+
+    wire [15:0] D_Addr_mmio_ram;
+    wire D_wr_mmio_ram;
+    wire [15:0] D_Data_mmio_ram;
+    wire [15:0] R_data_mmio_ram;
 
     assign ALU_A   = Ra_data;
     assign ALU_B   = Rb_data;
@@ -389,11 +453,40 @@ module Datapath (
     on the next clock cycle.
     */
     RAM ram0(
-        .D_Addr(D_Addr),
-        .D_wr(D_wr),
+        //input ports fed from the MMIO interconnect bus
+        .D_Addr(D_Addr_mmio_ram),
+        .D_wr(D_wr_mmio_ram),
         .Clk(Clk),
-        .W_data(D_Data),
-        .R_data(R_data)
+        .W_data(D_Data_mmio_ram),
+        .R_data(R_data_mmio_ram)
+    );
+
+    /*
+    MMIO IC instance.
+
+    The MMIO IC combinationally intercepts the Read and Write signals sent to the RAM, and diverts reads to specified addresses.
+    the diverted signals are then fed by the I/O, through decoder modules. This creates a system where the 
+    Datapath can write to and read from IO devices seamlessly, as if they were in memory.
+
+    The MMIO reads the D_Addr lines to determine whether to intercept a signal. 
+    If true, the D_Data (with D_wr) or R_data lines (as needed) are redirected to the specified
+    IO decoder module, Polling the IO on each clock edge. The MMIO is extendable 
+    to any number of virtual RAM addresses. 
+    */
+
+    MMIO mmio0(
+        // MMIO input ports from the RF
+        .Clk(Clk),
+        .D_Addr_in(D_Addr),
+        .D_wr_in(D_wr),
+        .W_data_in(D_Data),
+        .R_data_in(R_data),
+
+        // MMIO passthrough ports to RAM
+        .D_Addr_out(D_Addr_mmio_ram),
+        .D_wr_out(D_wr_mmio_ram),
+        .W_data_out(D_Data_mmio_ram),
+        .R_data_out(R_data_mmio_ram)
     );
 
 endmodule

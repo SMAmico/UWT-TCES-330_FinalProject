@@ -61,10 +61,14 @@
 
       SHL rA, rB, shft (rA = rB << shft)
           -> 1100 raaa shft rccc     (shft is an unsigned 4-bit immediate)
+      SAL rA, rB, shft
+          -> pseudo-ins alias for SHL
       MULT rA, rB, rC  (rA = rB * rC)
           -> 1101 raaa rbbb rccc    
       SHR rA, rB, shft (rA = rB >> shft)
           -> 0000 raaa shft rccc
+      SAR rA, rB, shft
+          -> pseudo-ins alias for SHR
 
       NOP                         
           -> 1000 0000 0000 0000   (AND R0 with R0 into R0, effectively a NOP)
@@ -877,25 +881,25 @@ int main(int argc, char** argv) {
                 uint16_t ob = (uint16_t)(offset & 0xF);
                 instr = (ins_jlt<<12) | (ra<<8) | (rb<<4) | ob;
 
-            // SHL: shifts rb left by a 4-bit immediate into ra
-            } else if (op=="SHL") {
-                if (tokens.size()<4) throw runtime_error("SHL expects DEST,SOURCE,SHIFT");
+            // SHL/SAL: shifts rb left by a 4-bit immediate into ra
+            } else if (op=="SHL" || op=="SAL") {
+                if (tokens.size()<4) throw runtime_error("SHL/SAL expects DEST,SOURCE,SHIFT");
 
                 int ra=parse_reg(tokens[1]);
                 int rb=parse_reg(tokens[2]);
                 int shift=parse_number(tokens[3]);
-                if (shift < 0 || shift > 15) throw runtime_error("SHL shift amount out of range (0..15)");
+                if (shift < 0 || shift > 15) throw runtime_error("SHL/SAL shift amount out of range (0..15)");
 
                 instr = (ins_shl<<12) | (rb<<8) | (shift<<4) | ra;
 
-            // SHR: shifts rb right by a 4-bit immediate into ra
-            } else if (op=="SHR") {
-                if (tokens.size()<4) throw runtime_error("SHR expects DEST,SOURCE,SHIFT");
+            // SHR/SAR: shifts rb right by a 4-bit immediate into ra
+            } else if (op=="SHR" || op=="SAR") {
+                if (tokens.size()<4) throw runtime_error("SHR/SAR expects DEST,SOURCE,SHIFT");
 
                 int ra=parse_reg(tokens[1]);
                 int rb=parse_reg(tokens[2]);
                 int shift=parse_number(tokens[3]);
-                if (shift < 0 || shift > 15) throw runtime_error("SHR shift amount out of range (0..15)");
+                if (shift < 0 || shift > 15) throw runtime_error("SHR/SAR shift amount out of range (0..15)");
 
                 instr = (ins_shr<<12) | (rb<<8) | (shift<<4) | ra;
 

@@ -156,8 +156,8 @@ module FSM(
 	*/
     assign JMP_offset = {{1{IR_data[11]}}, IR_data[11:0]};
     assign JMP_target = $unsigned($signed(PC) + JMP_offset);
-    assign JNZ_offset = {{12{IR_data[3]}}, IR_data[3:0]};
-    assign JLT_offset = {{12{IR_data[3]}}, IR_data[3:0]};
+    assign JNZ_offset = {{4{IR_data[3]}}, IR_data[3:0]};
+    assign JLT_offset = {{4{IR_data[3]}}, IR_data[3:0]};
 
     assign StateOut = State;
     assign NextStateOut = NextState;
