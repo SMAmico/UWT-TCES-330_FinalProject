@@ -4,6 +4,12 @@
     Simple two-pass assembler for the project's EX_ISA.
 
     Usage: assembler-EX_ISA <input.asm> <output.txt> [--mif] [--mif-out <output.mif>]
+                             [--data-out <data.txt>] [--data-mif-out <data.mif>]
+
+    This machine has split instruction/data memories: <output.txt>/<output.mif> hold the assembled
+    instruction stream, while the data section is written to its own plaintext file (default
+    <output>.data.txt, override with --data-out) and, with --mif, its own MIF (default
+    <output>.data.mif, override with --data-mif-out).
 
     Assembly syntax (whitespace and commas separate tokens):
 
@@ -17,6 +23,20 @@
     - Registers are R0..R15 (case-insensitive).
     - Control-flow labels (JMP/JLT label form) must be .text labels.
       - Memory-address labels (STR/LDR label form) must be .data labels.
+
+    .data directives (written to the separate data output/MIF described above):
+      .word v1[, v2...]   writes one 16-bit word per value
+      .space count        writes count zero words
+      .long v1[, v2...]   writes 2 words per 32-bit value, most-significant word first
+      .quad v1[, v2...]   writes 4 words per 64-bit value, most-significant word first
+      .string "literal"   writes ceil((chars+1)/2) words, packing 2 chars/word (first char in the high
+                          byte) plus a null terminator; backslash escapes (\n \t \r \\ \" \0) decode
+                          to their real byte value before packing
+
+        Debug metadata directives emitted by the 8cc backend are accepted and do not
+        contribute to instruction or data addresses:
+            .file number "filename"
+            .loc file line [column]
 
     Instruction formats implemented :
 
@@ -204,6 +224,18 @@ int parse_number(const string &token) {
     return stoi(s,nullptr,0);
 }
 
+//parses a literal into a 64-bit value so .long/.quad can validate ranges beyond parse_number's 32-bit stoi
+static long long parse_number64(const string &token) {
+    string s = token;
+    if (s.size() > 1 && s[0]=='0' && (s[1]=='x' || s[1]=='X')) {
+        return (long long)stoull(s, nullptr, 16);
+    }
+    if (!s.empty() && s[0] == '-') {
+        return stoll(s, nullptr, 0);
+    }
+    return (long long)stoull(s, nullptr, 0);
+}
+
 //checks if a signed offset fits within a 4-bit length
 static int parse_offset4(const string &token) {
     int value = parse_number(token);
@@ -249,6 +281,28 @@ static void emit_load_imm(vector<uint16_t> &words,
 static inline string upper_copy(string s) {
     for (auto &c : s) c = toupper((unsigned char)c);
     return s;
+}
+
+//decodes a quoted .string literal's backslash escapes into raw character codes
+static vector<uint16_t> decode_string_literal(const string &content) {
+    vector<uint16_t> chars;
+    for (size_t k = 0; k < content.size(); ++k) {
+        if (content[k] == '\\' && k + 1 < content.size()) {
+            char esc = content[++k];
+            switch (esc) {
+                case 'n': chars.push_back('\n'); break;
+                case 't': chars.push_back('\t'); break;
+                case 'r': chars.push_back('\r'); break;
+                case '0': chars.push_back('\0'); break;
+                case '\\': chars.push_back('\\'); break;
+                case '"': chars.push_back('"'); break;
+                default: chars.push_back((unsigned char)esc); break;
+            }
+        } else {
+            chars.push_back((unsigned char)content[k]);
+        }
+    }
+    return chars;
 }
 
 //tries to lookup a label in a table, returns true if found and sets value, false otherwise
@@ -364,6 +418,9 @@ int main(int argc, char** argv) {
     string outpath = argv[2];
     bool emit_mif = false;
     string mif_outpath = replace_extension(outpath, ".mif");
+    //data memory is separate hardware from instruction memory, so it gets its own output files
+    string data_outpath = replace_extension(outpath, ".data.txt");
+    string data_mif_outpath = replace_extension(outpath, ".data.mif");
 
     for (int i = 3; i < argc; ++i) {
         string arg = argv[i];
@@ -376,9 +433,23 @@ int main(int argc, char** argv) {
             }
             emit_mif = true;
             mif_outpath = argv[++i];
+        } else if (arg == "--data-out") {
+            if (i + 1 >= argc) {
+                cerr<<"Missing value for --data-out\n";
+                return 1;
+            }
+            data_outpath = argv[++i];
+        } else if (arg == "--data-mif-out") {
+            if (i + 1 >= argc) {
+                cerr<<"Missing value for --data-mif-out\n";
+                return 1;
+            }
+            emit_mif = true;
+            data_mif_outpath = argv[++i];
         } else {
             cerr<<"Unknown argument: "<<arg<<"\n";
-            cerr<<"Usage: "<<argv[0]<<" <input.asm> <output.txt> [--mif] [--mif-out <output.mif>]\n";
+            cerr<<"Usage: "<<argv[0]<<" <input.asm> <output.txt> [--mif] [--mif-out <output.mif>]"
+                <<" [--data-out <data.txt>] [--data-mif-out <data.mif>]\n";
             return 1;
         }
     }
@@ -408,6 +479,9 @@ int main(int argc, char** argv) {
     //our 'base address'. this can be changed to re-center code to any memory location.
     int instr_addr = 0;
     int data_addr = 0;
+    //the actual contents of data memory, built directly since .data values have no forward references
+    vector<uint16_t> data_words;
+    vector<string> data_comments;
 
     for (size_t i=0;i<lines.size();++i) {
 
@@ -479,14 +553,34 @@ int main(int argc, char** argv) {
             continue;
         }
 
-        //if we're in data, only allow .word and .space.
+        // Debug metadata does not occupy either memory space.  Accept it before
+        // section-specific directive handling so it is ignored in both sections.
+        if (op == ".FILE") {
+            if (tokens.size() < 3) {
+                cerr<<".file requires a file number and filename on line "<<(i+1)<<"\n";
+                return 1;
+            }
+            continue;
+        }
+        if (op == ".LOC") {
+            if (tokens.size() < 3) {
+                cerr<<".loc requires a file number and line on line "<<(i+1)<<"\n";
+                return 1;
+            }
+            continue;
+        }
+
+        //if we're in data, only allow .word, .space, .string, .long, and .quad.
         if (section == Section::Data) {
             if (op == ".WORD") {
                 //if .word, there must be at least one value to put in
                 if (tokens.size() < 2) { cerr<<".word requires at least one value on line "<<(i+1)<<"\n"; return 1; }
                 for (size_t k = 1; k < tokens.size(); ++k) {
-                    try { (void)parse_number(tokens[k]); }
+                    int v = 0;
+                    try { v = parse_number(tokens[k]); }
                     catch (...) { cerr<<"Invalid .word value '"<<tokens[k]<<"' on line "<<(i+1)<<"\n"; return 1; }
+                    data_words.push_back((uint16_t)(v & 0xFFFF));
+                    data_comments.push_back(l);
                     data_addr++;
                 }
                 continue;
@@ -498,10 +592,70 @@ int main(int argc, char** argv) {
                 try { count = parse_number(tokens[1]); }
                 catch (...) { cerr<<"Invalid .space size on line "<<(i+1)<<"\n"; return 1; }
                 if (count < 0) { cerr<<".space size must be >= 0 on line "<<(i+1)<<"\n"; return 1; }
+                for (int k = 0; k < count; ++k) {
+                    data_words.push_back(0);
+                    data_comments.push_back(l);
+                }
                 data_addr += count;
                 continue;
             }
-            cerr<<"Only .word and .space are allowed in .data (line "<<(i+1)<<")\n";
+            if (op == ".LONG") {
+                //32-bit value occupies 2 words on this 16-bit-word machine, most-significant word first
+                if (tokens.size() < 2) { cerr<<".long requires at least one value on line "<<(i+1)<<"\n"; return 1; }
+                for (size_t k = 1; k < tokens.size(); ++k) {
+                    long long v = 0;
+                    try { v = parse_number64(tokens[k]); }
+                    catch (...) { cerr<<"Invalid .long value '"<<tokens[k]<<"' on line "<<(i+1)<<"\n"; return 1; }
+                    if (v < -2147483648LL || v > 4294967295LL) { cerr<<".long value out of range: "<<tokens[k]<<"\n"; return 1; }
+                    uint32_t uv = (uint32_t)(uint64_t)v;
+                    data_words.push_back((uint16_t)((uv >> 16) & 0xFFFF));
+                    data_comments.push_back(l);
+                    data_words.push_back((uint16_t)(uv & 0xFFFF));
+                    data_comments.push_back(l);
+                    data_addr += 2;
+                }
+                continue;
+            }
+            if (op == ".QUAD") {
+                //64-bit value occupies 4 words on this 16-bit-word machine, most-significant word first
+                if (tokens.size() < 2) { cerr<<".quad requires at least one value on line "<<(i+1)<<"\n"; return 1; }
+                for (size_t k = 1; k < tokens.size(); ++k) {
+                    long long v = 0;
+                    try { v = parse_number64(tokens[k]); }
+                    catch (...) { cerr<<"Invalid .quad value '"<<tokens[k]<<"' on line "<<(i+1)<<"\n"; return 1; }
+                    uint64_t uv = (uint64_t)v;
+                    data_words.push_back((uint16_t)((uv >> 48) & 0xFFFF));
+                    data_comments.push_back(l);
+                    data_words.push_back((uint16_t)((uv >> 32) & 0xFFFF));
+                    data_comments.push_back(l);
+                    data_words.push_back((uint16_t)((uv >> 16) & 0xFFFF));
+                    data_comments.push_back(l);
+                    data_words.push_back((uint16_t)(uv & 0xFFFF));
+                    data_comments.push_back(l);
+                    data_addr += 4;
+                }
+                continue;
+            }
+            if (op == ".STRING") {
+                //quoted literal may contain spaces/commas, so pull it from the raw line rather than tokens
+                size_t q1 = l.find('"');
+                size_t q2 = (q1 != string::npos) ? l.find('"', q1 + 1) : string::npos;
+                if (q1 == string::npos || q2 == string::npos || q2 <= q1) {
+                    cerr<<".string requires a quoted string on line "<<(i+1)<<"\n"; return 1;
+                }
+                string content = l.substr(q1 + 1, q2 - q1 - 1);
+                vector<uint16_t> chars = decode_string_literal(content);
+                chars.push_back(0); // implicit null terminator
+                for (size_t k = 0; k < chars.size(); k += 2) {
+                    uint16_t hi = chars[k] & 0xFF;
+                    uint16_t lo = (k + 1 < chars.size()) ? (chars[k+1] & 0xFF) : 0;
+                    data_words.push_back((uint16_t)((hi << 8) | lo));
+                    data_comments.push_back(l);
+                    data_addr++;
+                }
+                continue;
+            }
+            cerr<<"Only .word, .space, .string, .long, and .quad are allowed in .data (line "<<(i+1)<<")\n";
             return 1;
         }
 
@@ -928,16 +1082,29 @@ int main(int argc, char** argv) {
     }
     ofs.close();
 
+    // data memory is separate hardware from instruction memory, so it gets its own plaintext output
+    ofstream data_ofs(data_outpath);
+    if (!data_ofs) {
+        cerr<<"Cannot open data output "<<data_outpath<<"\n"; return 1;
+    }
+    for (auto w: data_words) {
+        data_ofs << uppercase << hex << setw(4) << setfill('0') << w << '\n';
+    }
+    data_ofs.close();
+
     if (emit_mif) {
         try {
             write_mif_file(mif_outpath, words, 65536, word_comments);
+            write_mif_file(data_mif_outpath, data_words, 65536, data_comments);
         } catch (exception &e) {
             cerr<<"Error writing MIF: "<<e.what()<<"\n";
             return 1;
         }
-        cout<<"Assembled "<<words.size()<<" words to "<<outpath<<" and "<<mif_outpath<<"\n";
+        cout<<"Assembled "<<words.size()<<" instruction words to "<<outpath<<" and "<<mif_outpath
+            <<"; "<<data_words.size()<<" data words to "<<data_outpath<<" and "<<data_mif_outpath<<"\n";
     } else {
-        cout<<"Assembled "<<words.size()<<" words to "<<outpath<<"\n";
+        cout<<"Assembled "<<words.size()<<" instruction words to "<<outpath
+            <<"; "<<data_words.size()<<" data words to "<<data_outpath<<"\n";
     }
     return 0;
 }
