@@ -13,7 +13,7 @@
 
     Assembly syntax (whitespace and commas separate tokens):
 
-    - Registers: R0 .. R15 (case-insensitive) or numeric 0..15. R0 is fixed at zero, R14 is TMP, and R15 is PC.
+    - Registers: R0 .. R15 (case-insensitive) or numeric 0..15. R0 is fixed at zero, R14 is ASM_TMP, and R15 is PC.
       -- Assembly formatting instructions --
       - Use .text for instructions and instruction labels.
       - Use .data for data directives and data labels.
@@ -47,8 +47,12 @@
 
       ADD rA, rB, rC (rA = rB + rC)
           -> 0011 raaa rbbb rccc
+      ADDI rA, rB, imm/label (rA = rB + immediate)
+          -> pseudo-instruction: MOVI ASM_TMP, immediate; ADD rA, rB, ASM_TMP
       SUB rA, rB, rC (rA = rB - rC)
           -> 0100 raaa rbbb rccc
+      SUBI rA, rB, imm/label (rA = rB - immediate)
+          -> pseudo-instruction: MOVI ASM_TMP, immediate; SUB rA, rB, ASM_TMP
       HLT                              
           -> 0101 0000 0000 0000
 
@@ -57,8 +61,12 @@
              can load a label from either iram or dram.
       OR  rA, rB, rC   (rA = rB | rC)
           -> 0111 raaa rbbb rccc
+      ORI rA, rB, imm/label (rA = rB | immediate)
+          -> pseudo-instruction: MOVI ASM_TMP, immediate; OR rA, rB, ASM_TMP
       AND rA, rB, rC   (rA = rB & rC)
           -> 1000 raaa rbbb rccc
+      ANDI rA, rB, imm/label (rA = rB & immediate)
+          -> pseudo-instruction: MOVI ASM_TMP, immediate; AND rA, rB, ASM_TMP
 
       JMP offset/LABEL (PC = PC + soff12)
           -> 1001 bbbb bbbb bbbb  (signed 12-bit PC-relative offset)
@@ -83,6 +91,8 @@
           -> 1100 raaa shft rccc     (shft is an unsigned 4-bit immediate)
       MULT rA, rB, rC  (rA = rB * rC)
           -> 1101 raaa rbbb rccc    
+      MULTI rA, rB, imm/label (rA = rB * immediate)
+          -> pseudo-instruction: MOVI ASM_TMP, immediate; MULT rA, rB, ASM_TMP
       SHR rA, rB, shft (rA = rB >> shft)
           -> 0000 raaa shft rccc
 
@@ -123,8 +133,7 @@
 //program counter indicates the address in the instruction memory to execute next
 #define PC 15
 //temporary register for assembly to machine code translation
-#define TMP 14
-
+#define ASM_TMP 14
 
 #include <algorithm>
 #include <cctype>
@@ -243,13 +252,6 @@ static int parse_offset4(const string &token) {
     return value;
 }
 
-//checks if an offset fits within a 16-bit signed value.
-static int parse_offset16(const string &token) {
-    int value = parse_number(token);
-    if (value < -32768 || value > 32767) throw runtime_error("offset out of range (-32768..32767)");
-    return value;
-}
-
 //loads a 16-bit immediate value into a register, using a temporary register if greater than 8 bits.
 static void emit_load_imm(vector<uint16_t> &words,
                           int reg,
@@ -261,13 +263,13 @@ static void emit_load_imm(vector<uint16_t> &words,
     if (value > 255) {
         int upper = (value >> 8) & 0xFF;
         int lower = value & 0xFF;
-        words.push_back((ins_movi<<12) | (TMP << 8) | (upper & 0xFF));
+        words.push_back((ins_movi<<12) | (ASM_TMP << 8) | (upper & 0xFF));
         if (comments) comments->push_back(comment);
-        words.push_back((ins_shl<<12) | (TMP << 8) | (0x8 << 4) | 0x1);
+        words.push_back((ins_shl<<12) | (ASM_TMP << 8) | (0x8 << 4) | 0x1);
         if (comments) comments->push_back(comment);
-        words.push_back((ins_movi<<12) | (TMP << 8) | (lower & 0xFF));
+        words.push_back((ins_movi<<12) | (ASM_TMP << 8) | (lower & 0xFF));
         if (comments) comments->push_back(comment);
-        words.push_back((ins_or<<12) | (reg << 8) | (TMP << 4) | reg);
+        words.push_back((ins_or<<12) | (reg << 8) | (ASM_TMP << 4) | reg);
         if (comments) comments->push_back(comment);
         addr += 4;
     } else {
@@ -380,6 +382,18 @@ static int estimate_instr_words(const vector<string> &tokens,
                                 const unordered_map<string,int> &data_labels) {
     if (tokens.empty()) return 0;
     string op = upper_copy(tokens[0]);
+    if ((op == "ADDI" || op == "SUBI" || op == "ORI" || op == "ANDI" || op == "MULTI") && tokens.size() >= 4) {
+        int value = 0;
+        try {
+            value = parse_number(tokens[3]);
+        } catch (...) {
+            if (!try_lookup_label(instr_labels, tokens[3], value) &&
+                !try_lookup_label(data_labels, tokens[3], value)) {
+                return 1;
+            }
+        }
+        return (value > 255) ? 5 : 2;
+    }
     if (op == "XOR") return 5;
     if (op == "MOVI" && tokens.size() >= 3) {
         int value = 0;
@@ -702,7 +716,7 @@ int main(int argc, char** argv) {
                 if (tokens.size()<3) throw runtime_error("STR expects [Ra, Rb, offset] or [Ra, Rb]");
 
                 int r = parse_reg(tokens[1]);
-                int base_reg = TMP;
+                int base_reg = ASM_TMP;
                 int soff = 0;
                 bool relative = false;
                 bool use_label = false;
@@ -744,19 +758,19 @@ int main(int argc, char** argv) {
                 //if we're asking for a relative address (ie, an offset relative to a label),
                 if (relative && use_label) {
                     //we load the label and add the offset, then load
-                    emit_load_imm(words, TMP, label_addr + soff, addr, &word_comments, rawline);
-                    instr = (ins_str<<12) | (r<<8) | (TMP<<4) | (0x0);
+                    emit_load_imm(words, ASM_TMP, label_addr + soff, addr, &word_comments, rawline);
+                    instr = (ins_str<<12) | (r<<8) | (ASM_TMP<<4) | (0x0);
                 //if we're asking for an address with an offset
                 } else if (relative) {
                     //we sum the base register and the offset, then load
-                    emit_load_imm(words, TMP, base_reg + soff, addr, &word_comments, rawline);
-                    instr = (ins_str<<12) | (r<<8) | (TMP<<4) | (0x0);
+                    emit_load_imm(words, ASM_TMP, base_reg + soff, addr, &word_comments, rawline);
+                    instr = (ins_str<<12) | (r<<8) | (ASM_TMP<<4) | (0x0);
                 //if we're asking for a label with no offset
                 } else if (use_label) {
                     //we load the label into temp, then store
-                    emit_load_imm(words, TMP, label_addr, addr, &word_comments, rawline);
+                    emit_load_imm(words, ASM_TMP, label_addr, addr, &word_comments, rawline);
                     addr++;
-                    instr = (ins_str<<12) | (r<<8) | (TMP<<4) | (0x0);
+                    instr = (ins_str<<12) | (r<<8) | (ASM_TMP<<4) | (0x0);
                 } else {
                     //otherwise, we just emit the STR instruction using the base register
                     instr = (ins_str<<12) | (r<<8) | (base_reg<<4) | (0x0);
@@ -768,7 +782,7 @@ int main(int argc, char** argv) {
                 if (tokens.size()<3) throw runtime_error("LDR expects [Ra, Rb, offset] or [Ra, Rb]");
 
                 int r = parse_reg(tokens[1]);
-                int base_reg = TMP;
+                int base_reg = ASM_TMP;
                 int soff = 0;
                 bool relative = false;
                 bool use_label = false;
@@ -810,19 +824,19 @@ int main(int argc, char** argv) {
                 //if we're asking for a relative address with an offset (ie, a label with offset),
                 if (relative && use_label) {
                     //copy the label into temp, add the offset, and load
-                    emit_load_imm(words, TMP, label_addr + soff, addr, &word_comments, rawline);
-                    instr = (ins_ldr<<12) | (r<<8) | (TMP<<4) | (0x0);
+                    emit_load_imm(words, ASM_TMP, label_addr + soff, addr, &word_comments, rawline);
+                    instr = (ins_ldr<<12) | (r<<8) | (ASM_TMP<<4) | (0x0);
                 //if we're asking for an address with an offset
                 } else if (relative) {
                     //sum the base address with the offset, then load
-                    emit_load_imm(words, TMP, base_reg + soff, addr, &word_comments, rawline);
-                    instr = (ins_ldr<<12) | (r<<8) | (TMP<<4) | (0x0);
+                    emit_load_imm(words, ASM_TMP, base_reg + soff, addr, &word_comments, rawline);
+                    instr = (ins_ldr<<12) | (r<<8) | (ASM_TMP<<4) | (0x0);
                 //if we're asking for a label with no offset
                 } else if (use_label) {
                     //copy the label into temp, then load
-                    emit_load_imm(words, TMP, label_addr, addr, &word_comments, rawline);
+                    emit_load_imm(words, ASM_TMP, label_addr, addr, &word_comments, rawline);
                     addr++;
-                    instr = (ins_ldr<<12) | (r<<8) | (TMP<<4) | (0x0);
+                    instr = (ins_ldr<<12) | (r<<8) | (ASM_TMP<<4) | (0x0);
                 } else {
                     //otherwise, we just emit the LDR instruction using the base register alone
                     instr = (ins_ldr<<12) | (r<<8) | (base_reg<<4);
@@ -850,14 +864,14 @@ int main(int argc, char** argv) {
                     int upper = (a >> 8) & 0xFF;
                     int lower = a & 0xFF;
                     // first, load upper half into tmp
-                    push_word((ins_movi<<12) | (TMP<<8) | (upper & 0xFF));
+                    push_word((ins_movi<<12) | (ASM_TMP<<8) | (upper & 0xFF));
                     // then, shift tmp left by 8 bits
-                    push_word((ins_shl<<12) | (TMP<<8) | (0x8<<4) | TMP);
+                    push_word((ins_shl<<12) | (ASM_TMP<<8) | (0x8<<4) | ASM_TMP);
                     // then, load lower half into tmp
-                    push_word((ins_movi<<12) | (TMP<<8) | (lower & 0xFF));
+                    push_word((ins_movi<<12) | (ASM_TMP<<8) | (lower & 0xFF));
                     addr += 3;
                     // finally, copy the completed value from tmp into the target register
-                    instr = encode_alu(ins_and, TMP, TMP, r);
+                    instr = encode_alu(ins_and, ASM_TMP, ASM_TMP, r);
                 } else {
                     // simple case: just OR the immediate into the lower half of the register
                     instr = (ins_movi<<12) | (r<<8) | (a & 0xFF);
@@ -873,6 +887,28 @@ int main(int argc, char** argv) {
                 int rb=parse_reg(tokens[2]);
                 int rc=parse_reg(tokens[3]);
                 instr = encode_alu(ins_add, rb, rc, ra);
+
+            //ADDI: load an immediate into ASM_TMP, then add it to a register.
+            } else if (op=="ADDI" || op=="SUBI" || op=="ORI" || op=="ANDI" || op=="MULTI") {
+
+                if (tokens.size()!=4) throw runtime_error(op + " expects DEST,SOURCE,IMMEDIATE_OR_LABEL");
+
+                int destination = parse_reg(tokens[1]);
+                int source = parse_reg(tokens[2]);
+                int immediate = 0;
+                try {
+                    immediate = parse_number(tokens[3]);
+                } catch (...) {
+                    immediate = resolve_any_label(instr_labels, data_labels, tokens[3]);
+                }
+                emit_load_imm(words, ASM_TMP, immediate, addr, &word_comments, rawline);
+
+                int opcode = ins_add;
+                if (op=="SUBI") opcode = ins_sub;
+                else if (op=="ORI") opcode = ins_or;
+                else if (op=="ANDI") opcode = ins_and;
+                else if (op=="MULTI") opcode = ins_mult;
+                instr = encode_alu(opcode, source, ASM_TMP, destination);
 
 
             //SUB: subtract two registers into a third
@@ -939,12 +975,12 @@ int main(int argc, char** argv) {
 
                 // XOR = (A + B) - 2 * (A & B).
                 // TMP holds the intersection; the destination holds the shift count temporarily.
-                push_word(encode_alu(ins_and, ra, rb, TMP));
+                push_word(encode_alu(ins_and, ra, rb, ASM_TMP));
                 push_word((ins_movi<<12) | (rc<<8) | 0x01);
-                push_word((ins_shl<<12) | (TMP<<8) | (0x1<<4) | TMP);
+                push_word((ins_shl<<12) | (ASM_TMP<<8) | (0x1<<4) | ASM_TMP);
                 push_word(encode_alu(ins_add, ra, rb, rc));
                 addr += 4;
-                instr = encode_alu(ins_sub, rc, TMP, rc);
+                instr = encode_alu(ins_sub, rc, ASM_TMP, rc);
 
 
             //OR: perform OR operation on two registers into a third
