@@ -21,7 +21,7 @@
       - Tokens are separated by whitespace and/or commas.
       - Comments may start with ';', '//' or '#'.
     - Registers are R0..R15 (case-insensitive).
-    - Control-flow labels (JMP/JLT label form) must be .text labels.
+    - Control-flow labels (JMP/JLT and conditional pseudo-branch forms) must be .text labels.
       - Memory-address labels (STR/LDR label form) must be .data labels.
 
     .data directives (written to the separate data output/MIF described above):
@@ -41,9 +41,13 @@
     Instruction formats implemented :
 
       STR rA, rB/LABEL, soff (store RF[rA] -> D[RF[rB] + soff])
-          -> 0001 raaa rbbb soff  pseudo-ins variant accepts 16-bit word offset using pseudoinstruction
+          -> 0001 raaa rbbb soff  offsets are signed 16-bit word displacements; larger values use ASM_TMP
       LDR rA, rB/LABEL, soff (load D[RF[rB] + soff] -> RF[rA])
-          -> 0010 raaa rbbb soff  pseudo-ins variant accepts 16-bit word offset using pseudoinstruction
+          -> 0010 raaa rbbb soff  offsets are signed 16-bit word displacements; larger values use ASM_TMP
+
+      COPY rSrc, rDest[, count] (copy count words from RF[rSrc] to RF[rDest])
+          -> pseudo-instruction: expands to LDR/STR pairs using ASM_TMP; omitted count means one word
+             count is a positive 16-bit value and source/destination registers are restored for long copies
 
       ADD rA, rB, rC (rA = rB + rC)
           -> 0011 raaa rbbb rccc
@@ -76,6 +80,13 @@
           -> 1010 raaa rbbb bbbb
       JLT rA, rB, offset (PC = PC + offset if rA < rB)
           -> 1011 raaa rbbb bbbb    (4-bit signed offset relative to next instr)
+      JZ rA, label (branch if rA == 0)
+      JEQ rA, rB_or_imm, label (branch if rA == rB_or_imm)
+      JNE rA, rB_or_imm, label (branch if rA != rB_or_imm)
+      JLE rA, rB_or_imm, label (branch if signed rA <= rB_or_imm)
+      JGT rA, rB_or_imm, label (branch if signed rA > rB_or_imm)
+      JGE rA, rB_or_imm, label (branch if signed rA >= rB_or_imm)
+          -> pseudo-instructions: CMP, SETcc, and JNZ via ASM_TMP; immediates are signed 16-bit values
 
       CMP rA, rB (capture Z, N, and V from signed rA - rB)
           -> 1110 raaa rbbb 0000
@@ -252,6 +263,20 @@ static int parse_offset4(const string &token) {
     return value;
 }
 
+static int parse_memory_offset(const string &token) {
+    int value = parse_number(token);
+    if (value < -32768 || value > 32767)
+        throw runtime_error("memory offset out of range (-32768..32767)");
+    return value;
+}
+
+static int parse_copy_count(const string &token) {
+    int count = parse_number(token);
+    if (count < 1 || count > 65535)
+        throw runtime_error("COPY count out of range (1..65535)");
+    return count;
+}
+
 //loads a 16-bit immediate value into a register, using a temporary register if greater than 8 bits.
 static void emit_load_imm(vector<uint16_t> &words,
                           int reg,
@@ -274,6 +299,98 @@ static void emit_load_imm(vector<uint16_t> &words,
         addr += 4;
     } else {
         words.push_back((ins_movi<<12) | (reg << 8) | (value & 0xFF));
+        if (comments) comments->push_back(comment);
+        addr++;
+    }
+}
+
+static int immediate_word_count(int value) {
+    return value >= 0 && value <= 255 ? 1 : 4;
+}
+
+static int memory_access_word_count(int offset) {
+    if (offset >= -8 && offset <= 7)
+        return 1;
+    return immediate_word_count(offset < 0 ? -offset : offset) + 2;
+}
+
+static void emit_memory_access(vector<uint16_t> &words,
+                               vector<string> *comments,
+                               const string &comment,
+                               int opcode,
+                               int data_reg,
+                               int base_reg,
+                               int offset,
+                               int &addr) {
+    if (offset >= -8 && offset <= 7) {
+        words.push_back((opcode << 12) | (data_reg << 8) | (base_reg << 4) | (offset & 0xF));
+        if (comments) comments->push_back(comment);
+        addr++;
+        return;
+    }
+
+    if (opcode == ins_str && data_reg == ASM_TMP)
+        throw runtime_error("large-offset STR cannot use R14 as the source register");
+
+    int magnitude = offset < 0 ? -offset : offset;
+    emit_load_imm(words, ASM_TMP, magnitude, addr, comments, comment);
+    if (offset < 0)
+        words.push_back(encode_alu(ins_sub, base_reg, ASM_TMP, ASM_TMP));
+    else
+        words.push_back(encode_alu(ins_add, base_reg, ASM_TMP, ASM_TMP));
+    if (comments) comments->push_back(comment);
+    addr++;
+    words.push_back((opcode << 12) | (data_reg << 8) | (ASM_TMP << 4));
+    if (comments) comments->push_back(comment);
+    addr++;
+}
+
+static int copy_word_count(int count) {
+    int chunks = (count + 15) / 16;
+    int words = count * 2;
+    if (chunks > 1) {
+        words += (chunks - 1) * 4;
+        words += (count > 255 ? 5 : 2) * 2;
+    }
+    return words;
+}
+
+static void emit_copy(vector<uint16_t> &words,
+                      vector<string> *comments,
+                      const string &comment,
+                      int source,
+                      int destination,
+                      int count,
+                      int &addr) {
+    int copied = 0;
+    while (copied < count) {
+        int chunk = min(16, count - copied);
+        for (int offset = 0; offset < chunk; ++offset) {
+            words.push_back((ins_ldr<<12) | (ASM_TMP<<8) | (source<<4) | offset);
+            if (comments) comments->push_back(comment);
+            words.push_back((ins_str<<12) | (ASM_TMP<<8) | (destination<<4) | offset);
+            if (comments) comments->push_back(comment);
+            addr += 2;
+        }
+        copied += chunk;
+        if (copied < count) {
+            emit_load_imm(words, ASM_TMP, 16, addr, comments, comment);
+            words.push_back(encode_alu(ins_add, source, ASM_TMP, source));
+            if (comments) comments->push_back(comment);
+            addr++;
+            emit_load_imm(words, ASM_TMP, 16, addr, comments, comment);
+            words.push_back(encode_alu(ins_add, destination, ASM_TMP, destination));
+            if (comments) comments->push_back(comment);
+            addr++;
+        }
+    }
+    if (count > 16) {
+        emit_load_imm(words, ASM_TMP, count, addr, comments, comment);
+        words.push_back(encode_alu(ins_sub, source, ASM_TMP, source));
+        if (comments) comments->push_back(comment);
+        addr++;
+        emit_load_imm(words, ASM_TMP, count, addr, comments, comment);
+        words.push_back(encode_alu(ins_sub, destination, ASM_TMP, destination));
         if (comments) comments->push_back(comment);
         addr++;
     }
@@ -382,6 +499,30 @@ static int estimate_instr_words(const vector<string> &tokens,
                                 const unordered_map<string,int> &data_labels) {
     if (tokens.empty()) return 0;
     string op = upper_copy(tokens[0]);
+    if (op == "COPY" && tokens.size() >= 3) {
+        if (tokens.size() == 3)
+            return 2;
+        if (tokens.size() == 4) {
+            int count = 0;
+            try {
+                count = parse_copy_count(tokens[3]);
+            } catch (...) {
+                return 1;
+            }
+            return copy_word_count(count);
+        }
+    }
+    if (op == "JZ" && tokens.size() >= 3)
+        return 3;
+    if ((op == "JEQ" || op == "JNE" || op == "JLE" ||
+         op == "JGT" || op == "JGE") && tokens.size() >= 4) {
+        try {
+            int value = parse_number(tokens[2]);
+            return (value >= 0 && value <= 255) ? 4 : 7;
+        } catch (...) {
+            return 3;
+        }
+    }
     if ((op == "ADDI" || op == "SUBI" || op == "ORI" || op == "ANDI" || op == "MULTI") && tokens.size() >= 4) {
         int value = 0;
         try {
@@ -414,7 +555,22 @@ static int estimate_instr_words(const vector<string> &tokens,
     if ((op == "STR" || op == "LDR" || op == "LOAD") && tokens.size() >= 3) {
         int addr = 0;
         if (try_lookup_label(data_labels, tokens[2], addr)) {
-            return (addr > 255) ? 5 : 2;
+            if (tokens.size() < 4)
+                return (addr > 255) ? 5 : 2;
+            try {
+                int offset = parse_memory_offset(tokens[3]);
+                int target = addr + offset;
+                return (target >= 0 && target <= 255) ? 2 : 5;
+            } catch (...) {
+                return 1;
+            }
+        }
+        if (tokens.size() >= 4) {
+            try {
+                return memory_access_word_count(parse_memory_offset(tokens[3]));
+            } catch (...) {
+                return 1;
+            }
         }
     }
     return 1;
@@ -710,6 +866,63 @@ int main(int argc, char** argv) {
 
                 instr = 0x8000;
 
+            } else if (op=="COPY") {
+
+                if (tokens.size() < 3 || tokens.size() > 4)
+                    throw runtime_error("COPY expects SOURCE,DEST[,COUNT]");
+                int source = parse_reg(tokens[1]);
+                int destination = parse_reg(tokens[2]);
+                int count = tokens.size() == 4 ? parse_copy_count(tokens[3]) : 1;
+                if (source == ASM_TMP || destination == ASM_TMP)
+                    throw runtime_error("COPY cannot use R14 as a source or destination address register");
+    
+                emit_copy(words, &word_comments, rawline, source, destination, count, addr);
+                continue;
+
+            } else if (op=="JZ" || op=="JEQ" || op=="JNE" || op=="JLE" ||
+                       op=="JGT" || op=="JGE") {
+
+                bool is_jz = op == "JZ";
+                if ((is_jz && tokens.size()!=3) || (!is_jz && tokens.size()!=4))
+                    throw runtime_error(op + (is_jz ? " expects REGISTER,LABEL" : " expects LEFT,RIGHT_OR_IMMEDIATE,LABEL"));
+
+                int left = parse_reg(tokens[1]);
+                int prefix_words = 2;
+                int condition = 1;
+                if (is_jz) {
+                    push_word((ins_cmp_set<<12) | (left<<8) | (reg_zero<<4));
+                } else {
+                    int right = 0;
+                    try {
+                        right = parse_reg(tokens[2]);
+                    } catch (...) {
+                        int value = parse_number(tokens[2]);
+                        if (value < -32768 || value > 65535)
+                            throw runtime_error("comparison immediate out of range (-32768..65535)");
+                        emit_load_imm(words, ASM_TMP, value & 0xFFFF, addr, &word_comments, rawline);
+                        prefix_words += (value >= 0 && value <= 255) ? 1 : 4;
+                        right = ASM_TMP;
+                    }
+                    push_word((ins_cmp_set<<12) | (left<<8) | (right<<4));
+                    if (op=="JEQ") condition = 1;
+                    else if (op=="JNE") condition = 2;
+                    else if (op=="JLE") condition = 3;
+                    else if (op=="JGT") condition = 4;
+                    else condition = 5;
+                }
+
+                push_word((ins_cmp_set<<12) | (ASM_TMP<<8) | (condition<<4) | 0xF);
+                const string &label = tokens[is_jz ? 2 : 3];
+                if (instr_labels.find(label) == instr_labels.end())
+                    throw runtime_error("instruction label required for " + op);
+                int branch_addr = addr + prefix_words;
+                int offset = instr_labels[label] - (branch_addr + 1);
+                if (offset < -8 || offset > 7)
+                    throw runtime_error(op + " target out of JNZ range (-8..7)");
+                push_word((ins_jnz<<12) | (ASM_TMP<<8) | (PC<<4) | (offset & 0xF));
+                addr += prefix_words + 1;
+                continue;
+
             //STR: store register through variable addressing
             } else if (op=="STR") {
 
@@ -752,7 +965,7 @@ int main(int argc, char** argv) {
                         base_reg = parse_reg(arg);
                     }
                     //ensure the offset is a signed value within range.
-                    soff = parse_offset4(tokens[3]);
+                    soff = parse_memory_offset(tokens[3]);
                 }
 
                 //if we're asking for a relative address (ie, an offset relative to a label),
@@ -762,9 +975,12 @@ int main(int argc, char** argv) {
                     instr = (ins_str<<12) | (r<<8) | (ASM_TMP<<4) | (0x0);
                 //if we're asking for an address with an offset
                 } else if (relative) {
-                    //we sum the base register and the offset, then load
-                    emit_load_imm(words, ASM_TMP, base_reg + soff, addr, &word_comments, rawline);
-                    instr = (ins_str<<12) | (r<<8) | (ASM_TMP<<4) | (0x0);
+                    if (soff < -8 || soff > 7) {
+                        emit_memory_access(words, &word_comments, rawline,
+                                           ins_str, r, base_reg, soff, addr);
+                        continue;
+                    }
+                    instr = (ins_str<<12) | (r<<8) | (base_reg<<4) | (soff & 0xF);
                 //if we're asking for a label with no offset
                 } else if (use_label) {
                     //we load the label into temp, then store
@@ -818,7 +1034,7 @@ int main(int argc, char** argv) {
                         base_reg = parse_reg(arg);
                     }
                     //ensure the offset is a signed value within range.
-                    soff = parse_offset4(tokens[3]);
+                    soff = parse_memory_offset(tokens[3]);
                 }
 
                 //if we're asking for a relative address with an offset (ie, a label with offset),
@@ -828,9 +1044,12 @@ int main(int argc, char** argv) {
                     instr = (ins_ldr<<12) | (r<<8) | (ASM_TMP<<4) | (0x0);
                 //if we're asking for an address with an offset
                 } else if (relative) {
-                    //sum the base address with the offset, then load
-                    emit_load_imm(words, ASM_TMP, base_reg + soff, addr, &word_comments, rawline);
-                    instr = (ins_ldr<<12) | (r<<8) | (ASM_TMP<<4) | (0x0);
+                    if (soff < -8 || soff > 7) {
+                        emit_memory_access(words, &word_comments, rawline,
+                                           ins_ldr, r, base_reg, soff, addr);
+                        continue;
+                    }
+                    instr = (ins_ldr<<12) | (r<<8) | (base_reg<<4) | (soff & 0xF);
                 //if we're asking for a label with no offset
                 } else if (use_label) {
                     //copy the label into temp, then load
