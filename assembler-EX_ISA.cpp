@@ -27,6 +27,7 @@
     .data directives (written to the separate data output/MIF described above):
       .word v1[, v2...]   writes one 16-bit word per value
       .space count        writes count zero words
+    .lcomm name, count  allocates count zero-initialized 16-bit words starting at name
       .long v1[, v2...]   writes 2 words per 32-bit value, most-significant word first
       .quad v1[, v2...]   writes 4 words per 64-bit value, most-significant word first
       .string "literal"   writes ceil((chars+1)/2) words, packing 2 chars/word (first char in the high
@@ -740,7 +741,17 @@ int main(int argc, char** argv) {
             continue;
         }
 
-        //if we're in data, only allow .word, .space, .string, .long, and .quad.
+        // The compiler emits linkage metadata for non-static objects.  It does
+        // not affect layout in this flat-output assembler.
+        if (op == ".GLOBAL") {
+            if (tokens.size() != 2) {
+                cerr<<".global requires exactly one symbol on line "<<(i+1)<<"\n";
+                return 1;
+            }
+            continue;
+        }
+
+        //if we're in data, only allow .word, .space, .lcomm, .string, .long, and .quad.
         if (section == Section::Data) {
             if (op == ".WORD") {
                 //if .word, there must be at least one value to put in
@@ -767,6 +778,38 @@ int main(int argc, char** argv) {
                     data_comments.push_back(l);
                 }
                 data_addr += count;
+                continue;
+            }
+            if (op == ".LCOMM") {
+                if (tokens.size() != 3) {
+                    cerr<<".lcomm requires exactly a symbol and word count on line "<<(i+1)<<"\n";
+                    return 1;
+                }
+
+                const string &symbol = tokens[1];
+                if (symbol.empty()) {
+                    cerr<<".lcomm requires a non-empty symbol on line "<<(i+1)<<"\n";
+                    return 1;
+                }
+                if (data_labels.find(symbol) != data_labels.end()) {
+                    cerr<<"Duplicate data label "<<symbol<<"\n";
+                    return 1;
+                }
+
+                int word_count = 0;
+                try { word_count = parse_number(tokens[2]); }
+                catch (...) { cerr<<"Invalid .lcomm size on line "<<(i+1)<<"\n"; return 1; }
+                if (word_count < 0) {
+                    cerr<<".lcomm size must be >= 0 on line "<<(i+1)<<"\n";
+                    return 1;
+                }
+
+                data_labels[symbol] = data_addr;
+                for (int k = 0; k < word_count; ++k) {
+                    data_words.push_back(0);
+                    data_comments.push_back(l);
+                }
+                data_addr += word_count;
                 continue;
             }
             if (op == ".LONG") {
@@ -825,7 +868,7 @@ int main(int argc, char** argv) {
                 }
                 continue;
             }
-            cerr<<"Only .word, .space, .string, .long, and .quad are allowed in .data (line "<<(i+1)<<")\n";
+            cerr<<"Only .word, .space, .lcomm, .string, .long, and .quad are allowed in .data (line "<<(i+1)<<")\n";
             return 1;
         }
 
