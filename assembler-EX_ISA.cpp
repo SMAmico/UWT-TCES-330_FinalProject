@@ -87,7 +87,7 @@
       JLE rA, rB_or_imm, label (branch if signed rA <= rB_or_imm)
       JGT rA, rB_or_imm, label (branch if signed rA > rB_or_imm)
       JGE rA, rB_or_imm, label (branch if signed rA >= rB_or_imm)
-          -> pseudo-instructions: CMP, SETcc, and JNZ via ASM_TMP; immediates are signed 16-bit values
+          -> pseudo-instructions: CMP, SETcc, and conditional JNZ via ASM_TMP (JZ compares against R0 with SETEQ)
 
       CMP rA, rB (capture Z, N, and V from signed rA - rB)
           -> 1110 raaa rbbb 0000
@@ -934,17 +934,13 @@ int main(int argc, char** argv) {
             } else if (op=="JZ" || op=="JEQ" || op=="JNE" || op=="JLE" ||
                        op=="JGT" || op=="JGE") {
 
-                bool is_jz = op == "JZ";
-                if ((is_jz && tokens.size()!=3) || (!is_jz && tokens.size()!=4))
-                    throw runtime_error(op + (is_jz ? " expects REGISTER,LABEL" : " expects LEFT,RIGHT_OR_IMMEDIATE,LABEL"));
+                if (tokens.size() != (op == "JZ" ? 3 : 4))
+                    throw runtime_error(op + (op == "JZ" ? " expects REGISTER,LABEL" : " expects LEFT,RIGHT_OR_IMMEDIATE,LABEL"));
 
                 int left = parse_reg(tokens[1]);
-                int prefix_words = 2;
                 int condition = 1;
-                if (is_jz) {
-                    push_word((ins_cmp_set<<12) | (left<<8) | (reg_zero<<4));
-                } else {
-                    int right = 0;
+                int right = reg_zero;
+                if (tokens.size() == 4) {
                     try {
                         right = parse_reg(tokens[2]);
                     } catch (...) {
@@ -952,10 +948,8 @@ int main(int argc, char** argv) {
                         if (value < -32768 || value > 65535)
                             throw runtime_error("comparison immediate out of range (-32768..65535)");
                         emit_load_imm(words, ASM_TMP, value & 0xFFFF, addr, &word_comments, rawline);
-                        prefix_words += (value >= 0 && value <= 255) ? 1 : 4;
                         right = ASM_TMP;
                     }
-                    push_word((ins_cmp_set<<12) | (left<<8) | (right<<4));
                     if (op=="JEQ") condition = 1;
                     else if (op=="JNE") condition = 2;
                     else if (op=="JLE") condition = 3;
@@ -963,16 +957,17 @@ int main(int argc, char** argv) {
                     else condition = 5;
                 }
 
+                push_word((ins_cmp_set<<12) | (left<<8) | (right<<4));
                 push_word((ins_cmp_set<<12) | (ASM_TMP<<8) | (condition<<4) | 0xF);
-                const string &label = tokens[is_jz ? 2 : 3];
+                const string &label = tokens[tokens.size() == 3 ? 2 : 3];
                 if (instr_labels.find(label) == instr_labels.end())
                     throw runtime_error("instruction label required for " + op);
-                int branch_addr = addr + prefix_words;
+                int branch_addr = addr + 2;
                 int offset = instr_labels[label] - (branch_addr + 1);
                 if (offset < -8 || offset > 7)
                     throw runtime_error(op + " target out of JNZ range (-8..7)");
                 push_word((ins_jnz<<12) | (ASM_TMP<<8) | (PC<<4) | (offset & 0xF));
-                addr += prefix_words + 1;
+                addr += 3;
                 continue;
 
             //STR: store register through variable addressing

@@ -5,106 +5,40 @@ ADDRESS_RADIX=HEX;
 DATA_RADIX=HEX;
 
 CONTENT BEGIN
-    00 : 8000; -- NOP
-    01 : 6101; -- MOVI R1, 1
-    02 : 6202; -- MOVI R2, 2
-    03 : 6E12; -- MOVI R7, 0x1234
-    04 : CE8E; -- MOVI R7, 0x1234
-    05 : 6E34; -- MOVI R7, 0x1234
-    06 : 8EE7; -- MOVI R7, 0x1234
-    07 : 6800; -- MOVI R8, data_ptr
-    08 : 1120; -- STR R1, R2
-    09 : 1123; -- STR R1, R2, 3
-    0A : 6E10; -- STR R1, R2, 16
-    0B : 32EE; -- STR R1, R2, 16
-    0C : 11E0; -- STR R1, R2, 16
-    0D : 6E10; -- STR R1, R2, -16
-    0E : 42EE; -- STR R1, R2, -16
-    0F : 11E0; -- STR R1, R2, -16
-    10 : 6E00; -- STR R1, data_ptr
-    11 : 11E0; -- STR R1, data_ptr
-    12 : 6E01; -- STR R1, data_ptr, 1
-    13 : 11E0; -- STR R1, data_ptr, 1
-    14 : 6E01; -- STR R1, data_ptr, 300
-    15 : CE81; -- STR R1, data_ptr, 300
-    16 : 6E2C; -- STR R1, data_ptr, 300
-    17 : 7EEE; -- STR R1, data_ptr, 300
-    18 : 11E0; -- STR R1, data_ptr, 300
-    19 : 2340; -- LDR R3, R4
-    1A : 234E; -- LDR R3, R4, -2
-    1B : 6E10; -- LDR R3, R4, 16
-    1C : 34EE; -- LDR R3, R4, 16
-    1D : 23E0; -- LDR R3, R4, 16
-    1E : 6E10; -- LDR R3, R4, -16
-    1F : 44EE; -- LDR R3, R4, -16
-    20 : 23E0; -- LDR R3, R4, -16
-    21 : 6E00; -- LDR R3, data_ptr
-    22 : 23E0; -- LDR R3, data_ptr
-    23 : 6E02; -- LDR R3, data_ptr, 2
-    24 : 23E0; -- LDR R3, data_ptr, 2
-    25 : 6E01; -- LDR R3, R4, -300
-    26 : CE81; -- LDR R3, R4, -300
-    27 : 6E2C; -- LDR R3, R4, -300
-    28 : 7EEE; -- LDR R3, R4, -300
-    29 : 44EE; -- LDR R3, R4, -300
-    2A : 23E0; -- LDR R3, R4, -300
-    2B : 2E10; -- COPY R1, R2
-    2C : 1E20; -- COPY R1, R2
-    2D : 2E10; -- COPY R1, R2, 3
-    2E : 1E20; -- COPY R1, R2, 3
-    2F : 2E11; -- COPY R1, R2, 3
-    30 : 1E21; -- COPY R1, R2, 3
-    31 : 2E12; -- COPY R1, R2, 3
-    32 : 1E22; -- COPY R1, R2, 3
-    33 : 3125; -- ADD R5, R1, R2
-    34 : 4516; -- SUB R6, R5, R1
-    35 : 7129; -- OR R9, R1, R2
-    36 : 812A; -- AND R10, R1, R2
-    37 : C12B; -- SHL R11, R1, 2
-    38 : 021C; -- SHR R12, R2, 1
-    39 : D12D; -- MULT R13, R1, R2
-    3A : 841E; -- XOR R4, R1, R2
-    3B : 6201; -- XOR R4, R1, R2
-    3C : CE1E; -- XOR R4, R1, R2
-    3D : 3412; -- XOR R4, R1, R2
-    3E : 42E2; -- XOR R4, R1, R2
-    3F : E120; -- CMP R1, R2
-    40 : E30F; -- SETLT R3
-    41 : E41F; -- SETEQ R4
-    42 : E52F; -- SETNE R5
-    43 : E63F; -- SETLE R6
-    44 : E74F; -- SETGT R7
-    45 : E85F; -- SETGE R8
-    46 : 6101; -- MOVI R1, 1
-    47 : A102; -- JNZ R1, R0, 2
-    48 : 5000; -- HLT
-    49 : 6100; -- MOVI R1, 0
-    4A : 6201; -- MOVI R2, 1
-    4B : B121; -- JLT R1, R2, 1
-    4C : 5000; -- HLT
-    4D : E100; -- JZ R1, branch_jz
-    4E : EE1F; -- JZ R1, branch_jz
-    4F : AEFB; -- JZ R1, branch_jz
-    50 : E120; -- JEQ R1, R2, branch_jeq
-    51 : EE1F; -- JEQ R1, R2, branch_jeq
-    52 : AEFB; -- JEQ R1, R2, branch_jeq
-    53 : E100; -- JNE R1, 0x1234, branch_jne
-    54 : EE2F; -- JNE R1, 0x1234, branch_jne
-    55 : AEFF; -- JNE R1, 0x1234, branch_jne
-    56 : E120; -- JLE R1, R2, branch_jle
-    57 : EE3F; -- JLE R1, R2, branch_jle
-    58 : AEFF; -- JLE R1, R2, branch_jle
-    59 : 6EFF; -- JGT R1, -1, branch_jgt
-    5A : CE81; -- JGT R1, -1, branch_jgt
-    5B : 6EFF; -- JGT R1, -1, branch_jgt
-    5C : 7EEE; -- JGT R1, -1, branch_jgt
-    5D : E1E0; -- JGT R1, -1, branch_jgt
-    5E : EE4F; -- JGT R1, -1, branch_jgt
-    5F : AEFB; -- JGT R1, -1, branch_jgt
-    60 : E120; -- JGE R1, R2, branch_jge
-    61 : EE5F; -- JGE R1, R2, branch_jge
-    62 : AEFB; -- JGE R1, R2, branch_jge
-    63 : 5000; -- HLT
+    00 : 8000; -- nop
+    01 : 6E01; -- subi 12, 12, 1
+    02 : 4CEC; -- subi 12, 12, 1
+    03 : 1BC0; -- str 11, 12, 0
+    04 : 1CB0; -- str 12, 11, 0
+    05 : 612A; -- movi 1, 42
+    06 : 6EFF; -- andi 1, 1, 65535
+    07 : CE81; -- andi 1, 1, 65535
+    08 : 6EFF; -- andi 1, 1, 65535
+    09 : 7EEE; -- andi 1, 1, 65535
+    0A : 81E1; -- andi 1, 1, 65535
+    0B : 6EFF; -- andi 1, 1, 65535
+    0C : CE81; -- andi 1, 1, 65535
+    0D : 6EFF; -- andi 1, 1, 65535
+    0E : 7EEE; -- andi 1, 1, 65535
+    0F : 81E1; -- andi 1, 1, 65535
+    10 : 6EFF; -- andi 1, 1, 65535
+    11 : CE81; -- andi 1, 1, 65535
+    12 : 6EFF; -- andi 1, 1, 65535
+    13 : 7EEE; -- andi 1, 1, 65535
+    14 : 81E1; -- andi 1, 1, 65535
+    15 : 8BBC; -- mov 12, 11
+    16 : 2BC0; -- ldr 11, 12, 0
+    17 : 2DC1; -- ldr 13, 12, 1
+    18 : 6E02; -- addi 12, 12, 2
+    19 : 3CEC; -- addi 12, 12, 2
+    1A : 900D; -- jmp 13
+    1B : 8BBC; -- mov 12, 11
+    1C : 2BC0; -- ldr 11, 12, 0
+    1D : 2DC1; -- ldr 13, 12, 1
+    1E : 6E02; -- addi 12, 12, 2
+    1F : 3CEC; -- addi 12, 12, 2
+    20 : 900D; -- jmp 13
+    21 : 5000; -- halt
 
-    [64..FFFF] : 0000;
+    [22..FFFF] : 0000;
 END;
