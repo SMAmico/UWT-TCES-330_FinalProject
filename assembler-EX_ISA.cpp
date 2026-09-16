@@ -682,7 +682,8 @@ int main(int argc, char** argv) {
         while (true) {
             //find the first colon, if none, break
             size_t colon = l.find(':');
-            if (colon==string::npos) break;
+                size_t whitespace = l.find_first_of(" \t");
+                if (colon==string::npos || (whitespace != string::npos && colon > whitespace)) break;
             //extract the label name, and trim it
             string lab = trim(l.substr(0,colon));
             //if the label is empty, error
@@ -720,6 +721,14 @@ int main(int argc, char** argv) {
             continue;
         }
         if (op == ".DATA") {
+                if (tokens.size() == 2 && tokens[1] != "0") {
+                    cerr<<".data subsection must be 0 on line "<<(i+1)<<"\n";
+                    return 1;
+                }
+                if (tokens.size() > 2) {
+                    cerr<<".data accepts at most one subsection argument on line "<<(i+1)<<"\n";
+                    return 1;
+                }
             section = Section::Data;
             continue;
         }
