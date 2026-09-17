@@ -1360,11 +1360,17 @@ int main(int argc, char** argv) {
                         int offset = parse_number(tokens[1]);
                         if (offset < -2048 || offset > 2047) throw runtime_error("JMP offset out of range (-2048..2047)");
                         instr = (ins_jmp<<12) | ((uint16_t)offset & 0x0FFF);
-                    } catch (...) {
-                        int reg = parse_reg(tokens[1]);
-                        // Pseudo-jump via ALU writeback format: RF[rc] = RF[ra] & RF[rb].
-                        // Set ra=reg, rb=reg, rc=PC so PC receives reg's value.
-                        instr = encode_alu(ins_and, reg, reg, PC);
+                    } catch (const invalid_argument&) {
+                        try {
+                            int reg = parse_reg(tokens[1]);
+                            // Pseudo-jump via ALU writeback format: RF[rc] = RF[ra] & RF[rb].
+                            // Set ra=reg, rb=reg, rc=PC so PC receives reg's value.
+                            instr = encode_alu(ins_and, reg, reg, PC);
+                        } catch (...) {
+                            throw runtime_error("unknown instruction label or jump target: " + tokens[1]);
+                        }
+                    } catch (const out_of_range&) {
+                        throw runtime_error("JMP offset out of range (-2048..2047)");
                     }
                 }
 
