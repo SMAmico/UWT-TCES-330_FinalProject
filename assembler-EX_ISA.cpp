@@ -21,7 +21,7 @@
       - Tokens are separated by whitespace and/or commas.
       - Comments may start with ';', '//' or '#'.
     - Registers are R0..R15 (case-insensitive).
-    - Control-flow labels (JMP/JLT and conditional pseudo-branch forms) must be .text labels.
+    - Control-flow labels (JMP/JLT/JZ and conditional pseudo-branch forms) must be .text labels.
       - Memory-address labels (STR/LDR label form) must be .data labels.
 
     .data directives (written to the separate data output/MIF described above):
@@ -61,7 +61,7 @@
       HLT                              
           -> 0101 0000 0000 0000
 
-    MOVI rA, imm8_or_label (rA = rA | imm)
+      MOVI rA, imm8_or_label (rA = rA | imm)
           -> 0110 raaa dddddddd     (ORs the immediate value into the selected register, using pseudoins for >8 bits)
              can load a label from either iram or dram.
       OR  rA, rB, rC   (rA = rB | rC)
@@ -81,13 +81,17 @@
           -> 1010 raaa rbbb bbbb
       JLT rA, rB, offset (PC = PC + offset if rA < rB)
           -> 1011 raaa rbbb bbbb    (4-bit signed offset relative to next instr)
-      JZ rA, label (branch if rA == 0)
+      JZ rA, rB (jump to the 16-bit address in RF[rB] if rA == R0)
+      JZ rA, soff8 (jump PC-relative by an 8-bit offset if rA == R0)
+      JZ rA, LABEL (jump to the 16-bit address LABEL if rA == R0)
+          -> pseudo-instruction: CMP rA, R0; SETNE R14; skip the target transfer when unequal
+             Register targets use JMP rB; offsets use JMP soff8; labels load the full address into R13, then use JMP R13.
       JEQ rA, rB_or_imm, label (branch if rA == rB_or_imm)
       JNE rA, rB_or_imm, label (branch if rA != rB_or_imm)
       JLE rA, rB_or_imm, label (branch if signed rA <= rB_or_imm)
       JGT rA, rB_or_imm, label (branch if signed rA > rB_or_imm)
       JGE rA, rB_or_imm, label (branch if signed rA >= rB_or_imm)
-          -> pseudo-instructions: CMP, SETcc, and conditional JNZ via ASM_TMP (JZ compares against R0 with SETEQ)
+          -> pseudo-instructions: CMP, SETcc, and conditional JNZ via ASM_TMP
 
       CMP rA, rB (capture Z, N, and V from signed rA - rB)
           -> 1110 raaa rbbb 0000
@@ -120,6 +124,7 @@
     as: offset = target_address - (current_address + 1).
     - JMP label uses a signed 12-bit offset (-2048..+2047).
     - JLT label uses a signed 4-bit offset (-8..+7).
+    - JZ immediate offsets use the 8-bit range (-128..255); JZ labels are full 16-bit absolute addresses.
 */
 
 //DEFINES: aliases for all instructions in the ISA
@@ -218,13 +223,17 @@ int parse_reg(const string &token) {
     //reads until R then converts following integer to hex
     if (s.size() > 0 && s[0] == 'R') {
         string num = s.substr(1);
-        int v = stoi(num);
+        size_t parsed = 0;
+        int v = stoi(num, &parsed);
+        if (parsed != num.size()) throw runtime_error("invalid register: "+token);
         if (v < 0 || v > 15) throw runtime_error("register out of range: "+token);
         return v;
     }
     // as an alternate input, allow raw numbers 0-15 too.
     {
-        int v = stoi(s);
+        size_t parsed = 0;
+        int v = stoi(s, &parsed);
+        if (parsed != s.size()) throw runtime_error("invalid register: "+token);
         if (v < 0 || v > 15) throw runtime_error("register out of range: "+token);
         return v;
     }
@@ -284,9 +293,10 @@ static void emit_load_imm(vector<uint16_t> &words,
                           int value,
                           int &addr,
                           vector<string> *comments = nullptr,
-                          const string &comment = "") {
+                          const string &comment = "",
+                          bool force_wide = false) {
     if (value < 0 || value > 65535) throw runtime_error("immediate out of range");
-    if (value > 255) {
+    if (force_wide || value > 255) {
         int upper = (value >> 8) & 0xFF;
         int lower = value & 0xFF;
         words.push_back((ins_movi<<12) | (ASM_TMP << 8) | (upper & 0xFF));
@@ -513,8 +523,19 @@ static int estimate_instr_words(const vector<string> &tokens,
             return copy_word_count(count);
         }
     }
-    if (op == "JZ" && tokens.size() >= 3)
-        return 3;
+    if (op == "JZ" && tokens.size() >= 3) {
+        try {
+            parse_reg(tokens[2]);
+            return 4;
+        } catch (...) {
+            try {
+                int value = parse_number(tokens[2]);
+                return (value >= -128 && value <= 255) ? 4 : 1;
+            } catch (...) {
+                return 8;
+            }
+        }
+    }
     if ((op == "JEQ" || op == "JNE" || op == "JLE" ||
          op == "JGT" || op == "JGE") && tokens.size() >= 4) {
         try {
@@ -934,32 +955,81 @@ int main(int argc, char** argv) {
             } else if (op=="JZ" || op=="JEQ" || op=="JNE" || op=="JLE" ||
                        op=="JGT" || op=="JGE") {
 
-                if (tokens.size() != (op == "JZ" ? 3 : 4))
-                    throw runtime_error(op + (op == "JZ" ? " expects REGISTER,LABEL" : " expects LEFT,RIGHT_OR_IMMEDIATE,LABEL"));
+                if (op == "JZ" && tokens.size() != 3)
+                    throw runtime_error("JZ expects COMPARE_REGISTER,TARGET_REGISTER_OR_OFFSET_OR_LABEL");
+                if (op != "JZ" && tokens.size() != 4)
+                    throw runtime_error(op + " expects LEFT,RIGHT_OR_IMMEDIATE,LABEL");
+
+                if (op == "JZ") {
+                    int compare_reg = parse_reg(tokens[1]);
+                    int skip_words = 1;
+                    int target_reg = 0;
+                    bool target_is_reg = false;
+                    bool target_is_label = false;
+                    int target_value = 0;
+
+                    try {
+                        target_reg = parse_reg(tokens[2]);
+                        target_is_reg = true;
+                    } catch (...) {
+                        if (instr_labels.find(tokens[2]) != instr_labels.end()) {
+                            target_is_label = true;
+                            target_value = instr_labels[tokens[2]];
+                            skip_words = 5;
+                        } else if (data_labels.find(tokens[2]) != data_labels.end()) {
+                            throw runtime_error("data label used where instruction label is required: " + tokens[2]);
+                        } else {
+                            target_value = parse_number(tokens[2]);
+                            if (target_value < -128 || target_value > 255)
+                                throw runtime_error("JZ offset out of range (-128..255)");
+                        }
+                    }
+
+                    // Skip the transfer when compare_reg is not zero.
+                    push_word((ins_cmp_set<<12) | (compare_reg<<8) | (reg_zero<<4));
+                    push_word((ins_cmp_set<<12) | (ASM_TMP<<8) | (2<<4) | 0xF);
+                    push_word((ins_jnz<<12) | (ASM_TMP<<8) | (PC<<4) | skip_words);
+
+                    if (target_is_reg) {
+                        instr = encode_alu(ins_and, target_reg, target_reg, PC);
+                        push_word(instr);
+                        addr += 4;
+                    } else if (target_is_label) {
+                        emit_load_imm(words, ASM_TMP - 1, target_value, addr, &word_comments, rawline, true);
+                        instr = encode_alu(ins_and, ASM_TMP - 1, ASM_TMP - 1, PC);
+                        push_word(instr);
+                        addr += 5;
+                    } else {
+                        if (target_value < -128 || target_value > 255)
+                            throw runtime_error("JZ offset out of range (-128..255)");
+                        instr = (ins_jmp<<12) | ((uint16_t)target_value & 0x0FFF);
+                        push_word(instr);
+                        addr += 4;
+                    }
+                    continue;
+                }
 
                 int left = parse_reg(tokens[1]);
                 int condition = 1;
                 int right = reg_zero;
-                if (tokens.size() == 4) {
-                    try {
-                        right = parse_reg(tokens[2]);
-                    } catch (...) {
-                        int value = parse_number(tokens[2]);
-                        if (value < -32768 || value > 65535)
-                            throw runtime_error("comparison immediate out of range (-32768..65535)");
-                        emit_load_imm(words, ASM_TMP, value & 0xFFFF, addr, &word_comments, rawline);
-                        right = ASM_TMP;
-                    }
-                    if (op=="JEQ") condition = 1;
-                    else if (op=="JNE") condition = 2;
-                    else if (op=="JLE") condition = 3;
-                    else if (op=="JGT") condition = 4;
-                    else condition = 5;
+                try {
+                    right = parse_reg(tokens[2]);
+                } catch (...) {
+                    int value = parse_number(tokens[2]);
+                    if (value < -32768 || value > 65535)
+                        throw runtime_error("comparison immediate out of range (-32768..65535)");
+                    emit_load_imm(words, ASM_TMP, value & 0xFFFF, addr, &word_comments, rawline);
+                    right = ASM_TMP;
                 }
+                if (op=="JEQ" || op=="JZ") condition = 1;
+                else if (op=="JNE") condition = 2;
+                else if (op=="JLE") condition = 3;
+                else if (op=="JGT") condition = 4;
+                else condition = 5;
 
                 push_word((ins_cmp_set<<12) | (left<<8) | (right<<4));
                 push_word((ins_cmp_set<<12) | (ASM_TMP<<8) | (condition<<4) | 0xF);
-                const string &label = tokens[tokens.size() == 3 ? 2 : 3];
+                const string &label = tokens[3];
                 if (instr_labels.find(label) == instr_labels.end())
                     throw runtime_error("instruction label required for " + op);
                 int branch_addr = addr + 2;
