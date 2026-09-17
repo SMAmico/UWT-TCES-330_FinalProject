@@ -1,21 +1,617 @@
-# vsim -c -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L cyclonev_ver work.Datapath_cmp_set_tb -do "run -all; exit" 
-# Start time: 17:48:31 on Aug 22,2026
+# do {.\runrtl.do}
+# 
+# avoid stopping the script if ModelSim breaks at $finish
+# onbreak {resume}
+# 
+# get rid of current rtl_work library
+# if {[file exists rtl_work]} {
+#     vdel -lib rtl_work -all
+# }
+# Error 133: Unable to remove directory "D:/OneDrive/School/UW/TCES330/FinalProject/UWT-TCES-330_FinalProject/rtl_work".
+# 
+# create rtl_work library and map it to work
+# vlib rtl_work
+# vmap work rtl_work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work rtl_work 
+# Modifying modelsim.ini
+# 
+# compile project source files
+# vlog -sv -work work +acc "./Project/Project.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:08:01 on Sep 05,2026
+# vlog -sv -work work "+acc" ./Project/Project.sv 
+# -- Compiling module Project
+# 
+# Top level modules:
+# 	Project
+# End time: 11:08:01 on Sep 05,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./RAM/myRAM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:08:01 on Sep 05,2026
+# vlog -sv -work work "+acc" ./RAM/myRAM.v 
+# -- Compiling module myRAM
+# -- Compiling module myRAM_tb
+# 
+# Top level modules:
+# 	myRAM_tb
+# End time: 11:08:01 on Sep 05,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./ROM/myROM.v"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:08:01 on Sep 05,2026
+# vlog -sv -work work "+acc" ./ROM/myROM.v 
+# -- Compiling module myROM
+# 
+# Top level modules:
+# 	myROM
+# End time: 11:08:02 on Sep 05,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/Decoder.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:08:02 on Sep 05,2026
+# vlog -sv -work work "+acc" ./Board/Decoder.sv 
+# -- Compiling module Decoder
+# -- Compiling module Decoder_tb
+# 
+# Top level modules:
+# 	Decoder_tb
+# End time: 11:08:02 on Sep 05,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Board/KeyFilter.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:08:02 on Sep 05,2026
+# vlog -sv -work work "+acc" ./Board/KeyFilter.sv 
+# -- Compiling module KeyFilter
+# 
+# Top level modules:
+# 	KeyFilter
+# End time: 11:08:02 on Sep 05,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/IR.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:08:02 on Sep 05,2026
+# vlog -sv -work work "+acc" ./Control_Unit/IR.sv 
+# -- Compiling module IR
+# -- Compiling module IR_tb
+# 
+# Top level modules:
+# 	IR_tb
+# End time: 11:08:02 on Sep 05,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/FSM.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:08:02 on Sep 05,2026
+# vlog -sv -work work "+acc" ./Control_Unit/FSM.sv 
+# -- Compiling module FSM
+# 
+# Top level modules:
+# 	FSM
+# End time: 11:08:03 on Sep 05,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Control_Unit/Control_Unit.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:08:03 on Sep 05,2026
+# vlog -sv -work work "+acc" ./Control_Unit/Control_Unit.sv 
+# -- Compiling module Control_Unit
+# -- Compiling module ROMAddressMux
+# -- Compiling module Control_Unit_tb
+# 
+# Top level modules:
+# 	Control_Unit_tb
+# End time: 11:08:03 on Sep 05,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Datapath/Datapath.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:08:03 on Sep 05,2026
+# vlog -sv -work work "+acc" ./Datapath/Datapath.sv 
+# -- Compiling module RegFile
+# -- Compiling module ALU
+# -- Compiling module mux16w_2to1
+# -- Compiling module RAM
+# -- Compiling module Datapath
+# 
+# Top level modules:
+# 	Datapath
+# End time: 11:08:03 on Sep 05,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/Processor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:08:03 on Sep 05,2026
+# vlog -sv -work work "+acc" ./Project/Processor.sv 
+# -- Compiling module Processor
+# -- Compiling module Processor_tb
+# 
+# Top level modules:
+# 	Processor_tb
+# End time: 11:08:04 on Sep 05,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vlog -sv -work work +acc "./Project/testProcessor.sv"
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:08:04 on Sep 05,2026
+# vlog -sv -work work "+acc" ./Project/testProcessor.sv 
+# -- Compiling module testProcessor
+# 
+# Top level modules:
+# 	testProcessor
+# End time: 11:08:04 on Sep 05,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# run the main processor testbench
+# vsim -t 1ps -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L cyclonev_ver -L rtl_work -L work -voptargs="+acc" -fsmdebug work.testProcessor
+# vsim -t 1ps -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L cyclonev_ver -L rtl_work -L work -voptargs=""+acc"" -fsmdebug work.testProcessor 
+# Start time: 11:08:04 on Sep 05,2026
 # Loading sv_std.std
-# Loading work.Datapath_cmp_set_tb
+# Loading work.testProcessor
+# Loading work.Processor
+# Loading work.Control_Unit
+# Loading work.FSM
+# Loading work.IR
+# Loading work.ROMAddressMux
+# Loading work.myROM
+# Loading altera_mf_ver.altsyncram
 # Loading work.Datapath
 # Loading work.RegFile
 # Loading work.ALU
 # Loading work.mux16w_2to1
 # Loading work.RAM
 # Loading work.myRAM
-# Loading altera_mf_ver.altsyncram
 # Loading altera_mf_ver.altsyncram_body
 # Loading altera_mf_ver.ALTERA_DEVICE_FAMILIES
 # Loading altera_mf_ver.ALTERA_MF_MEMORY_INITIALIZATION
+# 
+# load waveform setup
+# do wave.do
+# onerror {resume}
+# quietly WaveActivateNextPane {} 0
+# quietly delete wave *
+# delete wave not supported in batch mode
+# 
+# Custom symbolic radix maps for easier debug readability.
+# Wrapped in catch blocks so the script still runs on simulators lacking custom radix support.
+# catch {
+# 	radix define FSM_STATE {
+# 		4'b0000 "S_INIT"
+# 		4'b0001 "S_FETCH"
+# 		4'b0010 "S_DEC"
+# 		4'b0011 "S_NOP"
+# 		4'b0100 "S_STR"
+# 		4'b0101 "S_LDA"
+# 		4'b0110 "S_LDB"
+# 		4'b0111 "S_ALU"
+# 		4'b1001 "S_HLT"
+# 		4'b1010 "S_JMP"
+# 		4'b1011 "S_JNZ_TEST"
+# 		4'b1100 "S_JNZ_JUMP"
+# 		4'b1101 "S_JLT_TEST"
+# 		4'b1110 "S_JLT_JUMP"
+# 	}
+# }
+# 0
+# 
+# catch {
+# 	radix define ISA_OPCODE {
+# 		4'b0000 "INS_SHR"
+# 		4'b0001 "INS_STR"
+# 		4'b0010 "INS_LDR"
+# 		4'b0011 "INS_ADD"
+# 		4'b0100 "INS_SUB"
+# 		4'b0101 "INS_HLT"
+# 		4'b0110 "INS_MOVI"
+# 		4'b0111 "INS_OR"
+# 		4'b1000 "INS_AND/NOP"
+# 		4'b1001 "INS_JMP"
+# 		4'b1010 "INS_JNZ"
+# 		4'b1011 "INS_JLT"
+# 		4'b1100 "INS_SHL"
+# 		4'b1101 "INS_MULT"
+# 	}
+# }
+# 0
+# 
+# -----------------------------------------------------------------------------
+# Top-level timing and architectural state
+# -----------------------------------------------------------------------------
+# add wave -noupdate -divider {Clock and Reset}
+# add wave -noupdate -radix binary /testProcessor/Clk
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+#           File in use by: S  Hostname: S-LAPTOP  ProcessID: 5600
+#           Attempting to use alternate WLF file "./wlft41e6ca".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+#           Using alternate file: ./wlft41e6ca
+# add wave -noupdate -radix binary /testProcessor/ResetN
+# 
+# add wave -noupdate -divider {Architectural View}
+# add wave -noupdate -radix hexadecimal /testProcessor/PC_Out
+# add wave -noupdate -radix hexadecimal /testProcessor/IR_Out
+# add wave -noupdate -radix unsigned /testProcessor/State
+# add wave -noupdate -radix unsigned /testProcessor/NextState
+# add wave -noupdate -radix FSM_STATE /testProcessor/State
+# add wave -noupdate -radix FSM_STATE /testProcessor/NextState
+# 
+# IR field breakdown: [15:12]=opcode, [11:8]=ra, [7:4]=rb/imm-hi, [3:0]=rc/imm-lo
+# add wave -noupdate -divider {IR Decode Fields}
+# add wave -noupdate -radix ISA_OPCODE /testProcessor/IR_Out[15:12]
+# add wave -noupdate -radix hexadecimal /testProcessor/IR_Out[15:12]
+# add wave -noupdate -radix hexadecimal /testProcessor/IR_Out[11:8]
+# add wave -noupdate -radix hexadecimal /testProcessor/IR_Out[7:4]
+# add wave -noupdate -radix hexadecimal /testProcessor/IR_Out[3:0]
+# add wave -noupdate -radix hexadecimal /testProcessor/IR_Out[7:0]
+# add wave -noupdate -radix hexadecimal /testProcessor/IR_Out[11:0]
+# 
+# -----------------------------------------------------------------------------
+# Control unit internals
+# -----------------------------------------------------------------------------
+# add wave -noupdate -divider {Control Unit: PC and IR Control}
+# add wave -noupdate -radix binary /testProcessor/DUT/control0/PC_clr
+# add wave -noupdate -radix binary /testProcessor/DUT/control0/PC_up
+# add wave -noupdate -radix binary /testProcessor/DUT/control0/PC_w_en
+# add wave -noupdate -radix hexadecimal /testProcessor/DUT/control0/PC_set
+# add wave -noupdate -radix binary /testProcessor/DUT/control0/IR_ld
+# add wave -noupdate -radix hexadecimal /testProcessor/DUT/control0/IR_in
+# add wave -noupdate -radix hexadecimal /testProcessor/DUT/control0/IR_data
+# 
+# add wave -noupdate -divider {Control Unit: Register File and ALU Select}
+# add wave -noupdate -radix unsigned /testProcessor/DUT/RF_Ra_Addr
+# add wave -noupdate -radix unsigned /testProcessor/DUT/RF_Rb_Addr
+# add wave -noupdate -radix unsigned /testProcessor/DUT/RF_W_Addr
+# add wave -noupdate -radix binary /testProcessor/DUT/RF_W_en
+# add wave -noupdate -radix binary /testProcessor/DUT/RF_s
+# add wave -noupdate -radix unsigned /testProcessor/DUT/Alu_s0
+# add wave -noupdate -radix hexadecimal /testProcessor/DUT/MOVI_d
+# add wave -noupdate -radix unsigned /testProcessor/DUT/D_Addr_reg
+# add wave -noupdate -radix unsigned /testProcessor/DUT/D_Data_reg
+# add wave -noupdate -radix binary /testProcessor/DUT/D_wr
+# 
+# -----------------------------------------------------------------------------
+# Datapath and memory visibility
+# -----------------------------------------------------------------------------
+# add wave -noupdate -divider {Datapath: ALU Ports and Flags}
+# add wave -noupdate -radix hexadecimal /testProcessor/ALU_A
+# add wave -noupdate -radix hexadecimal /testProcessor/ALU_B
+# add wave -noupdate -radix hexadecimal /testProcessor/ALU_Out
+# add wave -noupdate -radix binary /testProcessor/DUT/Alu_Z
+# add wave -noupdate -radix binary /testProcessor/DUT/Alu_N
+# add wave -noupdate -radix binary /testProcessor/DUT/Alu_V
+# 
+# add wave -noupdate -divider {Datapath: Memory Interface}
+# add wave -noupdate -radix hexadecimal /testProcessor/DUT/datapath0/D_Addr
+# add wave -noupdate -radix hexadecimal /testProcessor/DUT/datapath0/D_Data
+# add wave -noupdate -radix hexadecimal /testProcessor/DUT/datapath0/R_data
+# add wave -noupdate -radix hexadecimal /testProcessor/DUT/datapath0/W_data
+# 
+# -----------------------------------------------------------------------------
+# Register File Contents
+# Registers r0r14 are general-purpose; r15 (index 4'hF) is the PC register.
+# These are the live values stored inside the RegFile instance (rf0) within
+# the datapath.  Braces prevent Tcl from interpreting square brackets as a
+# command invocation.
+# -----------------------------------------------------------------------------
+# add wave -noupdate -divider {Register File Contents}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[0]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[1]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[2]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[3]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[4]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[5]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[6]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[7]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[8]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[9]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[10]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[11]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[12]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[13]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[14]}
+# add wave -noupdate -radix hexadecimal {/testProcessor/DUT/datapath0/rf0/regfile[15]}
+# 
+# TreeUpdate [SetDefaultTree]
+# WaveRestoreCursors {{Cursor 1} {0 ps} 0}
+# quietly wave cursor active 0
+# wave activecursor not supported in batch mode
+# configure wave -namecolwidth 280
+# configure wave not supported in batch mode
+# configure wave -valuecolwidth 120
+# configure wave not supported in batch mode
+# configure wave -justifyvalue left
+# configure wave not supported in batch mode
+# configure wave -signalnamewidth 0
+# configure wave not supported in batch mode
+# configure wave -snapdistance 10
+# configure wave not supported in batch mode
+# configure wave -datasetprefix 0
+# configure wave not supported in batch mode
+# configure wave -rowmargin 4
+# configure wave not supported in batch mode
+# configure wave -childrowmargin 2
+# configure wave not supported in batch mode
+# configure wave -gridoffset 0
+# configure wave not supported in batch mode
+# configure wave -gridperiod 10
+# configure wave not supported in batch mode
+# configure wave -griddelta 40
+# configure wave not supported in batch mode
+# configure wave -timeline 0
+# configure wave not supported in batch mode
+# configure wave -timelineunits ns
+# configure wave not supported in batch mode
+# update
+# WaveRestoreZoom {0 ns} {1000 ns}
+# 
+# set window views
+# view wave
+# view structure
+# view signals
+# 
+# monitor loop/termination signals to diagnose runaway control flow
+# when { /testProcessor/IR_Out == 16'h5000 } {
+#     echo [format "HALT reached: t=%0t PC=%h IR=%h State=%h ALU_A=%h ALU_B=%h ALU_Out=%h" $now [examine /testProcessor/PC_Out] [examine /testProcessor/IR_Out] [examine /testProcessor/State] [examine /testProcessor/ALU_A] [examine /testProcessor/ALU_B] [examine /testProcessor/ALU_Out]]
+#     stop
+# }
+# when { /testProcessor/PC_Out == 16'h0023 && /testProcessor/IR_Out == 16'ha1d1 } {
+#     echo [format "Loop diagnosis trigger: t=%0t PC=%h IR=%h State=%h ALU_A=%h ALU_B=%h ALU_Out=%h" $now [examine /testProcessor/PC_Out] [examine /testProcessor/IR_Out] [examine /testProcessor/State] [examine /testProcessor/ALU_A] [examine /testProcessor/ALU_B] [examine /testProcessor/ALU_Out]]
+#     stop
+# }
+# 
+# run simulation and explicitly stop/exit so the terminal session does not remain open
 # run -all
-# CMP/SET datapath testbench complete. Passes: 14 Failures: 0
-# RESULT: PASS
-# ** Note: $finish    : ./Datapath/Datapath_cmp_set_tb.sv(154)
-#    Time: 47 ns  Iteration: 0  Instance: /Datapath_cmp_set_tb
-# End time: 17:48:32 on Aug 22,2026, Elapsed time: 0:00:01
-# Errors: 0, Warnings: 0
+# 
+# Begin Simulation.
+# Time is 0 : ResetN = 0   PC_Out = 0000   IR_Out = xxxx  State = x  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 10000 : ResetN = 0   PC_Out = 0000   IR_Out = xxxx  State = 0  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 40000 : ResetN = 1   PC_Out = 0000   IR_Out = xxxx  State = 0  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 50000 : ResetN = 1   PC_Out = 0000   IR_Out = xxxx  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 70000 : ResetN = 1   PC_Out = 0001   IR_Out = 8000  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 90000 : ResetN = 1   PC_Out = 0001   IR_Out = 8000  State = 3  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 110000 : ResetN = 1   PC_Out = 0001   IR_Out = 8000  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 130000 : ResetN = 1   PC_Out = 0002   IR_Out = 6101  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 150000 : ResetN = 1   PC_Out = 0002   IR_Out = 6101  State = 7  ALU A = 0000  ALU B = 0000 ALU Out = 0001  RA Address = 0001
+# Time is 170000 : ResetN = 1   PC_Out = 0002   IR_Out = 6101  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 190000 : ResetN = 1   PC_Out = 0003   IR_Out = 6202  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 210000 : ResetN = 1   PC_Out = 0003   IR_Out = 6202  State = 7  ALU A = 0000  ALU B = 0000 ALU Out = 0002  RA Address = 0010
+# Time is 230000 : ResetN = 1   PC_Out = 0003   IR_Out = 6202  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 250000 : ResetN = 1   PC_Out = 0004   IR_Out = 6e12  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 270000 : ResetN = 1   PC_Out = 0004   IR_Out = 6e12  State = 7  ALU A = 0000  ALU B = 0001 ALU Out = 0012  RA Address = 1110
+# Time is 290000 : ResetN = 1   PC_Out = 0004   IR_Out = 6e12  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 310000 : ResetN = 1   PC_Out = 0005   IR_Out = ce8e  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 330000 : ResetN = 1   PC_Out = 0005   IR_Out = ce8e  State = 7  ALU A = 0012  ALU B = 0000 ALU Out = 1200  RA Address = 1110
+# Time is 350000 : ResetN = 1   PC_Out = 0005   IR_Out = ce8e  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 370000 : ResetN = 1   PC_Out = 0006   IR_Out = 6e34  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 390000 : ResetN = 1   PC_Out = 0006   IR_Out = 6e34  State = 7  ALU A = 1200  ALU B = 0000 ALU Out = 1234  RA Address = 1110
+# Time is 410000 : ResetN = 1   PC_Out = 0006   IR_Out = 6e34  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 430000 : ResetN = 1   PC_Out = 0007   IR_Out = 8ee7  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 450000 : ResetN = 1   PC_Out = 0007   IR_Out = 8ee7  State = 7  ALU A = 1234  ALU B = 1234 ALU Out = 1234  RA Address = 1110
+# Time is 470000 : ResetN = 1   PC_Out = 0007   IR_Out = 8ee7  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 490000 : ResetN = 1   PC_Out = 0008   IR_Out = 6800  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 510000 : ResetN = 1   PC_Out = 0008   IR_Out = 6800  State = 7  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 1000
+# Time is 530000 : ResetN = 1   PC_Out = 0008   IR_Out = 6800  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 550000 : ResetN = 1   PC_Out = 0009   IR_Out = 1120  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 570000 : ResetN = 1   PC_Out = 0009   IR_Out = 1120  State = 4  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 590000 : ResetN = 1   PC_Out = 0009   IR_Out = 1120  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 610000 : ResetN = 1   PC_Out = 000a   IR_Out = 1123  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 630000 : ResetN = 1   PC_Out = 000a   IR_Out = 1123  State = 4  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 650000 : ResetN = 1   PC_Out = 000a   IR_Out = 1123  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 670000 : ResetN = 1   PC_Out = 000b   IR_Out = 6e10  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 690000 : ResetN = 1   PC_Out = 000b   IR_Out = 6e10  State = 7  ALU A = 1234  ALU B = 0001 ALU Out = 1210  RA Address = 1110
+# Time is 710000 : ResetN = 1   PC_Out = 000b   IR_Out = 6e10  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 730000 : ResetN = 1   PC_Out = 000c   IR_Out = 32ee  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 750000 : ResetN = 1   PC_Out = 000c   IR_Out = 32ee  State = 7  ALU A = 0002  ALU B = 1210 ALU Out = 1212  RA Address = 0010
+# Time is 770000 : ResetN = 1   PC_Out = 000c   IR_Out = 32ee  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 790000 : ResetN = 1   PC_Out = 000d   IR_Out = 11e0  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 810000 : ResetN = 1   PC_Out = 000d   IR_Out = 11e0  State = 4  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 830000 : ResetN = 1   PC_Out = 000d   IR_Out = 11e0  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 850000 : ResetN = 1   PC_Out = 000e   IR_Out = 6e10  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 870000 : ResetN = 1   PC_Out = 000e   IR_Out = 6e10  State = 7  ALU A = 1212  ALU B = 0001 ALU Out = 1210  RA Address = 1110
+# Time is 890000 : ResetN = 1   PC_Out = 000e   IR_Out = 6e10  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 910000 : ResetN = 1   PC_Out = 000f   IR_Out = 42ee  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 930000 : ResetN = 1   PC_Out = 000f   IR_Out = 42ee  State = 7  ALU A = 0002  ALU B = 1210 ALU Out = edf2  RA Address = 0010
+# Time is 950000 : ResetN = 1   PC_Out = 000f   IR_Out = 42ee  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 970000 : ResetN = 1   PC_Out = 0010   IR_Out = 11e0  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 990000 : ResetN = 1   PC_Out = 0010   IR_Out = 11e0  State = 4  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1010000 : ResetN = 1   PC_Out = 0010   IR_Out = 11e0  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1030000 : ResetN = 1   PC_Out = 0011   IR_Out = 6e00  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1050000 : ResetN = 1   PC_Out = 0011   IR_Out = 6e00  State = 7  ALU A = edf2  ALU B = 0000 ALU Out = ed00  RA Address = 1110
+# Time is 1070000 : ResetN = 1   PC_Out = 0011   IR_Out = 6e00  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1090000 : ResetN = 1   PC_Out = 0012   IR_Out = 11e0  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1110000 : ResetN = 1   PC_Out = 0012   IR_Out = 11e0  State = 4  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1130000 : ResetN = 1   PC_Out = 0012   IR_Out = 11e0  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1150000 : ResetN = 1   PC_Out = 0013   IR_Out = 6e01  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1170000 : ResetN = 1   PC_Out = 0013   IR_Out = 6e01  State = 7  ALU A = ed00  ALU B = 0000 ALU Out = ed01  RA Address = 1110
+# Time is 1190000 : ResetN = 1   PC_Out = 0013   IR_Out = 6e01  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1210000 : ResetN = 1   PC_Out = 0014   IR_Out = 11e0  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1230000 : ResetN = 1   PC_Out = 0014   IR_Out = 11e0  State = 4  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1250000 : ResetN = 1   PC_Out = 0014   IR_Out = 11e0  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1270000 : ResetN = 1   PC_Out = 0015   IR_Out = 6e01  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1290000 : ResetN = 1   PC_Out = 0015   IR_Out = 6e01  State = 7  ALU A = ed01  ALU B = 0000 ALU Out = ed01  RA Address = 1110
+# Time is 1310000 : ResetN = 1   PC_Out = 0015   IR_Out = 6e01  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1330000 : ResetN = 1   PC_Out = 0016   IR_Out = ce81  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1350000 : ResetN = 1   PC_Out = 0016   IR_Out = ce81  State = 7  ALU A = ed01  ALU B = 0000 ALU Out = 0100  RA Address = 1110
+# Time is 1370000 : ResetN = 1   PC_Out = 0016   IR_Out = ce81  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1390000 : ResetN = 1   PC_Out = 0017   IR_Out = 6e2c  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1410000 : ResetN = 1   PC_Out = 0017   IR_Out = 6e2c  State = 7  ALU A = ed01  ALU B = 0002 ALU Out = ed2c  RA Address = 1110
+# Time is 1430000 : ResetN = 1   PC_Out = 0017   IR_Out = 6e2c  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1450000 : ResetN = 1   PC_Out = 0018   IR_Out = 7eee  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1470000 : ResetN = 1   PC_Out = 0018   IR_Out = 7eee  State = 7  ALU A = ed2c  ALU B = ed2c ALU Out = ed2c  RA Address = 1110
+# Time is 1490000 : ResetN = 1   PC_Out = 0018   IR_Out = 7eee  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1510000 : ResetN = 1   PC_Out = 0019   IR_Out = 11e0  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1530000 : ResetN = 1   PC_Out = 0019   IR_Out = 11e0  State = 4  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1550000 : ResetN = 1   PC_Out = 0019   IR_Out = 11e0  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1570000 : ResetN = 1   PC_Out = 001a   IR_Out = 2340  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1590000 : ResetN = 1   PC_Out = 001a   IR_Out = 2340  State = 5  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1610000 : ResetN = 1   PC_Out = 001a   IR_Out = 2340  State = 6  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1630000 : ResetN = 1   PC_Out = 001a   IR_Out = 2340  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1650000 : ResetN = 1   PC_Out = 001b   IR_Out = 234e  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1670000 : ResetN = 1   PC_Out = 001b   IR_Out = 234e  State = 5  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1690000 : ResetN = 1   PC_Out = 001b   IR_Out = 234e  State = 6  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1710000 : ResetN = 1   PC_Out = 001b   IR_Out = 234e  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1730000 : ResetN = 1   PC_Out = 001c   IR_Out = 6e10  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1750000 : ResetN = 1   PC_Out = 001c   IR_Out = 6e10  State = 7  ALU A = ed2c  ALU B = 0100 ALU Out = ed10  RA Address = 1110
+# Time is 1770000 : ResetN = 1   PC_Out = 001c   IR_Out = 6e10  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1790000 : ResetN = 1   PC_Out = 001d   IR_Out = 34ee  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1810000 : ResetN = 1   PC_Out = 001d   IR_Out = 34ee  State = 7  ALU A = 0000  ALU B = ed10 ALU Out = ed10  RA Address = 0100
+# Time is 1830000 : ResetN = 1   PC_Out = 001d   IR_Out = 34ee  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1850000 : ResetN = 1   PC_Out = 001e   IR_Out = 23e0  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1870000 : ResetN = 1   PC_Out = 001e   IR_Out = 23e0  State = 5  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1890000 : ResetN = 1   PC_Out = 001e   IR_Out = 23e0  State = 6  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1910000 : ResetN = 1   PC_Out = 001e   IR_Out = 23e0  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1930000 : ResetN = 1   PC_Out = 001f   IR_Out = 6e10  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1950000 : ResetN = 1   PC_Out = 001f   IR_Out = 6e10  State = 7  ALU A = ed10  ALU B = 0100 ALU Out = ed10  RA Address = 1110
+# Time is 1970000 : ResetN = 1   PC_Out = 001f   IR_Out = 6e10  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 1990000 : ResetN = 1   PC_Out = 0020   IR_Out = 44ee  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2010000 : ResetN = 1   PC_Out = 0020   IR_Out = 44ee  State = 7  ALU A = 0000  ALU B = ed10 ALU Out = 12f0  RA Address = 0100
+# Time is 2030000 : ResetN = 1   PC_Out = 0020   IR_Out = 44ee  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2050000 : ResetN = 1   PC_Out = 0021   IR_Out = 23e0  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2070000 : ResetN = 1   PC_Out = 0021   IR_Out = 23e0  State = 5  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2090000 : ResetN = 1   PC_Out = 0021   IR_Out = 23e0  State = 6  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2110000 : ResetN = 1   PC_Out = 0021   IR_Out = 23e0  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2130000 : ResetN = 1   PC_Out = 0022   IR_Out = 6e00  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2150000 : ResetN = 1   PC_Out = 0022   IR_Out = 6e00  State = 7  ALU A = 12f0  ALU B = 0000 ALU Out = 1200  RA Address = 1110
+# Time is 2170000 : ResetN = 1   PC_Out = 0022   IR_Out = 6e00  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2190000 : ResetN = 1   PC_Out = 0023   IR_Out = 23e0  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2210000 : ResetN = 1   PC_Out = 0023   IR_Out = 23e0  State = 5  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2230000 : ResetN = 1   PC_Out = 0023   IR_Out = 23e0  State = 6  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2250000 : ResetN = 1   PC_Out = 0023   IR_Out = 23e0  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2270000 : ResetN = 1   PC_Out = 0024   IR_Out = 6e02  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2290000 : ResetN = 1   PC_Out = 0024   IR_Out = 6e02  State = 7  ALU A = 1200  ALU B = 0000 ALU Out = 1202  RA Address = 1110
+# Time is 2310000 : ResetN = 1   PC_Out = 0024   IR_Out = 6e02  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2330000 : ResetN = 1   PC_Out = 0025   IR_Out = 23e0  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2350000 : ResetN = 1   PC_Out = 0025   IR_Out = 23e0  State = 5  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2370000 : ResetN = 1   PC_Out = 0025   IR_Out = 23e0  State = 6  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2390000 : ResetN = 1   PC_Out = 0025   IR_Out = 23e0  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2410000 : ResetN = 1   PC_Out = 0026   IR_Out = 6e01  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2430000 : ResetN = 1   PC_Out = 0026   IR_Out = 6e01  State = 7  ALU A = 1202  ALU B = 0000 ALU Out = 1201  RA Address = 1110
+# Time is 2450000 : ResetN = 1   PC_Out = 0026   IR_Out = 6e01  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2470000 : ResetN = 1   PC_Out = 0027   IR_Out = ce81  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2490000 : ResetN = 1   PC_Out = 0027   IR_Out = ce81  State = 7  ALU A = 1201  ALU B = 0000 ALU Out = 0100  RA Address = 1110
+# Time is 2510000 : ResetN = 1   PC_Out = 0027   IR_Out = ce81  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2530000 : ResetN = 1   PC_Out = 0028   IR_Out = 6e2c  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2550000 : ResetN = 1   PC_Out = 0028   IR_Out = 6e2c  State = 7  ALU A = 1201  ALU B = 0002 ALU Out = 122c  RA Address = 1110
+# Time is 2570000 : ResetN = 1   PC_Out = 0028   IR_Out = 6e2c  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2590000 : ResetN = 1   PC_Out = 0029   IR_Out = 7eee  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2610000 : ResetN = 1   PC_Out = 0029   IR_Out = 7eee  State = 7  ALU A = 122c  ALU B = 122c ALU Out = 122c  RA Address = 1110
+# Time is 2630000 : ResetN = 1   PC_Out = 0029   IR_Out = 7eee  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2650000 : ResetN = 1   PC_Out = 002a   IR_Out = 44ee  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2670000 : ResetN = 1   PC_Out = 002a   IR_Out = 44ee  State = 7  ALU A = 0000  ALU B = 122c ALU Out = edd4  RA Address = 0100
+# Time is 2690000 : ResetN = 1   PC_Out = 002a   IR_Out = 44ee  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2710000 : ResetN = 1   PC_Out = 002b   IR_Out = 23e0  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2730000 : ResetN = 1   PC_Out = 002b   IR_Out = 23e0  State = 5  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2750000 : ResetN = 1   PC_Out = 002b   IR_Out = 23e0  State = 6  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2770000 : ResetN = 1   PC_Out = 002b   IR_Out = 23e0  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2790000 : ResetN = 1   PC_Out = 002c   IR_Out = 2e10  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2810000 : ResetN = 1   PC_Out = 002c   IR_Out = 2e10  State = 5  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2830000 : ResetN = 1   PC_Out = 002c   IR_Out = 2e10  State = 6  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2850000 : ResetN = 1   PC_Out = 002c   IR_Out = 2e10  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2870000 : ResetN = 1   PC_Out = 002d   IR_Out = 1e20  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2890000 : ResetN = 1   PC_Out = 002d   IR_Out = 1e20  State = 4  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2910000 : ResetN = 1   PC_Out = 002d   IR_Out = 1e20  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2930000 : ResetN = 1   PC_Out = 002e   IR_Out = 2e10  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2950000 : ResetN = 1   PC_Out = 002e   IR_Out = 2e10  State = 5  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2970000 : ResetN = 1   PC_Out = 002e   IR_Out = 2e10  State = 6  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 2990000 : ResetN = 1   PC_Out = 002e   IR_Out = 2e10  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3010000 : ResetN = 1   PC_Out = 002f   IR_Out = 1e20  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3030000 : ResetN = 1   PC_Out = 002f   IR_Out = 1e20  State = 4  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3050000 : ResetN = 1   PC_Out = 002f   IR_Out = 1e20  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3070000 : ResetN = 1   PC_Out = 0030   IR_Out = 2e11  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3090000 : ResetN = 1   PC_Out = 0030   IR_Out = 2e11  State = 5  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3110000 : ResetN = 1   PC_Out = 0030   IR_Out = 2e11  State = 6  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3130000 : ResetN = 1   PC_Out = 0030   IR_Out = 2e11  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3150000 : ResetN = 1   PC_Out = 0031   IR_Out = 1e21  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3170000 : ResetN = 1   PC_Out = 0031   IR_Out = 1e21  State = 4  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3190000 : ResetN = 1   PC_Out = 0031   IR_Out = 1e21  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3210000 : ResetN = 1   PC_Out = 0032   IR_Out = 2e12  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3230000 : ResetN = 1   PC_Out = 0032   IR_Out = 2e12  State = 5  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3250000 : ResetN = 1   PC_Out = 0032   IR_Out = 2e12  State = 6  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3270000 : ResetN = 1   PC_Out = 0032   IR_Out = 2e12  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3290000 : ResetN = 1   PC_Out = 0033   IR_Out = 1e22  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3310000 : ResetN = 1   PC_Out = 0033   IR_Out = 1e22  State = 4  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3330000 : ResetN = 1   PC_Out = 0033   IR_Out = 1e22  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3350000 : ResetN = 1   PC_Out = 0034   IR_Out = 3125  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3370000 : ResetN = 1   PC_Out = 0034   IR_Out = 3125  State = 7  ALU A = 0100  ALU B = 0002 ALU Out = 0102  RA Address = 0001
+# Time is 3390000 : ResetN = 1   PC_Out = 0034   IR_Out = 3125  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3410000 : ResetN = 1   PC_Out = 0035   IR_Out = 4516  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3430000 : ResetN = 1   PC_Out = 0035   IR_Out = 4516  State = 7  ALU A = 0102  ALU B = 0100 ALU Out = 0002  RA Address = 0101
+# Time is 3450000 : ResetN = 1   PC_Out = 0035   IR_Out = 4516  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3470000 : ResetN = 1   PC_Out = 0036   IR_Out = 7129  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3490000 : ResetN = 1   PC_Out = 0036   IR_Out = 7129  State = 7  ALU A = 0100  ALU B = 0002 ALU Out = 0102  RA Address = 0001
+# Time is 3510000 : ResetN = 1   PC_Out = 0036   IR_Out = 7129  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3530000 : ResetN = 1   PC_Out = 0037   IR_Out = 812a  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3550000 : ResetN = 1   PC_Out = 0037   IR_Out = 812a  State = 7  ALU A = 0100  ALU B = 0002 ALU Out = 0000  RA Address = 0001
+# Time is 3570000 : ResetN = 1   PC_Out = 0037   IR_Out = 812a  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3590000 : ResetN = 1   PC_Out = 0038   IR_Out = c12b  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3610000 : ResetN = 1   PC_Out = 0038   IR_Out = c12b  State = 7  ALU A = 0100  ALU B = 0000 ALU Out = 0400  RA Address = 0001
+# Time is 3630000 : ResetN = 1   PC_Out = 0038   IR_Out = c12b  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3650000 : ResetN = 1   PC_Out = 0039   IR_Out = 021c  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3670000 : ResetN = 1   PC_Out = 0039   IR_Out = 021c  State = 7  ALU A = 0002  ALU B = 0000 ALU Out = 0001  RA Address = 0010
+# Time is 3690000 : ResetN = 1   PC_Out = 0039   IR_Out = 021c  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3710000 : ResetN = 1   PC_Out = 003a   IR_Out = d12d  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3730000 : ResetN = 1   PC_Out = 003a   IR_Out = d12d  State = 7  ALU A = 0100  ALU B = 0002 ALU Out = 0200  RA Address = 0001
+# Time is 3750000 : ResetN = 1   PC_Out = 003a   IR_Out = d12d  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3770000 : ResetN = 1   PC_Out = 003b   IR_Out = 841e  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3790000 : ResetN = 1   PC_Out = 003b   IR_Out = 841e  State = 7  ALU A = 0000  ALU B = 0100 ALU Out = 0000  RA Address = 0100
+# Time is 3810000 : ResetN = 1   PC_Out = 003b   IR_Out = 841e  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3830000 : ResetN = 1   PC_Out = 003c   IR_Out = 6201  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3850000 : ResetN = 1   PC_Out = 003c   IR_Out = 6201  State = 7  ALU A = 0002  ALU B = 0000 ALU Out = 0001  RA Address = 0010
+# Time is 3870000 : ResetN = 1   PC_Out = 003c   IR_Out = 6201  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3890000 : ResetN = 1   PC_Out = 003d   IR_Out = ce1e  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3910000 : ResetN = 1   PC_Out = 003d   IR_Out = ce1e  State = 7  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 1110
+# Time is 3930000 : ResetN = 1   PC_Out = 003d   IR_Out = ce1e  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3950000 : ResetN = 1   PC_Out = 003e   IR_Out = 3412  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 3970000 : ResetN = 1   PC_Out = 003e   IR_Out = 3412  State = 7  ALU A = 0000  ALU B = 0100 ALU Out = 0100  RA Address = 0100
+# Time is 3990000 : ResetN = 1   PC_Out = 003e   IR_Out = 3412  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4010000 : ResetN = 1   PC_Out = 003f   IR_Out = 42e2  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4030000 : ResetN = 1   PC_Out = 003f   IR_Out = 42e2  State = 7  ALU A = 0100  ALU B = 0000 ALU Out = 0100  RA Address = 0010
+# Time is 4050000 : ResetN = 1   PC_Out = 003f   IR_Out = 42e2  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4070000 : ResetN = 1   PC_Out = 0040   IR_Out = e120  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4090000 : ResetN = 1   PC_Out = 0040   IR_Out = e120  State = 8  ALU A = 0100  ALU B = 0100 ALU Out = 0000  RA Address = 0001
+# Time is 4110000 : ResetN = 1   PC_Out = 0040   IR_Out = e120  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4130000 : ResetN = 1   PC_Out = 0041   IR_Out = e30f  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4150000 : ResetN = 1   PC_Out = 0041   IR_Out = e30f  State = f  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4170000 : ResetN = 1   PC_Out = 0041   IR_Out = e30f  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4190000 : ResetN = 1   PC_Out = 0042   IR_Out = e41f  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4210000 : ResetN = 1   PC_Out = 0042   IR_Out = e41f  State = f  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4230000 : ResetN = 1   PC_Out = 0042   IR_Out = e41f  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4250000 : ResetN = 1   PC_Out = 0043   IR_Out = e52f  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4270000 : ResetN = 1   PC_Out = 0043   IR_Out = e52f  State = f  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4290000 : ResetN = 1   PC_Out = 0043   IR_Out = e52f  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4310000 : ResetN = 1   PC_Out = 0044   IR_Out = e63f  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4330000 : ResetN = 1   PC_Out = 0044   IR_Out = e63f  State = f  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4350000 : ResetN = 1   PC_Out = 0044   IR_Out = e63f  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4370000 : ResetN = 1   PC_Out = 0045   IR_Out = e74f  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4390000 : ResetN = 1   PC_Out = 0045   IR_Out = e74f  State = f  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4410000 : ResetN = 1   PC_Out = 0045   IR_Out = e74f  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4430000 : ResetN = 1   PC_Out = 0046   IR_Out = e85f  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4450000 : ResetN = 1   PC_Out = 0046   IR_Out = e85f  State = f  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4470000 : ResetN = 1   PC_Out = 0046   IR_Out = e85f  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4490000 : ResetN = 1   PC_Out = 0047   IR_Out = 6101  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4510000 : ResetN = 1   PC_Out = 0047   IR_Out = 6101  State = 7  ALU A = 0100  ALU B = 0000 ALU Out = 0101  RA Address = 0001
+# Time is 4530000 : ResetN = 1   PC_Out = 0047   IR_Out = 6101  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4550000 : ResetN = 1   PC_Out = 0048   IR_Out = a102  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4570000 : ResetN = 1   PC_Out = 0048   IR_Out = a102  State = b  ALU A = 0101  ALU B = 0101 ALU Out = 0101  RA Address = 0001
+# Time is 4590000 : ResetN = 1   PC_Out = 0048   IR_Out = a102  State = c  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4610000 : ResetN = 1   PC_Out = 004a   IR_Out = a102  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4630000 : ResetN = 1   PC_Out = 004b   IR_Out = 6201  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4650000 : ResetN = 1   PC_Out = 004b   IR_Out = 6201  State = 7  ALU A = 0100  ALU B = 0000 ALU Out = 0101  RA Address = 0010
+# Time is 4670000 : ResetN = 1   PC_Out = 004b   IR_Out = 6201  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4690000 : ResetN = 1   PC_Out = 004c   IR_Out = b121  State = 2  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# Time is 4710000 : ResetN = 1   PC_Out = 004c   IR_Out = b121  State = d  ALU A = 0101  ALU B = 0101 ALU Out = 0000  RA Address = 0001
+# Time is 4730000 : ResetN = 1   PC_Out = 004c   IR_Out = b121  State = e  ALU A = 0101  ALU B = 0101 ALU Out = 0000  RA Address = 0001
+# Time is 4750000 : ResetN = 1   PC_Out = 004c   IR_Out = b121  State = 1  ALU A = 0000  ALU B = 0000 ALU Out = 0000  RA Address = 0000
+# 
+# End of Simulation.
+# 
+# ** Note: $stop    : ./Project/testProcessor.sv(33)
+#    Time: 4770 ns  Iteration: 2  Instance: /testProcessor
+# Break in Module testProcessor at ./Project/testProcessor.sv line 33
+# Stopped at ./Project/testProcessor.sv line 33
+# puts "Simulation run complete; stopping ModelSim session."
+# stop
+# quit -sim -force
+# End time: 11:08:09 on Sep 05,2026, Elapsed time: 0:00:05
+# Errors: 0, Warnings: 2
+# 
+# show full waveform
+# wave zoomfull
+# wave zoomfull not supported in batch mode
+# 
+# end
