@@ -73,25 +73,30 @@
       ANDI rA, rB, imm/label (rA = rB & immediate)
           -> pseudo-instruction: MOVI ASM_TMP, immediate; AND rA, rB, ASM_TMP
 
-      JMP offset/LABEL (PC = PC + soff12)
-          -> 1001 bbbb bbbb bbbb  (signed 12-bit PC-relative offset)
+      JMP LABEL/absolute_address (PC = full 16-bit target)
+          -> pseudo-instruction: load the target address, then write it to PC
+      JMP +offset/-offset (PC = PC + soff12)
+          -> 1001 bbbb bbbb bbbb  (explicit signed 12-bit PC-relative offset)
       JMP rA (optional pseudo-form: PC = RF[rA])
           -> copies the register value into the PC register
       JNZ rA, rB, soff4 (PC = RF[rB] + soff4 if RF[rA] != 0)
           -> 1010 raaa rbbb bbbb
-      JLT rA, rB, offset (PC = PC + offset if rA < rB)
-          -> 1011 raaa rbbb bbbb    (4-bit signed offset relative to next instr)
+      JNZ rA, LABEL/absolute_address (conditional full 16-bit target)
+          -> pseudo-instruction: load the target, then use native JNZ with offset zero
+      JLT rA, rB, +offset/-offset (PC = PC + offset if rA < rB)
+          -> 1011 raaa rbbb bbbb    (explicit signed 4-bit offset)
+      JLT rA, rB, LABEL/absolute_address (conditional full 16-bit target)
+          -> pseudo-instruction: CMP/SETGE guard, then full-address jump
       JZ rA, rB (jump to the 16-bit address in RF[rB] if rA == R0)
-      JZ rA, soff8 (jump PC-relative by an 8-bit offset if rA == R0)
       JZ rA, LABEL (jump to the 16-bit address LABEL if rA == R0)
           -> pseudo-instruction: CMP rA, R0; SETNE R14; skip the target transfer when unequal
-             Register targets use JMP rB; offsets use JMP soff8; labels load the full address into R13, then use JMP R13.
+             Register targets write the register to PC; absolute targets load the full address into R13.
       JEQ rA, rB_or_imm, label (branch if rA == rB_or_imm)
       JNE rA, rB_or_imm, label (branch if rA != rB_or_imm)
       JLE rA, rB_or_imm, label (branch if signed rA <= rB_or_imm)
       JGT rA, rB_or_imm, label (branch if signed rA > rB_or_imm)
       JGE rA, rB_or_imm, label (branch if signed rA >= rB_or_imm)
-          -> pseudo-instructions: CMP, SETcc, and conditional JNZ via ASM_TMP
+          -> pseudo-instructions: CMP/SETcc guard, then a full-address jump
 
       CMP rA, rB (capture Z, N, and V from signed rA - rB)
           -> 1110 raaa rbbb 0000
@@ -120,11 +125,10 @@
           -> pseudo-ins
 
 
-    The assembler supports labels for PC-relative control flow and computes relative offsets
-    as: offset = target_address - (current_address + 1).
-    - JMP label uses a signed 12-bit offset (-2048..+2047).
-    - JLT label uses a signed 4-bit offset (-8..+7).
-    - JZ immediate offsets use the 8-bit range (-128..255); JZ labels are full 16-bit absolute addresses.
+    Labels and bare numeric jump targets are full 16-bit absolute instruction addresses.
+    Explicit +offset/-offset operands select compact relative encodings:
+    - JMP uses a signed 12-bit offset (-2048..+2047).
+    - JLT and low-level JNZ use signed 4-bit offsets (-8..+7).
 */
 
 //DEFINES: aliases for all instructions in the ISA
@@ -505,6 +509,64 @@ static int resolve_any_label(const unordered_map<string,int> &instr_labels,
     throw runtime_error("unknown label: " + token);
 }
 
+
+//filter for jump offsets relative to PC
+static bool is_explicit_relative(const string &token) {
+    return !token.empty() && (token[0] == '+' || token[0] == '-');
+}
+
+//parse an absolute address jump
+static int parse_absolute_target(const unordered_map<string,int> &instr_labels,
+                                 const unordered_map<string,int> &data_labels,
+                                 const string &token) {
+    int target = 0;
+    if (instr_labels.find(token) != instr_labels.end())
+        target = instr_labels.at(token);
+    else if (data_labels.find(token) != data_labels.end())
+        throw runtime_error("data label used where instruction label is required: " + token);
+    else
+        target = parse_number(token);
+    if (target < 0 || target > 65535)
+        throw runtime_error("absolute jump target out of range (0..65535)");
+    return target;
+}
+
+//return the number of words used by an absolute jump
+static int absolute_jump_word_count() {
+    return 5;
+}
+
+//emit an absolute address jump
+static void emit_absolute_jump(vector<uint16_t> &words,
+                               int target,
+                               int &addr,
+                               vector<string> *comments,
+                               const string &comment) {
+    emit_load_imm(words, PC - 2, target, addr, comments, comment, true);
+    words.push_back(encode_alu(ins_and, PC - 2, PC - 2, PC));
+    if (comments) comments->push_back(comment);
+    addr++;
+}
+
+//emit pseudoinstructions for conditional jumps
+static void emit_conditional_guard(vector<uint16_t> &words,
+                                   int compare_reg,
+                                   int right_reg,
+                                   int false_condition,
+                                   int skip_words,
+                                   int &addr,
+                                   vector<string> *comments,
+                                   const string &comment) {
+    words.push_back((ins_cmp_set<<12) | (compare_reg<<8) | (right_reg<<4));
+    if (comments) comments->push_back(comment);
+    words.push_back((ins_cmp_set<<12) | (ASM_TMP<<8) |
+                    (false_condition<<4) | 0xF);
+    if (comments) comments->push_back(comment);
+    words.push_back((ins_jnz<<12) | (ASM_TMP<<8) | (PC<<4) | skip_words);
+    if (comments) comments->push_back(comment);
+    addr += 3;
+}
+
 //estimates the amount of instructions generated per pseudoinstruction, to keep label addresses accurate.
 static int estimate_instr_words(const vector<string> &tokens,
                                 const unordered_map<string,int> &instr_labels,
@@ -530,8 +592,8 @@ static int estimate_instr_words(const vector<string> &tokens,
             return 4;
         } catch (...) {
             try {
-                int value = parse_number(tokens[2]);
-                return (value >= -128 && value <= 255) ? 4 : 1;
+                parse_number(tokens[2]);
+                return is_explicit_relative(tokens[2]) ? 4 : 8;
             } catch (...) {
                 return 8;
             }
@@ -539,12 +601,33 @@ static int estimate_instr_words(const vector<string> &tokens,
     }
     if ((op == "JEQ" || op == "JNE" || op == "JLE" ||
          op == "JGT" || op == "JGE") && tokens.size() >= 4) {
+        int target_words = is_explicit_relative(tokens[3]) ? 3 :
+                   absolute_jump_word_count() + 3;
         try {
             int value = parse_number(tokens[2]);
-            return (value >= 0 && value <= 255) ? 4 : 7;
+            return target_words + immediate_word_count(value);
         } catch (...) {
-            return 3;
+            return target_words;
         }
+    }
+    if (op == "JMP" && tokens.size() >= 2) {
+        try {
+            parse_reg(tokens[1]);
+            return 1;
+        } catch (...) {
+            return is_explicit_relative(tokens[1]) ? 1 : absolute_jump_word_count();
+        }
+    }
+    if (op == "JNZ" && tokens.size() >= 3) {
+        try {
+            parse_reg(tokens[2]);
+            return 1;
+        } catch (...) {
+            return absolute_jump_word_count();
+        }
+    }
+    if (op == "JLT" && tokens.size() >= 4) {
+        return is_explicit_relative(tokens[3]) ? 1 : 8;
     }
     if ((op == "ADDI" || op == "SUBI" || op == "ORI" || op == "ANDI" || op == "MULTI") && tokens.size() >= 4) {
         int value = 0;
@@ -963,55 +1046,41 @@ int main(int argc, char** argv) {
 
                 if (op == "JZ") {
                     int compare_reg = parse_reg(tokens[1]);
-                    int skip_words = 1;
                     int target_reg = 0;
-                    bool target_is_reg = false;
-                    bool target_is_label = false;
-                    int target_value = 0;
 
                     try {
                         target_reg = parse_reg(tokens[2]);
-                        target_is_reg = true;
-                    } catch (...) {
-                        if (instr_labels.find(tokens[2]) != instr_labels.end()) {
-                            target_is_label = true;
-                            target_value = instr_labels[tokens[2]];
-                            skip_words = 5;
-                        } else if (data_labels.find(tokens[2]) != data_labels.end()) {
-                            throw runtime_error("data label used where instruction label is required: " + tokens[2]);
-                        } else {
-                            target_value = parse_number(tokens[2]);
-                            if (target_value < -128 || target_value > 255)
-                                throw runtime_error("JZ offset out of range (-128..255)");
-                        }
-                    }
-
-                    // Skip the transfer when compare_reg is not zero.
-                    push_word((ins_cmp_set<<12) | (compare_reg<<8) | (reg_zero<<4));
-                    push_word((ins_cmp_set<<12) | (ASM_TMP<<8) | (2<<4) | 0xF);
-                    push_word((ins_jnz<<12) | (ASM_TMP<<8) | (PC<<4) | skip_words);
-
-                    if (target_is_reg) {
+                        // compare to zero register and jump if equal
+                        emit_conditional_guard(words, compare_reg, reg_zero, 2, 1,
+                                               addr, &word_comments, rawline);
                         instr = encode_alu(ins_and, target_reg, target_reg, PC);
                         push_word(instr);
-                        addr += 4;
-                    } else if (target_is_label) {
-                        emit_load_imm(words, ASM_TMP - 1, target_value, addr, &word_comments, rawline, true);
-                        instr = encode_alu(ins_and, ASM_TMP - 1, ASM_TMP - 1, PC);
-                        push_word(instr);
-                        addr += 5;
-                    } else {
-                        if (target_value < -128 || target_value > 255)
-                            throw runtime_error("JZ offset out of range (-128..255)");
-                        instr = (ins_jmp<<12) | ((uint16_t)target_value & 0x0FFF);
-                        push_word(instr);
-                        addr += 4;
+                        addr++;
+                    } catch (...) {
+                        //while JZ can explicitly jump to any address, relative jumps are limited still. 
+                        //I'd like to make it so the ISA underlying supports only absolute register (address space length) jumps,
+                        //and reduce relative jumps to a compile-time calculated absolute jump, but I cannot say for sure how this
+                        //fares with PIC. it should work fine as this is past the compile time and in static code.
+                        if (is_explicit_relative(tokens[2])) {
+                            int offset = parse_number(tokens[2]);
+                            if (offset < -2048 || offset > 2047)
+                                throw runtime_error("JZ relative offset out of range (-2048..2047)");
+                            emit_conditional_guard(words, compare_reg, reg_zero, 2, 1,
+                                                   addr, &word_comments, rawline);
+                            push_word((ins_jmp<<12) | ((uint16_t)offset & 0x0FFF));
+                            addr++;
+                        } else {
+                            int target = parse_absolute_target(instr_labels, data_labels, tokens[2]);
+                            emit_conditional_guard(words, compare_reg, reg_zero, 2,
+                                                   absolute_jump_word_count(), addr,
+                                                   &word_comments, rawline);
+                            emit_absolute_jump(words, target, addr, &word_comments, rawline);
+                        }
                     }
                     continue;
                 }
 
                 int left = parse_reg(tokens[1]);
-                int condition = 1;
                 int right = reg_zero;
                 try {
                     right = parse_reg(tokens[2]);
@@ -1022,23 +1091,27 @@ int main(int argc, char** argv) {
                     emit_load_imm(words, ASM_TMP, value & 0xFFFF, addr, &word_comments, rawline);
                     right = ASM_TMP;
                 }
-                if (op=="JEQ" || op=="JZ") condition = 1;
-                else if (op=="JNE") condition = 2;
-                else if (op=="JLE") condition = 3;
-                else if (op=="JGT") condition = 4;
-                else condition = 5;
-
-                push_word((ins_cmp_set<<12) | (left<<8) | (right<<4));
-                push_word((ins_cmp_set<<12) | (ASM_TMP<<8) | (condition<<4) | 0xF);
-                const string &label = tokens[3];
-                if (instr_labels.find(label) == instr_labels.end())
-                    throw runtime_error("instruction label required for " + op);
-                int branch_addr = addr + 2;
-                int offset = instr_labels[label] - (branch_addr + 1);
-                if (offset < -8 || offset > 7)
-                    throw runtime_error(op + " target out of JNZ range (-8..7)");
-                push_word((ins_jnz<<12) | (ASM_TMP<<8) | (PC<<4) | (offset & 0xF));
-                addr += 3;
+                //these smaller instructions are split first into jumps within their relative range
+                int condition = op == "JEQ" ? 1 : op == "JNE" ? 2 :
+                                op == "JLE" ? 3 : op == "JGT" ? 4 : 5;
+                if (is_explicit_relative(tokens[3])) {
+                    int offset = parse_number(tokens[3]);
+                    if (offset < -8 || offset > 7)
+                        throw runtime_error(op + " relative offset out of range (-8..7)");
+                    push_word((ins_cmp_set<<12) | (left<<8) | (right<<4));
+                    push_word((ins_cmp_set<<12) | (ASM_TMP<<8) | (condition<<4) | 0xF);
+                    push_word((ins_jnz<<12) | (ASM_TMP<<8) | (PC<<4) | (offset & 0xF));
+                    addr += 3;
+                //and then into jumps beyond their range, which are encoded as cmp->jmp pseudoinstructions.
+                } else {
+                    int false_condition = condition == 1 ? 2 : condition == 2 ? 1 :
+                                          condition == 3 ? 4 : condition == 4 ? 3 : 0;
+                    int target = parse_absolute_target(instr_labels, data_labels, tokens[3]);
+                    emit_conditional_guard(words, left, right, false_condition,
+                                           absolute_jump_word_count(), addr,
+                                           &word_comments, rawline);
+                    emit_absolute_jump(words, target, addr, &word_comments, rawline);
+                }
                 continue;
 
             //STR: store register through variable addressing
@@ -1343,87 +1416,72 @@ int main(int argc, char** argv) {
                 instr = encode_alu(ins_and, rb, rc, ra);
 
 
-            //JMP: signed PC-relative jump using 12-bit immediate/label offset
-            //      or an optional pseudo-form that copies a register value into the PC register.
+            //JMP: full-width absolute label/number, explicit relative offset, or register target.
             } else if (op=="JMP") {
 
                 if (tokens.size()<2) throw runtime_error("JMP expects OFFSET_OR_LABEL_OR_REGISTER");
-
-                if (instr_labels.find(tokens[1]) != instr_labels.end()) {
-                    int target = instr_labels[tokens[1]];
-                    int offset = target - (addr + 1);
-                    if (offset < -2048 || offset > 2047) {
-                        cerr << "Warning at instruction " << addr
-                             << ": JMP offset out of range (-2048..2047); emitting HLT -> '"
-                             << rawline << "'\n";
-                        instr = (ins_hlt<<12);
-                    } else {
-                        instr = (ins_jmp<<12) | ((uint16_t)offset & 0x0FFF);
-                    }
-                } else if (data_labels.find(tokens[1]) != data_labels.end()) {
-                    throw runtime_error("data label used where instruction label is required: " + tokens[1]);
-                } else {
-                    try {
+                //try to parse the operand as a register first; if that fails, check for relative offset or absolute target
+                try {
+                    int reg = parse_reg(tokens[1]);
+                    instr = encode_alu(ins_and, reg, reg, PC);
+                } catch (...) {
+                    if (is_explicit_relative(tokens[1])) {
                         int offset = parse_number(tokens[1]);
-                        if (offset < -2048 || offset > 2047) {
-                            cerr << "Warning at instruction " << addr
-                                 << ": JMP offset out of range (-2048..2047); emitting HLT -> '"
-                                 << rawline << "'\n";
-                            instr = (ins_hlt<<12);
-                        } else {
-                            instr = (ins_jmp<<12) | ((uint16_t)offset & 0x0FFF);
-                        }
-                    } catch (const invalid_argument&) {
-                        try {
-                            int reg = parse_reg(tokens[1]);
-                            // Pseudo-jump via ALU writeback format: RF[rc] = RF[ra] & RF[rb].
-                            // Set ra=reg, rb=reg, rc=PC so PC receives reg's value.
-                            instr = encode_alu(ins_and, reg, reg, PC);
-                        } catch (...) {
-                            throw runtime_error("unknown instruction label or jump target: " + tokens[1]);
-                        }
-                    } catch (const out_of_range&) {
-                        cerr << "Warning at instruction " << addr
-                             << ": JMP offset out of range (-2048..2047); emitting HLT -> '"
-                             << rawline << "'\n";
-                        instr = (ins_hlt<<12);
+                        if (offset < -2048 || offset > 2047)
+                            throw runtime_error("JMP relative offset out of range (-2048..2047)");
+                        instr = (ins_jmp<<12) | ((uint16_t)offset & 0x0FFF);
+                    } else {
+                        int target = parse_absolute_target(instr_labels, data_labels, tokens[1]);
+                        emit_absolute_jump(words, target, addr, &word_comments, rawline);
+                        continue;
                     }
                 }
 
 
-            //JNZ: if RF[rA] != 0 then jump to RF[rB] + signed 4-bit offset
+            //JNZ: register-base relative form, or a full-width absolute target form.
             } else if (op=="JNZ") {
 
-                if (tokens.size() < 3 || tokens.size() > 4) throw runtime_error("JNZ expects RA,RB[,OFFSET4]");
-
+                if (tokens.size() < 3 || tokens.size() > 4) throw runtime_error("JNZ expects RA,RB (,OFFSET4)");
+                
+                //JNZ can either be a register-based relative jump or a full-width absolute jump
                 int ra = parse_reg(tokens[1]);
-                int rb = parse_reg(tokens[2]);
-                int offset = 0;
-                if (tokens.size() == 4) {
-                    offset = parse_offset4(tokens[3]);
+                if (tokens.size() == 3) {
+                    try {
+                        int rb = parse_reg(tokens[2]);
+                        instr = (ins_jnz<<12) | (ra<<8) | (rb<<4);
+                    } catch (...) {
+                        int target = parse_absolute_target(instr_labels, data_labels, tokens[2]);
+                        emit_load_imm(words, PC - 2, target, addr, &word_comments, rawline, true);
+                        instr = (ins_jnz<<12) | (ra<<8) | ((PC - 2)<<4);
+                        push_word(instr);
+                        addr++;
+                        continue;
+                    }
+                } else {
+                    int rb = parse_reg(tokens[2]);
+                    int offset = parse_offset4(tokens[3]);
+                    instr = (ins_jnz<<12) | (ra<<8) | (rb<<4) | ((uint16_t)offset & 0xF);
                 }
 
-                instr = (ins_jnz<<12) | (ra<<8) | (rb<<4) | ((uint16_t)offset & 0xF);
-
-            //JLT: conditional signed less-than branch using signed 4-bit PC-relative offset
+            //JLT: explicit relative form, or a full-width absolute target form.
             } else if (op=="JLT") {
 
                 if (tokens.size()<4) throw runtime_error("JLT expects RA,RB,OFFSET_OR_LABEL");
                 int ra = parse_reg(tokens[1]);
                 int rb = parse_reg(tokens[2]);
-                int offset = 0;
-                // offset can be numeric or label
-                if (instr_labels.find(tokens[3])!=instr_labels.end()) {
-                    int target = instr_labels[tokens[3]];
-                    offset = target - (addr + 1);
-                } else if (data_labels.find(tokens[3])!=data_labels.end()) {
-                    throw runtime_error("data label used where instruction label is required: " + tokens[3]);
+                //try to parse the offset as an explicit relative value first; if that fails, treat it as an absolute target
+                if (is_explicit_relative(tokens[3])) {
+                    int offset = parse_number(tokens[3]);
+                    if (offset < -8 || offset > 7) throw runtime_error("JLT relative offset out of range (-8..7)");
+                    uint16_t ob = (uint16_t)(offset & 0xF);
+                    instr = (ins_jlt<<12) | (ra<<8) | (rb<<4) | ob;
                 } else {
-                    offset = parse_number(tokens[3]);
+                    int target = parse_absolute_target(instr_labels, data_labels, tokens[3]);
+                    emit_conditional_guard(words, ra, rb, 5, absolute_jump_word_count(),
+                                           addr, &word_comments, rawline);
+                    emit_absolute_jump(words, target, addr, &word_comments, rawline);
+                    continue;
                 }
-                if (offset < -8 || offset > 7) throw runtime_error("JLT offset out of range (-8..7)");
-                uint16_t ob = (uint16_t)(offset & 0xF);
-                instr = (ins_jlt<<12) | (ra<<8) | (rb<<4) | ob;
 
             // SHL: shifts rb left by a 4-bit immediate into ra
             } else if (op=="SHL") {

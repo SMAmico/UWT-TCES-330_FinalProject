@@ -83,8 +83,8 @@ The opcode is `IR_data[15:12]`.
 | `7` | `OR` | Bitwise OR |
 | `8` | `AND` | Bitwise AND; `AND R0,R0,R0` is the NOP encoding |
 | `9` | `JMP` | PC-relative jump using a signed 12-bit offset |
-| `A` | `JNZ` | PC-relative jump using a signed 4-bit offset when the selected value is nonzero |
-| `B` | `JLT` | PC-relative jump using signed less-than (`N ^ V`) |
+| `A` | `JNZ` | Conditional jump to `RF[B] +` signed 4-bit offset when `RF[A] != 0` |
+| `B` | `JLT` | PC-relative signed-less-than jump using a signed 4-bit offset |
 | `C` | `SHL` | Shift A left by the immediate shift amount |
 | `D` | `MULT` | Multiply two register values |
 | `E` | `CMP/SETcc` | Capture comparison flags or write a conditional Boolean |
@@ -98,6 +98,13 @@ The datapath ALU select `Alu_s0` uses the same ordering as the FSM:
 registers. `SETcc` consumes those stored flags and writes `0000` or `0001`;
 conditions `SETLT`, `SETEQ`, `SETNE`, `SETLE`, `SETGT`, and `SETGE` use codes
 `0` through `5`.
+
+The top-level assembler treats jump labels and bare numeric jump targets as
+full 16-bit absolute instruction addresses. It materializes those targets with
+the existing `MOVI`/`SHL`/`MOVI`/`OR` sequence and writes the result to `PC`
+through the ALU path. Explicit `+offset`/`-offset` operands retain the compact
+native relative encodings. Conditional pseudo-jumps use a short condition guard
+followed by the same full-address transfer.
 
 ## Memory interfaces
 
